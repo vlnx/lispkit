@@ -9,5 +9,9 @@
   :maintainer "Nyx"
   :description "A webkit interface" 
   :serial t
-  :depends-on (:swank :cl-cffi-gtk :cl-webkit #+sbcl :sb-posix)
-  :components ((:file "lispkit")))
+  :depends-on (:swank
+               :gtk-cffi
+               ;; :cl-webkit
+               #+sbcl :sb-posix)
+  :components ((:file "webkit")
+               (:file "lispkit" :depends-on (webkit))))

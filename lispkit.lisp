@@ -1,5 +1,8 @@
 (defpackage :lispkit
-  (:use :cl :gtk)
+  (:use #:common-lisp
+        #:cffi-objects #:g-object-cffi
+        :gtk-cffi
+        :webkit-binding)
   (:shadow #:yes-or-no-p #:y-or-n-p))
 (in-package :lispkit)
 (export '(lispkit))
@@ -31,28 +34,29 @@
 ;; LISPKIT> (gobject:set-gobject-property (gobject:pointer (gobject:get-gobject-property (first *views*) "window-features")) "scrollbar-visible" nil)
 ;; LISPKIT> (gobject:get-gobject-property (webkit.foreign:webkit-web-view-get-main-frame (first *views*)) "vertical-scrollbar-policy")
 
-(defun change-settings (view opts)
-  "Supply a view pointer. Use that to change it by the given settings.
-Must supply valid props"
-  (let ((settings-pointer (webkit.foreign:webkit-web-settings-new)))
-    (mapcar (lambda (setting-list-item)
-              (let ((property (first setting-list-item))
-                    (value (second setting-list-item)))
-                (gobject:set-gobject-property settings-pointer property
-                                              value)))
-            opts)
-    (webkit.foreign:webkit-web-view-set-settings view settings-pointer)))
+;; (defun change-settings (view opts)
+;;   "Supply a view pointer. Use that to change it by the given settings.
+;; Must supply valid props"
+;;   (let ((settings-pointer (webkit.foreign:webkit-web-settings-new)))
+;;     (mapcar (lambda (setting-list-item)
+;;               (let ((property (first setting-list-item))
+;;                     (value (second setting-list-item)))
+;;                 (gobject:set-gobject-property settings-pointer property
+;;                                               value)))
+;;             opts)
+;;     (webkit.foreign:webkit-web-view-set-settings view settings-pointer)))
+
 (defun webview-new (uri)
   "Returns a webview with the default settings"
-  (let ((view (webkit.foreign:webkit-web-view-new)))
-    (change-settings view
-                     '(("enable-plugins" nil)
-                       ("enable-webgl" t)))
-      ;; FIXME: Kill scrollbars
-      ;; (gtk:gtk-scrolled-window-set-policy
-      ;;  scrolled ;; (webkit.foreign:webkit-web-view-get-main-frame view)
-      ;;  :never :never)
-    (webkit.foreign:webkit-web-view-load-uri view uri)
+  (let ((view (webkit-web-view-new)))
+    ;; (change-settings view
+    ;;                  '(("enable-plugins" nil)
+    ;;                    ("enable-webgl" t)))
+    ;; FIXME: Kill scrollbars
+    ;; (gtk:gtk-scrolled-window-set-policy
+    ;;  scrolled ;; (webkit.foreign:webkit-web-view-get-main-frame view)
+    ;;  :never :never)
+    (webkit-web-view-load-uri view uri)
     (push view *views*) ;; or *ui-views*
     view))
 
@@ -61,31 +65,65 @@ Must supply valid props"
 ;; LISPKIT> (gobject:create-gobject-from-pointer (webkit.foreign:webkit-web-view-get-main-frame (first *views*)))
 ;; LISPKIT> (gobject:g-type-parent (gobject:g-type-parent (gobject:g-type-from-instance (first *views*))))
 
+;; (defun win ()
+;;   "Open up the gtk window"
+;;   (within-main-loop
+;;     (let ((window (make-instance 'gtk-window
+;;                                  :type :toplevel
+;;                                  :title "LispKit"
+;;                                  :default-height 600
+;;                                  :default-width 800
+;;                                  :has-resize-grip nil
+;;                                  :resize-grip-visible nil))
+;;           (notebook (make-instance 'gtk-notebook))
+;;           (scrolled (make-instance 'gtk-scrolled-window
+;;                                    :border-width 0
+;;                                    :hscrollbar-policy :never
+;;                                    :vscrollbar-policy :never)))
+;;       (gobject:g-signal-connect window "destroy"
+;;                                 (lambda (widget)
+;;                                   (declare (ignore widget))
+;;                                   (leave-gtk-main)))
+;;       (gtk-container-add scrolled 
+;;           (webview-new *uri-homepage*))
+;;       (gtk-notebook-append-page notebook scrolled nil)
+;;       (gtk-container-add window notebook)
+;;       (gtk-widget-show-all window))))
+
 (defun win ()
   "Open up the gtk window"
-  (within-main-loop
-    (let ((window (make-instance 'gtk-window
-                                 :type :toplevel
-                                 :title "LispKit"
-                                 :default-height 600
-                                 :default-width 800
-                                 :has-resize-grip nil
-                                 :resize-grip-visible nil))
-          (notebook (make-instance 'gtk-notebook))
-          (scrolled (make-instance 'gtk-scrolled-window
-                                   :border-width 0
-                                   :hscrollbar-policy :never
-                                   :vscrollbar-policy :never)))
-      (gobject:g-signal-connect window "destroy"
-                                (lambda (widget)
-                                  (declare (ignore widget))
-                                  (leave-gtk-main)))
-      (gtk-container-add scrolled 
-          (webview-new *uri-homepage*))
-      (gtk-notebook-append-page notebook scrolled nil)
-      (gtk-container-add window notebook)
-      (gtk-widget-show-all window))))
+  (gtk-init)
+  (let ((win (gtk-model 'window
+                        :width 800
+                        :height 600
+                        :title "LispKit"
+                        :signals '(:destroy :gtk-main-quit)))
+        (scrolled-win (make-instance 'scrolled-window)))
 
+    (add scrolled-win
+         (make-instance 'widget :pointer (webview-new *uri-homepage*)))
+
+;;     (setf (policy scrolled-win) '(:never :never))
+;;     (add win scrolled-win)
+
+    (show win)
+    (gtk-main)))
+
+      ;;                            ;; :has-resize-grip nil
+      ;;                            ;; :resize-grip-visible nil))
+      ;;     (scrolled (make-instance 'gtk-scrolled-window
+      ;;                              :border-width 0
+      ;;                              :hscrollbar-policy :never
+      ;;                              :vscrollbar-policy :never)))
+      ;; (gobject:g-signal-connect window "destroy"
+      ;;                           (lambda (widget)
+      ;;                             (declare (ignore widget))
+      ;;                             (leave-gtk-main)))
+      ;; (gtk-container-add scrolled 
+      ;;     (webview-new *uri-homepage*))
+      ;; (gtk-notebook-append-page notebook scrolled nil)
+      ;; (gtk-container-add window notebook)
+      ;; (gtk-widget-show-all window))))
 
 
 
@@ -93,6 +131,7 @@ Must supply valid props"
 (defun lispkit-internal ()
   "The main function run by starting the image"
   (write-line "Hello World")
+  ;; (write-line (webkit-binding:webkit-major-version))
   ;; (win)*
   ;; (sleep 100)
   ;; HACK: to keep the swank server open
