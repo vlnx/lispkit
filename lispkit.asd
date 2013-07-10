@@ -14,4 +14,6 @@
                ;; :cl-webkit
                #+sbcl :sb-posix)
   :components ((:file "webkit")
-               (:file "lispkit" :depends-on (webkit))))
+               (:file "package" :depends-on (webkit))
+               (:file "window" :depends-on (package))
+               (:file "lispkit" :depends-on (package))))
