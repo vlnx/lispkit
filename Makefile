@@ -1,2 +1,2 @@
 image:
-	sbcl --load ./make-image.lisp
+	sbcl --load ./system/make-image.lisp
