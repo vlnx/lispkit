@@ -26,52 +26,45 @@
   (:unix "libwebkitgtk-3.0.so"))
 (use-foreign-library libwebkit)  
 
-;; From webkitversion.h
-;; (defcfun "webkit_major_version" :uint)
-;; (export 'webkit-major-version)
-
-;; Note: `defcfun` takes the C function name, the return value, the arguments
-;; and makes a lispifyed function that calles the C function
-
-;; From webkitwebview.h
-(defcfun "webkit_web_view_new" pobject)
-
-(defcfun "webkit_web_view_get_main_frame" pobject
-  (view pobject))
-
-;; For javascript evaluation context
-(defcfun "webkit_web_frame_get_global_context" :pointer
-  (frame pobject))
+;; WebKitWebView
+(defclass webkit-webview (widget) ())
+(defcfun "webkit_web_view_new" :pointer)
+(defmethod gconstructor ((webkit-webview webkit-webview) &key &allow-other-keys)
+    (webkit-web-view-new))
 
 (defcfun "webkit_web_view_load_uri" :void
   (view pobject)
   (uri c-string))
 
-;; -------~-------~--~------------------~------
-;; Settings FIXME: maybe define g-object as a pointer type
-;; -------~-------~--~------------------~------
-;; (defcfun "webkit_web_settings_new" pobject) ;; Default settings object
-;; WEBKIT-BINDING> (property (make-instance 'g-object :pointer (webkit-web-settings-new)) :enable-plugins)
-
-;; Retrive settings pointer, translate it to a g-object to allow editing
-(defcfun ("webkit_web_view_get_settings"
-          %webkit-web-view-get-settings) pobject
+(defcfun "webkit_web_view_get_main_frame" pobject
   (view pobject))
-(defun webkit-web-view-get-settings (view)
-  (make-instance 'g-object
-                 :pointer (%webkit-web-view-get-settings view)))
 
-;; Set settings pointer, translate from g-object
-(defcfun ("webkit_web_view_set_settings"
-          %webkit-web-view-set-settings) :void
+;; WebKitWebFrame
+(defcfun "webkit_web_frame_load_alternate_string" :void
+  (frame pobject)
+  (content-string c-string)
+  (base-uri c-string)
+  (base-uri2 c-string))
+;; For javascript evaluation context
+(defcfun "webkit_web_frame_get_global_context" :pointer
+  (frame pobject))
+
+;; -------~-------~--~------------------~------
+;; WebKitWebSettings
+;; -------~-------~--~------------------~------
+
+(defclass webkit-settings (g-object) ())
+(defcfun "webkit_web_view_get_settings" :pointer
+  (view pobject))
+(defmethod gconstructor ((webkit-settings webkit-settings) &key view)
+    (webkit-web-view-get-settings view))
+(defcfun "webkit_web_view_set_settings" :void
   (view pobject)
   (settings pobject))
-(defun webkit-web-view-set-settings (view settings)
-    (%webkit-web-view-set-settings view (pointer settings)))
 
 (defun webview-change-settings (view opts)
   "Given a view pointer and opts, change the settings of the view"
-  (let ((settings (webkit-web-view-get-settings view)))
+  (let ((settings (make-instance 'webkit-settings :view view)))
     (flet ((set-prop (i)
              (setf (property settings (first i))
                    (second i))))
@@ -88,6 +81,15 @@
 
 (defcfun "webkit_network_request_get_uri" c-string
   (request :pointer))
+
+(defcenum load-status-enum
+  :webkit-load-provisional
+  :webkit-load-committed
+  :webkit-load-finished
+  :webkit-load-first-visually-non-empty-layout
+  :webkit-load-failed)
+(defcfun "webkit_web_view_get_load_status" load-status-enum
+  (view pobject))
 
 
 ;; (export '(webview-new

@@ -10,14 +10,22 @@
   :description "A webkit interface" 
   :depends-on (:swank
                :gtk-cffi
+               :cl-json
+               :cl-ppcre
                #+sbcl :sb-posix)
   :serial t
   :components ((:file "package")
+               (:file "utils")
+               (:file "patch-gtk3-main-loop")
 
-               (:file "backend/soup")
-               (:file "backend/webkit")
+               (:file "cffi/soup")
+               (:file "cffi/webkit")
+               (:file "cffi/js")
 
-               (:file "interface/tabs")
-               (:file "interface/window")
+               (:file "core/primitives")
+               (:file "core/transcompiler")
+               (:file "core/views")
+               (:file "core/keys")
+               (:file "core/window")
 
-               (:file "system/lispkit")))
+               (:file "image/lispkit")))
