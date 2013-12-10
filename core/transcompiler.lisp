@@ -1,16 +1,14 @@
 (in-package :lispkit)
 
-(defun string-to-symbol (str) (intern (string-upcase str)))
-
-(defun tc/compile (comp in out)
-  "'comp' is the transcompiler name
-'in' is an input stream
-'out' in an output stream"
-  (let* ((item (getf *transcompilers* (as-keyword comp)))
+(defun tc/compile (compiler-symbol &key stdin file stdout)
+  (let* ((item (getf *transcompilers* (as-keyword compiler-symbol)))
          (l (if (stringp item) (ppcre:split "\\s+" item) item)))
-    (sb-ext:run-program (car l) (cdr l)
-                        :input in
-                        :output out)))
+    (if stdin
+        (sb-ext:run-program (car l) (cdr l)
+                            :input stdin
+                            :output stdout)
+        (sb-ext:run-program (car l) (append (cdr l) (list file))
+                            :output stdout))))
 
 (defun tc/get-cached-location (filepath)
   (concatenate 'string *lispkit-cache-dir*
@@ -41,29 +39,37 @@ eles return nil"
 Make a cache file for next time
 Return the complied string" 
   (let ((content (with-output-to-string (output)
-                   (with-open-file (in source)
-                     (tc/compile kind in output)))))
-    (with-open-file (out (tc/get-cached-location source)
-                         :direction :output :if-exists :supersede)
-      ;; (format out "~a~%" content))
-    (write content :stream out :escape nil))
-    content))
-    ;; (string-right-trim '(#\Newline) content)))
+                   (if (eq kind 'browserify-coffee)
+                       (tc/compile kind :file source :stdout output)
+                       (with-open-file (in source)
+                         (tc/compile kind :stdin in :stdout output))))))
+        (with-open-file (out (tc/get-cached-location source)
+                             :direction :output :if-exists :supersede)
+          ;; (format out "~a~%" content))
+          (write content :stream out :escape nil))
+        content))
+;; (string-right-trim '(#\Newline) content)))
 ;; FIXME: this output needs to be the same as file-content-to-string
 
 ;; Transcompiler declares the type to use, transcomile infers from file type
 (defun transcompiler (tc-type &key string file)
   (if string
-     (with-output-to-string (out)
-       (with-input-from-string (in string)
-         (tc/compile (string-to-symbol tc-type) in out)))
-     (let ((ret (tc/cache file)))
-       (if ret
-           (tc/file-content-to-string ret)
-           (tc/compile-cached tc-type file)))))
+      (with-output-to-string (output)
+        (with-input-from-string (in string)
+          (tc/compile (as-symbol tc-type) :stdin in :stdout output)))
+      (let ((ret (tc/cache file)))
+        (if ret
+            (tc/file-content-to-string ret)
+            (tc/compile-cached tc-type file)))))
 
 (defun transcompile (&key file string type)
   "Infer from the file type otherwise just pass string and type on"
   (if file
-      (transcompiler (string-to-symbol (pathname-type (pathname file))) :file file)
+      (transcompiler (as-symbol (pathname-type (pathname file))) :file file)
       (transcompiler type :string string)))
+
+
+;; Todo: make browserify mode
+;; must use a file, use the real file, don't open a separate input stream for it
+;; ret conent
+;; (defun tc/browserify (coffee-file) 

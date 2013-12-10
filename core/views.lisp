@@ -1,30 +1,119 @@
 (in-package :lispkit)
 
+
+
+;; (bordeaux-threads:destroy-thread *main-thread*)
+;; (setf *main-thread* nil)
+
 ;; (setf *chrome-tabs* '(:html
 ;; (transcompile :type 'jade :string "doctype 5")
 
-(defun apply-ui-css (view css)
-  (js-eval-webview view
-                   ;; Maybe escape with ' and \n -> \\n, rather than coffee
-                   (transcompiler 'coffeescript :string (format nil "document.getElementsByTagName('style')[0].innerHTML = '''~a'''"
-                                                                css))
-                   :source nil :want-return nil))
+(defun ui-scheme-p (uri)
+  (ppcre:scan-to-strings "^ui://" uri))
+(defun ui-symbol-to-uri (symbol)
+  (concatenate 'string "ui://" (string-downcase (symbol-name symbol))))
+(defun ui-scheme-uri-to-symbol (uri)
+  (as-symbol (ppcre:regex-replace "^ui://" uri "")))
+
+;; (ui-content 'status 'html)
+(defun ui-content (element type)
+  "Take a symbol name of a ui element, and the type of content needed
+Return the transcompiled file content"
+  (let ((file (concatenate 'string *ui-dir*
+                           (symbol-to-string element)
+                           (case type
+                             (html ".jade")
+                             (css ".stylus")
+                             (js ".coffee")))))
+    (if (probe-file file)
+        (transcompile :file file)
+        (error "needed file doesn't exist"))))
+
+(defcallback lisp-from-js/LispFunc :pointer
+  ((context :pointer)
+   (function :pointer)
+   (this-object :pointer)
+   (argument-count :int)
+   (arguments :pointer)
+   (exception :pointer))
+  (declare (ignore function this-object argument-count arguments execption))
+  (print "Hello from javascript in lisp")
+  (finish-output)
+  (js-value-make-undefined context))
+(defcallback lisp-from-js/loadPage :pointer
+  ((context :pointer)
+   (function :pointer)
+   (this-object :pointer)
+   (argument-count :int)
+   (arguments :pointer)
+   (exception :pointer))
+  (declare (ignore function this-object execption))
+  (print "Hello from javascript in lisp")
+      ;; (print (mem-aptr arguments :pointer 0))
+  ;; (finish-output)
+  (print argument-count)
+  (if (= argument-count 1)
+      (print (js-result-to-string context (mem-aptr arguments :pointer 1)))
+      (print "no/more argument"))
+  (finish-output)
+  (js-value-make-undefined context))
+
+(defun ui-update (element &rest opts)
+  "Take an element of the iterface with any number of arguments, eval what
+needs to be done"
+  (case element
+    (js-init (let* ((symbol (ui-scheme-uri-to-symbol (car opts)))
+                    (view (getf *ui-views* (as-keyword symbol))))
+               (print opts)
+
+               ;; Register exported functions
+               (js-export-function view "LispFunc" (callback lisp-from-js/LispFunc))
+               ;; Fuck; FIXME:  don't have open in lisp, export page changeing to js
+               (js-export-function view "loadPage" (callback lisp-from-js/loadPage))
+
+               (js-eval-webview view 
+                                (transcompiler 'browserify-coffee
+                                               :file "/home/***REMOVED***/dev/lispkit/core/ui/deps.coffee"))
+               (js-eval-webview view (ui-content symbol 'js))))
+    (css (let* ((symbol (ui-scheme-uri-to-symbol (car opts)))
+                (view (getf *ui-views* (as-keyword symbol))))
+           (js-eval-webview view
+                            ;;(transcompiler 'coffee :string ;; Maybe escape with ' and \n -> \\n, rather than coffee
+                            ;; NOTE: also escape \'
+                            (ppcre:regex-replace-all "\\n"
+                                                     (format nil "console.log('style');document.getElementsByTagName('style')[0].innerHTML = '~a'"
+                                                             (ui-content symbol 'css))
+                                                     "\\n"))))
+    (prompt-send-key (js-eval-webview (getf *ui-views* :status)
+                     (format nil "prompt.sendKey('~a');" (first (last opts)))))
+    (prompt-enter (js-eval-webview (getf *ui-views* :status)
+                     (format nil "prompt.open('~a');" (first (last opts)))))
+    (prompt-leave (js-eval-webview (getf *ui-views* :status)
+                 "prompt.close();"))
+    (passthrough (js-eval-webview (getf *ui-views* :status)
+                   (if *keys-passthrough*
+                       "statusbar.passthrough(true);"
+                       "statusbar.passthrough(false);")))
+    (uri (js-eval-webview
+                 (getf *ui-views* :status)
+                 (format nil "statusbar.updateUri('~a');" 
+                         (or (if (stringp (car opts))
+                                 (or (car opts)
+                                     (property (car opts) :uri)))
+                             "about:blank"))))))
 
 (defcallback notify-load-status :void
     ((view pobject))
-  (if (eq (webkit-web-view-get-load-status view)
-          :webkit-load-first-visually-non-empty-layout)
-      (let ((uri (property view :uri)))
-        (apply-ui-css view (transcompile :file (concatenate 'string *ui-dir* "tabs.stylus")))
-        (js-eval-webview view (transcompiler 'coffeescript :file (concatenate 'string *ui-dir* "tabs.coffee"))
-                         :source uri :want-return nil)
-        (js-eval-webview view (format nil "window.updateUri('~a');" uri)
-                         :source uri :want-return nil)))
-        ;; (print "body{background-color:#f00}\n")))
-        ;; (apply-ui-css view "body{background-color:#f00}\n")))
-        ;; (js-eval-webview view (transcompiler 'coffeescript :string "alert 'hello'") :source uri :want-return nil)))
-  ;; (print (webkit-web-view-get-load-status view)))
-  )
+  (let ((status (webkit-web-view-get-load-status view)))
+    (if (eq status :webkit-load-first-visually-non-empty-layout)
+        (let ((uri (property view :uri)))
+          (if (ui-scheme-p uri)
+              (mapcar (lambda (lang) (ui-update lang uri))
+                      '(js-init css)))))
+    (if (or (eq status :webkit-load-committed)
+            (eq status :webkit-load-finished))
+        ;; This may be called too much for the same uri
+        (ui-update 'uri (property view :uri)))))
 
 (defcallback navigation-request :boolean
     ((source-view pobject)
@@ -32,16 +121,19 @@
      (request :pointer)
      (action :pointer)
      (policy :pointer))
-  ;; (declare (ignore widget))
-  (let ((uri (webkit-network-request-get-uri request)))
-    (if (or (string= uri "ui://status") (string= uri "ui://tabs"))
-        (progn
-          (webkit-web-frame-load-alternate-string
-           source-frame
-           (transcompile :file (concatenate 'string *ui-dir* "tabs.jade"))
-           uri uri)
-          (setf (gsignal source-view "notify::load-status")
-                (callback notify-load-status)))))
+  (declare (ignore action policy))
+  (let ((uri (property 
+              (make-instance 'g-object :pointer request)
+              :uri)))
+
+    (if (ui-scheme-p uri)
+        (webkit-web-frame-load-alternate-string
+         source-frame
+         (ui-content (ui-scheme-uri-to-symbol uri) 'html)
+         uri uri)))
+
+  (setf (gsignal source-view "notify::load-status")
+        (callback notify-load-status))
   nil)
 
 ;; (defcallback notify-title :void
@@ -54,10 +146,10 @@
 (defun webview-new (uri)
   "returns a webview with your uri and settings"
   (let ((view (make-instance 'webkit-webview)))
-    (webview-change-settings view
-                             '((:enable-plugins nil)
-                               (:enable-scripts nil)
-                               (:user-agent "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:21.0) Gecko/20100101 Firefox/21.0")))
+    ;; (webview-change-settings view
+    ;;                          '((:enable-plugins nil)
+    ;;                            (:enable-scripts nil)
+    ;;                            (:user-agent "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:21.0) Gecko/20100101 Firefox/21.0")))
     ;; (setf (property (webkit-get-default-session) :proxy-uri)
     ;;       (soup-uri-new "http://127.0.0.1:8123/"))
     (setf (gsignal view "navigation-policy-decision-requested")
@@ -74,8 +166,6 @@
     view))
 
 
-(defun ui-symbol-to-uri (symbol)
-  (concatenate 'string "ui://" (string-downcase (symbol-name symbol))))
 
 (defun ui-new-view (ui-element-symbol)
   "Take a symbol of the ui element
@@ -87,5 +177,7 @@ Convert it to a keyword to set the view instance"
 
 ;; (require :lispkit)(in-package :lispkit)
 ;; (win)
-;; (within-main-loop
-;; (js-eval-webview (getf *ui-views* :status) "window.updateUri('worked')" :source nil :want-return nil))
+;; within-main-loop
+;; (ui-update 'uri nil)
+
+;; DONE: as the page changes, update status bar's uri

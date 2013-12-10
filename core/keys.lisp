@@ -1,46 +1,32 @@
 (in-package :lispkit)
 
-(defun alert ()
-  (js-eval-webview view ;; FIXME:
-                   ;; "alert('hello');"
-                   (transcompiler 'coffeescript :string "alert 'from coffee'")
-                   :source "ui://tabs" :want-return nil))
-
-;; returning true stops propagation of the event
-(defcallback on-key-press :boolean ((widget :pointer) (event :pointer))
-                  (declare (ignore widget))
-                  ;; (print (gdk-cffi::parse-event event :hardware-keycode))
-                  (let ((key (keyval-name (gdk-cffi::parse-event event :keyval))))
-                    (if (string= (string key) "a")
-                        (alert)))
-                  t)
-(defcallback on-key-release :boolean ((widget :pointer) (event :pointer))
-                  (declare (ignore widget event))
-;; If modifer remove that state
-                  t)
+(setf *active-maps* '(*top-map*))
+(defvar *top-map* (make-kmap))
+(defvar *map-prompt* (make-kmap))
 
 
+(defmacro defkey (map key-str args &body body)
+  `(define-key ,map (kbd ,key-str)
+     (lambda ,args
+       ,@body)))
 
-;; NOTE: Basicly got this for now, will need to build modes,keywaps, and modifires pressed already
-;; check out gtk-cffi/cl-emacs/{main,keymap}.lisp
-;; (defun xev-lisp ()
-;;   "Key press testing"
-;;   (gtk-init)
-;;   (let* ((win (make-instance 'window
-;;                              :width 200 :height 200
-;;                              :title "Keys"
-;;                              :has-resize-grip nil
-;;                              :signals '(:destroy :gtk-main-quit))))
+(defkey *top-map* "a" (v)
+  (webkit-web-view-load-uri v "http://www.example.com"))
+(defkey *top-map* "A" (v)
+  (webkit-web-view-load-uri v "http://www.duckduckgo.com"))
 
-;;     (cffi:defcallback on-key :boolean ((widget :pointer) (event :pointer))
-;;       (declare (ignore widget))
-;;       ;; (print (gdk-cffi::parse-event event :hardware-keycode))
-;;       (print (gdk-cffi::parse-event event :keyval))
-;;       ;; (print "key")
-;;       t)
-;;     (setf (gsignal win "key-press-event")
-;;           (cffi:callback on-key))
-    
+(defkey *top-map* "j" (v)
+    (js-eval-webview v "window.alert('Scroll down');"))
+(defkey *top-map* "k" (v)
+    (js-eval-webview v "window.alert('Scroll Up');"))
 
-;;     (show win :all t)
-;;     (gtk-main)))
+(defkey *top-map* ";" (v)
+  (setf *active-maps* '(*map-prompt*))
+  (ui-update 'prompt-enter ""))
+(defkey *map-prompt* "ESC" (v)
+  (setf *active-maps* '(*top-map*))
+  (ui-update 'prompt-leave))
+
+(defkey *top-map* "o" (v)
+  (setf *active-maps* '(*map-prompt*))
+  (ui-update 'prompt-enter "open"))

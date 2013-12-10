@@ -16,12 +16,25 @@
         :cffi-objects :g-object-cffi
         :webkit-binding))
 
+;; (ql:quickload :bordeaux-threads)
+(defpackage :gtk-cffi+threads
+  (:use #:common-lisp
+        #:cffi-objects #:g-object-cffi
+        :cffi ;; defcallback
+        #:bordeaux-threads
+        :gtk-cffi)
+  (:export
+   #:gdk-threads-init
+   #:within-main-loop
+   #:leave-gtk-main))
+
 (defpackage :lispkit
   (:use #:common-lisp
         #:cffi-objects #:g-object-cffi
         :cffi ;; defcallback
         :gtk-cffi
-        :gdk-cffi ;; keys
+        :gtk-cffi+threads
+        ;; :gdk-cffi ;; keys
         :cl-json
         :js-binding
         :webkit-binding)

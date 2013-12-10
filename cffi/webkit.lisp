@@ -4,23 +4,8 @@
 
 ;; (progn (require :lispkit)(in-package :lispkit))
 
+
 (in-package :webkit-binding)
-
-
-;; http://common-lisp.net/project/cffi/manual/cffi-manual.html#Defining-Foreign-Types
-(define-foreign-type cffi-string ()
-  ((encoding :reader string-type-encoding :initarg :encoding))
-  (:actual-type :pointer))
-(define-parse-method c-string (&key (encoding :utf-8))
-  (make-instance 'cffi-string :encoding encoding))
-(defmethod translate-to-foreign (string (type cffi-string))
-  (foreign-string-alloc string :encoding (string-type-encoding type)))
-(defmethod translate-from-foreign (pointer (type cffi-string))
-    (foreign-string-to-lisp pointer :encoding (string-type-encoding type)))
-(defmethod free-translated-object (pointer (type cffi-string) param)
-    (declare (ignore param))
-    (foreign-string-free pointer))
-
 
 (define-foreign-library libwebkit
   (:unix "libwebkitgtk-3.0.so"))
@@ -79,8 +64,9 @@
   (make-instance 'g-object
                  :pointer (%webkit-get-default-session)))
 
-(defcfun "webkit_network_request_get_uri" c-string
-  (request :pointer))
+;; (defcfun "webkit_network_request_get_uri" c-string
+;;   (request :pointer))
+
 
 (defcenum load-status-enum
   :webkit-load-provisional
@@ -89,6 +75,9 @@
   :webkit-load-first-visually-non-empty-layout
   :webkit-load-failed)
 (defcfun "webkit_web_view_get_load_status" load-status-enum
+  (view pobject))
+
+(defcfun "webkit_web_view_get_uri" c-string
   (view pobject))
 
 

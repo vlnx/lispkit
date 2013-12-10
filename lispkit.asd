@@ -10,6 +10,7 @@
   :description "A webkit interface" 
   :depends-on (:swank
                :gtk-cffi
+               :bordeaux-threads
                :cl-json
                :cl-ppcre
                #+sbcl :sb-posix)
@@ -18,6 +19,7 @@
                (:file "utils")
                (:file "patch-gtk3-main-loop")
 
+               (:file "cffi/types")
                (:file "cffi/soup")
                (:file "cffi/webkit")
                (:file "cffi/js")
@@ -25,7 +27,10 @@
                (:file "core/primitives")
                (:file "core/transcompiler")
                (:file "core/views")
+               (:file "core/keysyms")
+               (:file "core/keypress")
                (:file "core/keys")
+               ;; (:file "core/tabs")
                (:file "core/window")
 
                (:file "image/lispkit")))

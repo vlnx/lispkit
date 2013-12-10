@@ -5,8 +5,8 @@
 ;; they could take the pwd of the command, but for browserify it takes the 
 ;; /dev/stdin psuduo file
 (defvar *transcompilers*
-  '(:coffeescript "/usr/local/bin/coffee --stdio --print --bare"
-    :browserify-coffee ("/usr/local/bin/browserify" "--command" "coffee -sc" "--debug" "/dev/stdin")
+  '(:coffee "/usr/local/bin/coffee --stdio --print --bare"
+    :browserify-coffee "/usr/local/bin/browserify --transform coffeeify --debug" ;;needs file
     :jade "/usr/local/bin/jade --pretty"
     :stylus "/usr/local/bin/stylus --compress")
   "plist of compiler names to std{in,out} accepting commands")
@@ -26,3 +26,6 @@
 
 (defvar *views* '()
   "A list of active tab instances")
+
+(defvar *uri-homepage* "http://10.1.7.1/startpage/index.html"
+  "The homepage uri to load by default")

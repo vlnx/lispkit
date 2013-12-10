@@ -78,7 +78,7 @@
 ;;                                          :script "console.log('Printed');'hello ret';"
 ;;                                          :source "ui://tabs"))))
 
-(defun js-eval-webview (view script &key (source "") want-return)
+(defun js-eval-webview (view script &key (source "") (want-return nil))
   (let* ((context (webkit-web-frame-get-global-context
                    (webkit-web-view-get-main-frame view)))
          (result (js-eval-script :context context
@@ -87,15 +87,174 @@
     (if want-return
         (js-result-to-string context result))))
 
-(defun testing ()
-  "Automatic context for testing"
-  (gtk-init)
-  (js-eval-webview (make-instance 'widget :pointer (webkit-web-view-new))
-                   "console.log('Printed');'hello ret';"
-                   ;; :source "ui://tabs" :want-return t))
-                   :source nil :want-return t))
+;; (defun testing ()
+;;   "Automatic context for testing"
+;;   (gtk-init)
+;;   (js-eval-webview (make-instance 'widget :pointer (webkit-web-view-new))
+;;                    "console.log('Printed');'hello ret';"
+;;                    ;; :source "ui://tabs" :want-return t))
+;;                    :source nil :want-return t))
 
-(export '(js-eval-webview))
-;; Export all functions
-;; (let ((pack (find-package :soup-binding)))
-;;   (do-all-symbols (sym pack) (when (eql (symbol-package sym) pack) (export sym))))
+
+;; /usr/include/webkitgtk-3.0/JavaScriptCore/JSObjectRef.h
+
+;; (defcstruct js-static-function
+;;   (name :string)
+;;   (func :pointer)
+;;   (property-attributes :int))
+;; ;; JSClassDefinition
+;; (defcstruct js-class-definition
+;;   (version :int)
+;;   (attributes :int) ;enum
+;;   (class-name :string)
+;;   (parent-class :pointer)
+;;   (static-values :pointer)
+;;   (static-funcs :pointer) ;; Array contain two js-static-function's, last one null
+;;   (initialize :pointer)
+;;   (finalize :pointer)
+;;   (has-property :pointer)
+;;   (get-property :pointer)
+;;   (set-property :pointer)
+;;   (delete-property :pointer)
+;;   (get-property-names :pointer)
+;;   (call-as-function :pointer)
+;;   (call-as-constructor :pointer)
+;;   (has-instance :pointer)
+;;   (convert-to-type :pointer))
+;; (defcfun ("JSClassCreate" js-class-create) :pointer
+;;   (js-class-definition :pointer))
+;; (defcfun ("JSClassRelease" js-free-class) :void
+;;   (class :pointer))
+(defcfun ("JSObjectMake" js-object-make) :pointer
+  (context :pointer)
+  (class-def :pointer)
+  (context-scope :pointer))
+(defcfun ("JSContextGetGlobalObject" js-context-get-global-object) :pointer
+  (context :pointer))
+(defcfun ("JSObjectSetProperty" js-object-set-property) :void
+  (context :pointer)
+  (object :pointer)
+  (property-name :pointer)
+  (value :pointer)
+  (attributes :int)
+  (execption :pointer))
+(defcfun ("JSObjectHasProperty" js-object-has-property) :boolean
+  (context :pointer)
+  (object :pointer)
+  (property-name :pointer))
+(defcfun ("JSObjectGetProperty" js-object-get-property) :pointer
+  (context :pointer)
+  (object :pointer)
+  (property-name :pointer)
+  (execption :pointer))
+(defcfun ("JSObjectMakeFunctionWithCallback" js-object-make-from-function) :pointer
+  (context :pointer)
+  (name :pointer)
+  (func :pointer))
+
+(defun js-export-function (view function-name callback-pointer)
+  "Register a function in lisp/C to a javascript context. 
+In the javascript context the function is within the global object 'Exported'" ;; TODO:
+  (let* ((context (webkit-web-frame-get-global-context
+                   (webkit-web-view-get-main-frame view)))
+         (global-object (js-context-get-global-object context))
+         (global-property-name (js-create-string 
+                                (convert-to-foreign "Exported" :string)))
+         (property-name (js-create-string 
+                         (convert-to-foreign function-name :string))))
+    
+    ;; If property 'Exported' does not exist in the global context
+    (unless (js-object-has-property context global-object global-property-name)
+      ;; Set the property 'Exported' of the global context to a new empty object
+      (js-object-set-property
+       context
+       global-object
+       global-property-name
+       (js-object-make context (null-pointer) (null-pointer))
+       0 (null-pointer)))
+
+    ;; Set a property within the global context's 'Exported' object
+    (js-object-set-property
+     context
+     (js-object-get-property context global-object global-property-name (null-pointer))
+     property-name
+     (js-object-make-from-function context property-name callback-pointer)
+     0 (null-pointer))
+
+    ;; Manual clean up
+    (mapcar #'js-free-string (list property-name global-property-name))))
+
+(defcfun ("JSValueMakeUndefined" js-value-make-undefined) :pointer
+  (context :pointer))
+
+(export '(js-eval-webview js-export-function js-value-make-undefined js-result-to-string))
+
+;; (defun js-export-function (view function-name callback-pointer)
+;;   "Register a function in lisp/C to a javascript context. 
+;; In the javascript context the function is within the global object 'Exported'" ;; TODO:
+;;   (let* ((context (webkit-web-frame-get-global-context
+;;                    (webkit-web-view-get-main-frame view)))
+;;          (global-object (js-context-get-global-object context))
+;;          (property-name-c (convert-to-foreign function-name :string))
+;;          (property-name (js-create-string property-name-c))
+;;          js-class
+;;          property-value)
+;;       (print "ttt")
+;;     ;; (with-foreign-objects ((class-def '(:struct js-class-definition))
+;;     ;;                        ;; (static-func '(:struct js-static-function))
+;;     ;;                        ;; (static-func-null '(:struct js-static-function))
+;;     ;;                        ;; (arr :pointer 2))
+;;     (with-foreign-object (class-def '(:struct js-class-definition))
+;;       (print "sss")
+;;     ;;   (setf
+;;     ;;    ;; Main function
+;;     ;;    ;; (foreign-slot-value static-func '(:struct js-static-function) 'name) property-name
+;;     ;;    ;; (foreign-slot-value static-func '(:struct js-static-function) 'func) callback-pointer
+;;     ;;    ;; (foreign-slot-value static-func '(:struct js-static-function) 'property-attributes) 1 ; ReadOnly enum
+
+;;     ;;    ;; ;; Null-terminating static function
+;;     ;;    ;; (foreign-slot-value static-func-null '(:struct js-static-function) 'name) (null-pointer)
+;;     ;;    ;; (foreign-slot-value static-func-null '(:struct js-static-function) 'func) (null-pointer)
+;;     ;;    ;; (foreign-slot-value static-func-null '(:struct js-static-function) 'property-attributes) 0
+       
+;;     ;;    ;; ;; Set array containing static function
+;;     ;;    ;; (mem-aref arr :pointer 1) static-func
+;;     ;;    ;; (mem-aref arr :pointer 2) static-func-null
+       
+;;     ;;    ;; ;; Fill in class definiton
+;;     ;;    ;; (foreign-slot-value class-def '(:struct js-class-definition) 'version) 0
+;;     ;;    ;; (foreign-slot-value class-def '(:struct js-class-definition) 'attributes) 0
+;;     ;;    ;; (foreign-slot-value class-def '(:struct js-class-definition) 'class-name) property-name
+;;     ;;    ;; (foreign-slot-value class-def '(:struct js-class-definition) 'static-funcs) arr
+
+;;       ;; (setf
+;;       ;;  (foreign-slot-value class-def '(:struct js-class-definition) 'class-name) property-name-c
+;;       ;;  (foreign-slot-value class-def '(:struct js-class-definition) 'call-as-function) callback-pointer
+       
+;;       ;;  ;; Create the javascript object
+;;       ;;  js-class (js-class-create class-def)
+;;       ;;  )
+;;       ;; (print js-class)
+;;        ;; (setf property-value (js-object-make context (null-pointer) (null-pointer)))
+;;        ;; (setf property-value (js-object-make context js-class (null-pointer)))
+;;       ;; 
+;;       ;; (setf property-value (js-object-make-from-function context property-name callback-pointer))
+
+;;       (print "1")
+;;       ;; Set the property in an object
+;;       (js-object-set-property
+;;        context
+;;        global-object
+;;        property-name
+;;        ;; property-value
+;;        (js-object-make-from-function context property-name callback-pointer)
+;;        0 (null-pointer))
+;;       (print "")
+;;       (print "")
+;;     ;;   (print "2")
+
+;;     ;;   ;; Manual clean up
+;;       (js-free-string property-name)
+;;       ;; (js-free-class js-class))))
+;;       )))
+;;       ;; )))

@@ -1,10 +1,8 @@
-(in-package :gtk-cffi)
-(require :bordeaux-threads)
+(in-package :gtk-cffi+threads)
 ;; may have to patch in to asd file's depends on
 
 ;; cl-gtk2/gdk/gdk.threads.lisp
 (defcfun gdk-threads-init :void)
-(export 'gdk-threads-init)
 ;; FIXME: must init this
 ;; (glib:at-init () (gdk-threads-init))
 ;; defined in :gdk-cffi, gdk/threads.lisp
@@ -26,20 +24,20 @@
 (progn
   (defvar *main-thread* nil)
   (defvar *main-thread-level* nil)
-  (defvar *main-thread-lock* (bt:make-lock "*main-thread* lock"))
+  (defvar *main-thread-lock* (bordeaux-threads:make-lock "*main-thread* lock"))
 
   ;; NOTE: may need, from cl-gtk2/glib/glib.lisp
   ;; (at-finalize ()
-  ;;   (when (and *main-thread* (bt:thread-alive-p *main-thread*))
-  ;;     (bt:destroy-thread *main-thread*)
+  ;;   (when (and *main-thread* (bordeaux-threads:thread-alive-p *main-thread*))
+  ;;     (bordeaux-threads:destroy-thread *main-thread*)
   ;;     (setf *main-thread* nil)))
 
   (defun ensure-gtk-main ()
-    (bt:with-lock-held (*main-thread-lock*)
-      (when (and *main-thread* (not (bt:thread-alive-p *main-thread*)))
+    (bordeaux-threads:with-lock-held (*main-thread-lock*)
+      (when (and *main-thread* (not (bordeaux-threads:thread-alive-p *main-thread*)))
         (setf *main-thread* nil))
       (unless *main-thread*
-        (setf *main-thread* (bt:make-thread (lambda () 
+        (setf *main-thread* (bordeaux-threads:make-thread (lambda () 
                                               (with-gdk-threads-lock (gtk-main))) :name "cl-gtk2 main thread")
               *main-thread-level* 0))
       (incf *main-thread-level*))
@@ -47,10 +45,10 @@
 
   (defun join-gtk-main ()
     (when *main-thread*
-      (bt:join-thread *main-thread*)))
+      (bordeaux-threads:join-thread *main-thread*)))
 
   (defun leave-gtk-main ()
-    (bt:with-lock-held (*main-thread-lock*)
+    (bordeaux-threads:with-lock-held (*main-thread-lock*)
       (decf *main-thread-level*)
       (when (zerop *main-thread-level*)
         (gtk-main-quit)))))
@@ -114,4 +112,3 @@ Adds a function to be called whenever there are no higher priority events pendin
 
 (defmacro within-main-loop (&body body)
   `(call-from-gtk-main-loop (lambda () ,@body)))
-(export 'within-main-loop)

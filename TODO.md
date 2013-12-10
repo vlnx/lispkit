@@ -77,3 +77,59 @@ Quicklinks, type site keyword to go to
 ## Web Apps
 Node.js based SPAs, with global functions called by lisp side keys, pass key string?
 Node.js SPA server, could be automaticaly spawned as a child process of the daemon
+
+
+# CURRENT TOPICS
+Longstanding bug of minimal height for views
+
+tabs
+    got notebook started
+    need to hook up signals to ui actions
+    make keymap first, then ui backbone, then signals
+input prompt, processing
+    press ; and ui-status, changes
+
+
+;; OLD TODO:
+;; establish keys, look at stumpwm/k{map,eysym,eytrans}.lisp, read keyval directly before translation
+;; free views
+;; evaluate a function given a string, exposed from loaded string
+;; backbone+ browserifyed libraryes
+;; navigation handler, for hosted files too, load them
+
+;; proxy, even loaded scripts sometiems
+
+
+
+;;;;;;;;;;;;;;;;;;
+Key events working
+* scroll keys, j/k to current view, scroll window ajustments
+  look through luakit's scrolling funcs
+      visually update status of scroll
+      move relatively x or y
+
+* explcitly send key to prompt
+
+* tabs: have current view, 'g[tT]'
+* for multi key actions, have differnt key maps
+    way to invoke/change current keymaps
+
+* arguments for key funcs
+* different keymaps, prompt input mode
+* when, passthrough modes are entered focus the webview widget
+
+# Update my keysym.lisp
+***REMOVED***@Chelone:pts/16-> ~d » quicklisp » dists » quicklisp » software » clx-20121125-git ()
+     λ⮀ cat keysyms.lisp
+# Long term bug: ComposeKey
+gtk signal 'key-press-event' doesn't have X Input Methods enabled
+Have been testing pure Xlib C testing program for key presses
+Haven't worked out X Input Context yet
+When I do, will need to implemnt raw Xlib cffi's for the raw window
+and a defcallback like func called for with each event
+# Long term bug: GTK3 minimum vpane height
+Found a way to change the height of panels
+technickly it's the 'minimum height' while the middle grabs the rest
+but the webview sugests it's own minimum hegiht that can't be overrulled get
+
+Undecided design: defkey, how should funcs ask for arguments
