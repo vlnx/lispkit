@@ -3,7 +3,20 @@
 
 ;; Extension of gtk-cffi/gtk/notebook.lisp
 
+
+(in-package :gtk-cffi)
+(defclass overlay (container) ())
+(defcfun "gtk_overlay_new" :pointer)
+(defmethod gconstructor ((overlay overlay) &rest rest)
+  (declare (ignore rest))
+  (gtk-overlay-new))
+(export '(overlay))
+
 (in-package :lispkit)
+(defcfun "gtk_overlay_add_overlay" :void
+  (overlay-obj pobject)
+  (widget pobject))
+
 (defcfun "gtk_notebook_insert_page" :int
   (notebook pobject)
   (child pobject)
@@ -27,6 +40,22 @@
 ;; content of n page
 (defcfun "gtk_notebook_get_nth_page" :int
   (notebook pobject))
+
+;; Allow the webview widget to be transparent if the css wants it
+(defcfun "webkit_web_view_set_transparent" :void
+  (view pobject)
+  (bool :boolean))
+(defcfun "webkit_web_view_get_transparent" :boolean
+  (view pobject))
+;; (webkit-web-view-get-transparent (getf *ui-views* :hints))
+
+(defcfun "gtk_widget_get_screen" :pointer
+  (widget pobject))
+(defcfun "gdk_screen_get_rgba_visual" :pointer
+  (screen :pointer))
+(defcfun "gtk_widget_set_visual" :void
+  (widget pobject)
+  (visual :pointer))
   
 
 ;; TODO: window class system
@@ -40,59 +69,120 @@
   (leave-gtk-main))
 
 (defclass browser ()
-  (win
+  ((pages :initarg :pages
+          :initform (list *uri-homepage*)
+          :accessor browser-pages)
+   ;; widgets
+   (win :accessor browser-win
+        :documentation "The gtk toplevel window")
    ui-tabs
    notebook
+   (hints-over-view :accessor browser-over
+                    :documentation "A gtk-overlay containing the notebook
+with ui-hints on top")
+   (ui-hints :accessor browser-hints
+             :documentation "A transparent webkit view to display link hints")
    new-tab-view
    ui-status
    pane1
    pane2))
-(defun set-slots (instance slot-to-values)
-  (mapcar (lambda (l)
-            (setf (slot-value instance (car l))
-                  (car (cdr l))))
-          slot-to-values))
-(defmethod initialize-instance :after ((browser browser) &key)
-  (set-slots browser
-             `((win ,(make-instance 'window
-                                    :width 800 :height 600
-                                    :title "LispKit"
-                                    :has-resize-grip nil))
-               (ui-tabs ,(make-instance 'scrolled-window))
-               (notebook ,(make-instance 'notebook))
-               (new-tab-view ,(make-instance 'scrolled-window))
-               (ui-status ,(make-instance 'scrolled-window))
-               (pane1 ,(make-instance 'v-paned))
-               (pane2 ,(make-instance 'v-paned))))
 
-  (with-slots 
-        (win
-         ui-tabs
-         notebook
-         new-tab-view
-         ui-status
-         pane1
-         pane2)
-      browser
+(defmacro defclass-defuse (instance bindings &body body)
+  `(progn
+     (mapcar (lambda (l)
+               (setf (slot-value ,instance (car l))
+                     (eval (car (cdr l)))))
+             ',bindings)
+     (with-slots
+           ,(mapcar (lambda (l) (car l)) bindings)
+         ,instance
+       ,@body)))
+
+(defun widget-set-rgba (widget)
+  (gtk-widget-set-visual
+   widget 
+   (gdk-screen-get-rgba-visual
+    (gtk-widget-get-screen widget))))
+(defcallback screen-changed :void
+    ((widget pobject)
+     (prev-screen :pointer))
+  (declare (ignore prev-screen))
+  (widget-set-rgba widget))
+
+(defcallback on-button-press :boolean
+    ((widget pobject)
+     (event :pointer))
+  (declare (ignore event))
+  (show widget)
+  (widget-set-rgba widget)
+  t)
+
+(defmethod initialize-instance :after ((browser browser) &key)
+  (defclass-defuse browser
+      ((win (make-instance 'window
+                           :width 800 :height 600
+                           :title "LispKit"
+                           :has-resize-grip nil))
+       (ui-tabs (make-instance 'scrolled-window))
+
+       (notebook (make-instance 'notebook))
+       (hints-over-view (make-instance 'overlay))
+       (ui-hints (make-instance 'scrolled-window))
+
+       (new-tab-view (make-instance 'scrolled-window))
+       (ui-status (make-instance 'scrolled-window))
+       (pane1 (make-instance 'v-paned))
+       (pane2 (make-instance 'v-paned)))
+
+    ;; (widget-set-rgba win)
+    ;; (widget-set-rgba hints-over-view)
+    (widget-set-rgba ui-hints)
+
+     ;;  (print
+     ;; (gdk-screen-get-rgba-visual
+     ;;  (gtk-widget-get-screen win)))
+
     ;; Connect scrolling widgets with their content
     (add ui-tabs (ui-new-view 'tabs))
+    (add ui-status (ui-new-view 'status))
 
-    (add new-tab-view (tab-new *uri-homepage*))
+    (setf (property ui-hints 'can-focus) nil)
+    ;; (setf (property hints-over-view 'can-focus) nil)
+    (setf (valign ui-hints) :start)
+    (setf (halign ui-hints) :center)
+    (setf (size-request ui-hints) '(400 100))
+    (ui-new-view 'hints)
+    (webkit-web-view-set-transparent (getf *ui-views* :hints) t)
+    (add ui-hints (getf *ui-views* :hints))
+
+    (setf (gsignal ui-hints "button-press-event") (callback on-button-press))
+    (setf (gsignal hints-over-view "button-press-event") (callback on-button-press))
+
+    ;; First tab
+    (mapcar (lambda (uri)
+        (add new-tab-view (tab-new uri)))
+        ;; todo:
+        ;; dynamic scrolled views
+        ;; keep list slot in the class
+        ;; insert page
+            (browser-pages browser))
+    
+    (add hints-over-view notebook)
+    (gtk-overlay-add-overlay hints-over-view ui-hints)
 
     (gtk-notebook-set-show-tabs notebook nil)
     (gtk-notebook-set-show-border notebook nil)
     (show new-tab-view)
-    (gtk-notebook-set-current-page notebook
+    (gtk-notebook-set-current-page
+     notebook
      (gtk-notebook-insert-page notebook new-tab-view nil 0))
-
-    (add ui-status (ui-new-view 'status))
 
     ;; Layout configuration to get static heights on top and bottom
     ;; :shrink when nil respects the child's minimal size
     ;; :resize when t will resize along with the main window
     (pack pane1 ui-tabs :resize nil :shrink nil)
     (pack pane1 pane2 :resize t :shrink t)
-    (pack pane2 notebook :resize t :shrink t)
+    (pack pane2 hints-over-view :resize t :shrink t)
     (pack pane2 ui-status :resize nil :shrink nil)
 
     ;; Set the 'minimal' heights of the ui widgets
@@ -108,7 +198,9 @@
     
     (setf (gsignal win "key-press-event") (callback on-key-press)
           (gsignal win "key-release-event") (callback on-key-release)
+          ;; (gsignal win "screen-changed") (callback screen-changed)
           (gsignal win "destroy") (callback exit))
+
     (show win :all t)))
 
 (defvar *window* nil)
@@ -117,7 +209,7 @@
   (gtk-init)
   (gdk-threads-init)
   (within-main-loop                     
-   (setf *window* (make-instance 'browser))))
+   (setf *window* (make-instance 'browser :pages (list *uri-homepage*)))))
 
 ;;       ;; GTK3 Style
 ;;       ;; BUG: The handle-size only works if it is in ~/etc/gtk-3.0/gtk.css
@@ -210,3 +302,33 @@
 ;;   (setf (mem-ref minimum :int) 16
 ;;         (mem-ref natural :int) 16))
 ;; (defcallback (cb-nil-test :convention :stdcall) :void ())
+
+
+
+  ;; (set-slots browser
+  ;;            `((win ,(make-instance 'window
+  ;;                                   :width 800 :height 600
+  ;;                                   :title "LispKit"
+  ;;                                   :has-resize-grip nil))
+  ;;              (ui-tabs ,(make-instance 'scrolled-window))
+
+  ;;              (notebook ,(make-instance 'notebook))
+  ;;              (hints-over-view ,(make-instance 'overlay))
+  ;;              (ui-hints ,(make-instance 'scrolled-window))
+
+  ;;              (new-tab-view ,(make-instance 'scrolled-window))
+  ;;              (ui-status ,(make-instance 'scrolled-window))
+  ;;              (pane1 ,(make-instance 'v-paned))
+  ;;              (pane2 ,(make-instance 'v-paned))))
+
+  ;; (with-slots 
+  ;;       (win
+  ;;        ui-tabs
+  ;;        notebook
+  ;;        hints-over-view
+  ;;        ui-hints
+  ;;        new-tab-view
+  ;;        ui-status
+  ;;        pane1
+  ;;        pane2)
+  ;;     browser

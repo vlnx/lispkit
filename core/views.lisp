@@ -29,35 +29,6 @@ Return the transcompiled file content"
         (transcompile :file file)
         (error "needed file doesn't exist"))))
 
-(defcallback lisp-from-js/LispFunc :pointer
-  ((context :pointer)
-   (function :pointer)
-   (this-object :pointer)
-   (argument-count :int)
-   (arguments :pointer)
-   (exception :pointer))
-  (declare (ignore function this-object argument-count arguments execption))
-  (print "Hello from javascript in lisp")
-  (finish-output)
-  (js-value-make-undefined context))
-(defcallback lisp-from-js/loadPage :pointer
-  ((context :pointer)
-   (function :pointer)
-   (this-object :pointer)
-   (argument-count :int)
-   (arguments :pointer)
-   (exception :pointer))
-  (declare (ignore function this-object execption))
-  (print "Hello from javascript in lisp")
-      ;; (print (mem-aptr arguments :pointer 0))
-  ;; (finish-output)
-  (print argument-count)
-  (if (= argument-count 1)
-      (print (js-result-to-string context (mem-aptr arguments :pointer 1)))
-      (print "no/more argument"))
-  (finish-output)
-  (js-value-make-undefined context))
-
 (defun ui-update (element &rest opts)
   "Take an element of the iterface with any number of arguments, eval what
 needs to be done"
@@ -69,7 +40,8 @@ needs to be done"
                ;; Register exported functions
                (js-export-function view "LispFunc" (callback lisp-from-js/LispFunc))
                ;; Fuck; FIXME:  don't have open in lisp, export page changeing to js
-               (js-export-function view "loadPage" (callback lisp-from-js/loadPage))
+               (js-export-function view "loadUri" (callback lisp-from-js/loadUri))
+               (js-export-function view "promptClose" (callback lisp-from-js/promptClose))
 
                (js-eval-webview view 
                                 (transcompiler 'browserify-coffee
@@ -125,15 +97,11 @@ needs to be done"
   (let ((uri (property 
               (make-instance 'g-object :pointer request)
               :uri)))
-
     (if (ui-scheme-p uri)
         (webkit-web-frame-load-alternate-string
          source-frame
          (ui-content (ui-scheme-uri-to-symbol uri) 'html)
          uri uri)))
-
-  (setf (gsignal source-view "notify::load-status")
-        (callback notify-load-status))
   nil)
 
 ;; (defcallback notify-title :void
@@ -142,6 +110,18 @@ needs to be done"
 ;;      (title c-string))
 ;;   (declare (ignore source-view source-frame))
 ;;   (print title))
+
+;; Filter common automatic console messages
+(defcallback console-message :boolean
+;; return true to stop propagation
+    ((source-view :pointer)
+     (message c-string)
+     (line :int)
+     (source-id c-string))
+  (declare (ignore source-view line source-id))
+  ;; (print message)
+  ;; if match is true then stop propagation else nil and print like normal
+  (ppcre:scan "^Blocked a frame with origin" message))
 
 (defun webview-new (uri)
   "returns a webview with your uri and settings"
@@ -152,9 +132,17 @@ needs to be done"
     ;;                            (:user-agent "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:21.0) Gecko/20100101 Firefox/21.0")))
     ;; (setf (property (webkit-get-default-session) :proxy-uri)
     ;;       (soup-uri-new "http://127.0.0.1:8123/"))
-    (setf (gsignal view "navigation-policy-decision-requested")
-          (callback navigation-request))
-    ;; (setf (gsignal view "notify::title")
+    (setf
+     (gsignal view "navigation-policy-decision-requested")
+     (callback navigation-request)
+
+     (gsignal view "console-message")
+     (callback console-message)
+
+     (gsignal view "notify::load-status")
+     (callback notify-load-status))
+
+    ;; (gsignal view "notify::title")
     ;;       (callback notify-title))
     (webkit-web-view-load-uri view uri)
     view))
@@ -173,11 +161,3 @@ Convert it to a uri to load
 Convert it to a keyword to set the view instance"
   (setf (getf *ui-views* (as-keyword ui-element-symbol))
         (webview-new (ui-symbol-to-uri ui-element-symbol))))
-
-
-;; (require :lispkit)(in-package :lispkit)
-;; (win)
-;; within-main-loop
-;; (ui-update 'uri nil)
-
-;; DONE: as the page changes, update status bar's uri
