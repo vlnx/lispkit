@@ -196,25 +196,119 @@ Now when you type C-t C-z, you'll see the text ``Zzzzz...'' pop up."
 
 (defvar *active-maps* '())
 
+;; (defcallback on-key-press :boolean
+;;     ((widget :pointer)
+;;      (event :pointer))
+;;   (declare (ignore widget))
+  
+;;   (let* ((keycode (gdk-cffi::parse-event event :keyval))
+;;          (current-mods (gdk-cffi::parse-event event :state))
+;;          (key (code-state->key keycode current-mods)))
+;;     ;; (print key)
+;;     (if (equalp key *keys-passthrough-key*)
+;;         (setf (*keys-passthrough*) (null *keys-passthrough*)))
+;;     (unless *keys-passthrough*
+;;         (let ((match (handle-keymap *active-maps* key)))
+;;           (if match
+;;               (funcall match (first *views*))
+;;               (if (find '*map-prompt* *active-maps*)
+;;                   (ui-update 'prompt-send-key (print-key key)))))))
+              
+;;   ;; (time (funcall match (first *views*)))))
+;;   (null *keys-passthrough*)) ;; returning true stops propagation of the event
+
+;; ;; Define this only to not let keys escape to the webviews
+;; (defcallback on-key-release :boolean
+;;     ((widget :pointer)
+;;      (event :pointer))
+;;   (declare (ignore widget event))
+;;   (null *keys-passthrough*)) ;; returning true stops propagation of the event
+
+
+;; #include <stdio.h>
+;; #include <stdlib.h>
+;; #include <locale.h>
+;; #include <X11/Xlib.h>
+;; #include <X11/Xlocale.h>
+;; #include <X11/Xutil.h>
+;; #include <X11/Xos.h>
+;; #include <X11/Xatom.h>
+;; #include <X11/keysym.h>
+
+;; Display *dis;
+;; Window win;
+;; XEvent event;
+
+;; XIM xim;
+;; XIC xic;
+(defun key-press-handle (xevent)
+    ;; #define KBUFSZ 512 // size of keyboard mapping buffer
+    ;; int len;
+    ;; KeySym keySym;
+    ;; wchar_t wkbuf[KBUFSZ + 1];
+    ;; char kbuf[KBUFSZ];
+    ;; kbuf[0] = 0;
+
+    ;; if (xic == NULL) exit(1);
+
+    ;; Status status;
+    ;; // Retrieve unicode string
+    ;; len = XwcLookupString(xic, &ev,
+    ;;                             wkbuf, KBUFSZ, &keySym, &status);
+    ;; // no string, some funcion key pressed
+    ;; if (status == XLookupKeySym) return;
+
+    ;; printf("%d ", (unsigned int)wkbuf[0]);
+    ;; utf8print((unsigned int)wkbuf[0]);
+    ;; fputc('\n', stdout);
+)
+
+
+(defcallback recive-events :gdk-filter-return
+    ((gdk-xevent :pointer)
+     (gdk-event :pointer))
+  (print "got event")
+  :GDK-FILTER-CONTINUE
+  ;;       if (XFilterEvent(&event, None)) continue;
+  ;;       switch  (event.type) {
+  ;;            case KeyPress:
+  ;;               key_press(event.xkey);
+  )
+
+(defun init-keyevents (win)
+  "Given a gtk window start XIM, and get events from gtk"
+    ;; if (setlocale(LC_ALL, "") == NULL) exit(1);
+    ;; if (XSetLocaleModifiers("") == NULL) exit(1);
+
+    ;; dis = XOpenDisplay(NULL);
+    ;; win = XCreateSimpleWindow(dis, RootWindow(dis, 0), 1, 1, 500, 500, 0,
+    ;;         BlackPixel (dis, 0), BlackPixel(dis, 0));
+
+    ;; xim = XOpenIM(dis, NULL, 0, 0);
+    ;; xic = XCreateIC(xim,
+    ;;                 XNInputStyle, XIMPreeditNothing | XIMStatusNothing,
+    ;;                 XNClientWindow, win,
+    ;;                 XNFocusWindow, win,
+    ;;                 NULL);
+    ;; if (xic == NULL) exit(1);
+
+    ;; XSelectInput(dis, win, KeyPressMask);
+    ;; XMapWindow(dis, win);
+
+  ;; Fixme: not gdkwindow
+  ;; (gdk-cffi::gdk-window-add-filter (gtk-widget-get-parent-window win) (callback recive-events))
+  (gdk-cffi::gdk-window-add-filter (gtk-widget-get-window win) (callback recive-events))
+
+    (setf (gsignal win "key-press-event") (callback on-key-press)
+          (gsignal win "key-release-event") (callback on-key-release))
+)
+
+;; At this point keys have been handled and passed on to here
+;; so decied if time to pass it webview
 (defcallback on-key-press :boolean
     ((widget :pointer)
      (event :pointer))
   (declare (ignore widget))
-  
-  (let* ((keycode (gdk-cffi::parse-event event :keyval))
-         (current-mods (gdk-cffi::parse-event event :state))
-         (key (code-state->key keycode current-mods)))
-    ;; (print key)
-    (if (equalp key *keys-passthrough-key*)
-        (setf (*keys-passthrough*) (null *keys-passthrough*)))
-    (unless *keys-passthrough*
-        (let ((match (handle-keymap *active-maps* key)))
-          (if match
-              (funcall match (first *views*))
-              (if (find '*map-prompt* *active-maps*)
-                  (ui-update 'prompt-send-key (print-key key)))))))
-              
-  ;; (time (funcall match (first *views*)))))
   (null *keys-passthrough*)) ;; returning true stops propagation of the event
 
 ;; Define this only to not let keys escape to the webviews

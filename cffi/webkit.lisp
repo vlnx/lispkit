@@ -80,6 +80,14 @@
 (defcfun "webkit_web_view_get_uri" c-string
   (view pobject))
 
+;; Allow the webview widget to be transparent if the css wants it
+(defcfun "webkit_web_view_set_transparent" :void
+  (view pobject)
+  (bool :boolean))
+(defcfun "webkit_web_view_get_transparent" :boolean
+  (view pobject))
+;; (webkit-web-view-get-transparent (getf *ui-views* :hints))
+
 
 ;; (export '(webview-new
 ;;           webkit-web-view-get-main-frame))
