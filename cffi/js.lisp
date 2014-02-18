@@ -97,34 +97,6 @@
 
 
 ;; /usr/include/webkitgtk-3.0/JavaScriptCore/JSObjectRef.h
-
-;; (defcstruct js-static-function
-;;   (name :string)
-;;   (func :pointer)
-;;   (property-attributes :int))
-;; ;; JSClassDefinition
-;; (defcstruct js-class-definition
-;;   (version :int)
-;;   (attributes :int) ;enum
-;;   (class-name :string)
-;;   (parent-class :pointer)
-;;   (static-values :pointer)
-;;   (static-funcs :pointer) ;; Array contain two js-static-function's, last one null
-;;   (initialize :pointer)
-;;   (finalize :pointer)
-;;   (has-property :pointer)
-;;   (get-property :pointer)
-;;   (set-property :pointer)
-;;   (delete-property :pointer)
-;;   (get-property-names :pointer)
-;;   (call-as-function :pointer)
-;;   (call-as-constructor :pointer)
-;;   (has-instance :pointer)
-;;   (convert-to-type :pointer))
-;; (defcfun ("JSClassCreate" js-class-create) :pointer
-;;   (js-class-definition :pointer))
-;; (defcfun ("JSClassRelease" js-free-class) :void
-;;   (class :pointer))
 (defcfun ("JSObjectMake" js-object-make) :pointer
   (context :pointer)
   (class-def :pointer)
@@ -154,7 +126,7 @@
 
 (defun js-export-function (view function-name callback-pointer)
   "Register a function in lisp/C to a javascript context. 
-In the javascript context the function is within the global object 'Exported'" ;; TODO:
+In the javascript context the function is within the global object 'Exported'"
   (let* ((context (webkit-web-frame-get-global-context
                    (webkit-web-view-get-main-frame view)))
          (global-object (js-context-get-global-object context))

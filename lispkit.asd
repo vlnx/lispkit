@@ -26,10 +26,11 @@
 
                (:file "core/primitives")
                (:file "core/transcompiler")
-               (:file "core/views")
                (:file "core/keysyms")
                (:file "core/keypress")
                (:file "core/keys")
+               (:file "core/defexports")
+               (:file "core/views")
                ;; (:file "core/tabs")
                (:file "core/window")
 
