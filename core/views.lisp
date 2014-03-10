@@ -1,13 +1,5 @@
 (in-package :lispkit)
 
-
-
-;; (bordeaux-threads:destroy-thread *main-thread*)
-;; (setf *main-thread* nil)
-
-;; (setf *chrome-tabs* '(:html
-;; (transcompile :type 'jade :string "doctype 5")
-
 (defun ui-scheme-p (uri)
   (ppcre:scan-to-strings "^ui://" uri))
 (defun ui-symbol-to-uri (symbol)
@@ -15,7 +7,6 @@
 (defun ui-scheme-uri-to-symbol (uri)
   (as-symbol (ppcre:regex-replace "^ui://" uri "")))
 
-;; (ui-content 'status 'html)
 (defun ui-content (element type)
   "Take a symbol name of a ui element, and the type of content needed
 Return the transcompiled file content"
@@ -29,64 +20,79 @@ Return the transcompiled file content"
         (transcompile :file file)
         (error "needed file doesn't exist"))))
 
-(defun ui-update (element &rest opts)
+(defun ui-update (ui element &rest opts)
   "Take an element of the iterface with any number of arguments, eval what
 needs to be done"
   (case element
-    (js-init (let* ((symbol (ui-scheme-uri-to-symbol (car opts)))
-                    (view (getf *ui-views* (as-keyword symbol))))
-               (print opts)
+    (prompt-send-key (js-eval-webview (ui-status ui)
+                                      (format nil "prompt.sendKey('~a');" (first (last opts)))))
+    (prompt-enter (js-eval-webview (ui-status ui)
+                                   (format nil "prompt.open('~a');" (first (last opts)))))
+    (prompt-leave (js-eval-webview (ui-status ui)
+                                   "prompt.close();"))
+    (passthrough (js-eval-webview (ui-status ui)
+                                  (if *keys-passthrough*
+                                      "statusbar.passthrough(true);"
+                                      "statusbar.passthrough(false);")))
+    (uri (js-eval-webview (ui-status ui)
+                          (format nil "statusbar.updateUri('~a');" 
+                                  (or (if (stringp (car opts))
+                                          (or (car opts)
+                                              (property (car opts) :uri)))
+                                      "about:blank"))))))
 
-               ;; Register exported functions
-               (js-export-function view "LispFunc" (callback lisp-from-js/LispFunc))
-               ;; Fuck; FIXME:  don't have open in lisp, export page changeing to js
-               (js-export-function view "loadUri" (callback lisp-from-js/loadUri))
-               (js-export-function view "promptClose" (callback lisp-from-js/promptClose))
+(defun view-scripts-styles (&key js css ui ui-element view uri)
+  "js/css `t` will load those.
+ui and ui-element or view and uri"
+  (cond
+    ((and ui ui-element)
+     ;; REFACTOR: Might have some packaging issue here, fix attempt with strings
+     (if (equal (symbol-name ui-element) (symbol-name 'tabs))
+         (setf ui-element 'tabs))
+     (if (equal (symbol-name ui-element) (symbol-name 'status))
+         (setf ui-element 'status))
+     (setf view (slot-value ui ui-element))
+     (when js
+         ;; Register exported functions
+         (js-export-function view "LispFunc" (callback lisp-from-js/LispFunc))
+         (js-export-function view "loadUri" (callback lisp-from-js/loadUri))
+         (js-export-function view "promptClose" (callback lisp-from-js/promptClose))
 
-               (js-eval-webview view 
-                                (transcompiler 'browserify-coffee
-                                               :file "/home/***REMOVED***/dev/lispkit/core/ui/deps.coffee"))
-               (js-eval-webview view (ui-content symbol 'js))))
-    (css (let* ((symbol (ui-scheme-uri-to-symbol (car opts)))
-                (view (getf *ui-views* (as-keyword symbol))))
-           (js-eval-webview view
-                            ;;(transcompiler 'coffee :string ;; Maybe escape with ' and \n -> \\n, rather than coffee
-                            ;; NOTE: also escape \'
-                            (ppcre:regex-replace-all "\\n"
-                                                     (format nil "console.log('style');document.getElementsByTagName('style')[0].innerHTML = '~a'"
-                                                             (ui-content symbol 'css))
-                                                     "\\n"))))
-    (prompt-send-key (js-eval-webview (getf *ui-views* :status)
-                     (format nil "prompt.sendKey('~a');" (first (last opts)))))
-    (prompt-enter (js-eval-webview (getf *ui-views* :status)
-                     (format nil "prompt.open('~a');" (first (last opts)))))
-    (prompt-leave (js-eval-webview (getf *ui-views* :status)
-                 "prompt.close();"))
-    (passthrough (js-eval-webview (getf *ui-views* :status)
-                   (if *keys-passthrough*
-                       "statusbar.passthrough(true);"
-                       "statusbar.passthrough(false);")))
-    (uri (js-eval-webview
-                 (getf *ui-views* :status)
-                 (format nil "statusbar.updateUri('~a');" 
-                         (or (if (stringp (car opts))
-                                 (or (car opts)
-                                     (property (car opts) :uri)))
-                             "about:blank"))))))
+         (js-eval-webview view 
+                          (transcompiler 'browserify-coffee
+                                         :file "/home/***REMOVED***/dev/lispkit/core/ui/deps.coffee"))
+         (js-eval-webview view (ui-content ui-element 'js)))
+     (when css
+         (js-eval-webview view
+                          ;;(transcompiler 'coffee :string ;; Maybe escape with ' and \n -> \\n, rather than coffee
+                          ;; NOTE: also escape \'
+                          (ppcre:regex-replace-all "\\n"
+                                                   (format nil "console.log('style');document.getElementsByTagName('style')[0].innerHTML = '~a'"
+                                                           (ui-content ui-element 'css))
+                                                   "\\n"))))
+    ((and view uri)
+     (print "if called, impment me"))))
 
 (defcallback notify-load-status :void
     ((view pobject))
+  ;; note: This is where user styles/scripts will be applied
+  ;; use an plist to *scripts* -> load-first, finished -> uri -> content description
   (let ((status (webkit-web-view-get-load-status view)))
-    (if (eq status :webkit-load-first-visually-non-empty-layout)
-        (let ((uri (property view :uri)))
-          (if (ui-scheme-p uri)
-              (mapcar (lambda (lang) (ui-update lang uri))
-                      '(js-init css)))))
-    (if (or (eq status :webkit-load-committed)
-            (eq status :webkit-load-finished))
-        ;; This may be called too much for the same uri
-        (ui-update 'uri (property view :uri)))))
+    (cond
+      ((eq status :webkit-load-first-visually-non-empty-layout)
+       (let ((uri (property view :uri)))
+         (if (ui-scheme-p uri)
+             (view-scripts-styles :js t :css t
+                                  :ui (browser-ui (browser-find-view-s-instance view))
+                                  :ui-element (ui-scheme-uri-to-symbol uri)))))
+      ((or (eq status :webkit-load-committed)
+           (eq status :webkit-load-finished))
+       ;; This may be called too much for the same uri
+       (ui-update 
+        (browser-ui (browser-find-view-s-instance view))
+        'uri (property view :uri))))))
 
+;; Used to load content for ui schemes
 (defcallback navigation-request :boolean
     ((source-view pobject)
      (source-frame pobject)
@@ -146,18 +152,3 @@ needs to be done"
     ;;       (callback notify-title))
     (webkit-web-view-load-uri view uri)
     view))
-
-
-(defun tab-new (uri)
-  (let ((view (webview-new uri)))
-    (push view *views*)
-    view))
-
-
-
-(defun ui-new-view (ui-element-symbol)
-  "Take a symbol of the ui element
-Convert it to a uri to load
-Convert it to a keyword to set the view instance"
-  (setf (getf *ui-views* (as-keyword ui-element-symbol))
-        (webview-new (ui-symbol-to-uri ui-element-symbol))))

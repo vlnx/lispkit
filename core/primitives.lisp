@@ -19,13 +19,5 @@
 
 (defvar *ui-dir* "/home/***REMOVED***/dev/lispkit/core/ui/")
 
-(defvar *ui-views* '(:tabs nil
-                     :status nil
-                     :hints nil)
-  "A plist for the view instances used in the interface")
-
-(defvar *views* '()
-  "A list of active tab instances")
-
 (defvar *uri-homepage* "http://10.1.7.1/startpage/index.html"
   "The homepage uri to load by default")

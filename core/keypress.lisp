@@ -264,26 +264,45 @@ Now when you type C-t C-z, you'll see the text ``Zzzzz...'' pop up."
 )
 
 
-(defcallback recive-events :gdk-filter-return
-    ((gdk-xevent :pointer)
-     (gdk-event :pointer))
-  (print "got event")
-  :GDK-FILTER-CONTINUE
+(defvar Z nil)
+;; http://tronche.com/gui/x/xlib/events/keyboard-pointer/keyboard-pointer.html#XKeyEvent
+;; (defcallback recive-events :gdk-filter-return
+;;     ((gdk-xevent :pointer)
+;;      (gdk-event :pointer))
+;;   (declare (ignore gdk-event))
+;;   ;; (print "got event")
+;;   (let ((ret :gdk-filter-remove))
+;;     (unless (x-filter-event gdk-xevent (null-pointer)) ;; skip event
+;;       (setf ret :gdk-filter-continue)
+;;       (print gdk-xevent)
+;;       ;; (setf Z gdk-xevent)
+;;       ;; (print (foreign-slot-value gdk-xevent '(:struct x-key-event) 'x11-binding::type))
+;;       ;; (print (foreign-slot-value gdk-xevent '(:struct x-key-event) 'x11-binding::keycode))
+;;       ;; (print (foreign-slot-value gdk-xevent '(:union x-event) 'x11-binding::xkey))
+;;       (print (foreign-slot-value gdk-xevent '(:struct x-key-event) 'x11-binding::type))
+;;       (print (foreign-slot-value gdk-xevent '(:struct x-key-event) 'x11-binding::keycode))
+;;       ;; (print (foreign-slot-value gdk-xevent 'x-event 'x11-binding::xkey))
+;;       ;; (print (foreign-slot-value 
+;;       ;;         (foreign-slot-value gdk-xevent '(:union x-event) 'x11-binding::xkey)
+;;       ;;        '(:struct x-key-event) 'x11-binding::keycode))
+;;       (print "")
+;;       ;; (let ((event-type (foreign-slot-value gdk-xevent '(:union x-event) 'x11-binding::type))
+;;       ;;       (xkey (foreign-slot-value gdk-xevent '(:union x-event) 'x11-binding::xkey)))
+;;       ;;   (if (eql 28 event-type)
+;;       ;;       (progn
+;;       ;;         (print event-type)
+;;       ;;         ;; (print (foreign-slot-value xkey '(:struct x-key-event) 'x11-binding::keycode))))
+;;       ;;         ))
+;;         )
+;;     ret))
   ;;       if (XFilterEvent(&event, None)) continue;
   ;;       switch  (event.type) {
   ;;            case KeyPress:
   ;;               key_press(event.xkey);
-  )
 
-(defun init-keyevents (win)
-  "Given a gtk window start XIM, and get events from gtk"
-    ;; if (setlocale(LC_ALL, "") == NULL) exit(1);
-    ;; if (XSetLocaleModifiers("") == NULL) exit(1);
-
+  ;; if (setlocale(LC_ALL, "") == NULL) exit(1);
+  ;; if (XSetLocaleModifiers("") == NULL) exit(1);
     ;; dis = XOpenDisplay(NULL);
-    ;; win = XCreateSimpleWindow(dis, RootWindow(dis, 0), 1, 1, 500, 500, 0,
-    ;;         BlackPixel (dis, 0), BlackPixel(dis, 0));
-
     ;; xim = XOpenIM(dis, NULL, 0, 0);
     ;; xic = XCreateIC(xim,
     ;;                 XNInputStyle, XIMPreeditNothing | XIMStatusNothing,
@@ -295,13 +314,34 @@ Now when you type C-t C-z, you'll see the text ``Zzzzz...'' pop up."
     ;; XSelectInput(dis, win, KeyPressMask);
     ;; XMapWindow(dis, win);
 
-  ;; Fixme: not gdkwindow
-  ;; (gdk-cffi::gdk-window-add-filter (gtk-widget-get-parent-window win) (callback recive-events))
-  (gdk-cffi::gdk-window-add-filter (gtk-widget-get-window win) (callback recive-events))
+;; LISPKIT> (gdk-cffi:gdk-x11-window-get-xid (GTK-WIDGET-GET-WINDOW (browser-win *WINDOW*)))
+(defun init-keyevents (gtk-window xic-slot)
+  "Given a gtk window start XIM, and get events from gtk"
+    ;; Window must be shown to retrive x11 reference this way
+  (if (null-pointer-p (x-set-locale-modifiers ""))
+      (print "x-set-locale-modifiers has failed"))
+  ;; Start up the XIC
+  (let* ((gdk-win (gtk-widget-get-window gtk-window))
+         (xwin (gdk-cffi:gdk-x11-window-get-xid gdk-win))
+         (dis (gdk-cffi:gdk-x11-get-default-xdisplay))
+         (xim (x-open-im dis (null-pointer) (null-pointer) (null-pointer)))
+         (xic (x-create-ic xim
+                           "inputStyle" '(:xim-pre-edit-nothing :xim-pre-edit-nothing)
+                           "clientWindow" xwin
+                           ;; "focusWindow" xwin
+                           (null-pointer))))
+    (print dis)
+    (print (x-display-of-im xim))
+    (print xwin)
+    (print xim)
+    (print xic)
+    (if (null-pointer-p xic)
+        (print "xic is null")
+        (setf xic-slot xic)))
+    ;; (gdk-cffi::gdk-window-add-filter gdk-win (callback recive-events)))
 
-    (setf (gsignal win "key-press-event") (callback on-key-press)
-          (gsignal win "key-release-event") (callback on-key-release))
-)
+  (setf (gsignal gtk-window "key-press-event") (callback on-key-press)
+        (gsignal gtk-window "key-release-event") (callback on-key-release)))
 
 ;; At this point keys have been handled and passed on to here
 ;; so decied if time to pass it webview

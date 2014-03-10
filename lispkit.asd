@@ -20,6 +20,7 @@
                (:file "patch-gtk3-main-loop")
 
                (:file "cffi/types")
+               (:file "cffi/x11")
                (:file "cffi/gtk")
                (:file "cffi/soup")
                (:file "cffi/webkit")

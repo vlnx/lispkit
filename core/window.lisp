@@ -1,210 +1,136 @@
 (in-package :lispkit)
 
-;; TODO: window class system
-;; make-instance = (win)
-;; slots for elements
-;; cleaned with window
-;; list of instances
-(defcallback exit :void
-  ((window pobject))
-  (declare (ignore window))
-  (leave-gtk-main))
+(defclass ui-views ()
+  ((tabs :accessor ui-tabs
+         :initform (webview-new (ui-symbol-to-uri 'tabs))
+         :documentation "Tabs view")
+   (status :accessor ui-status
+           :initform (webview-new (ui-symbol-to-uri 'status))
+           :documentation "Status bar view")
+   (hints :accessor ui-hints
+          ;; :initform (webview-new (ui-symbol-to-uri 'hints))
+          :documentation "Currently disabled, overlay view for follow hints")))
+
+(defclass gtk-widgets ()
+  ((window :accessor widgets-window
+           :initform (make-instance 'window
+                                    :width 800 :height 600
+                                    :title "LispKit"
+                                    :has-resize-grip nil)
+           :documentation "Toplevel window")
+   (pane1 :accessor widgets-pane1
+          :initform (make-instance 'v-paned)
+          :documentation "Top pane containing the tabs and the other pane")
+   (pane2 :accessor widgets-pane2
+          :initform (make-instance 'v-paned)
+          :documentation "Bottom pane containing the page and status bar")
+   (ui-tabs-scroll :accessor widgets-tabs
+                   :initform (make-instance 'scrolled-window
+                                            :height-request 10
+                                            :min-content-height 10)
+                   :documentation "Container for ui-tabs")
+   (ui-status-scroll :accessor widgets-status
+                     :initform (make-instance 'scrolled-window)
+                     :documentation "Container for ui-status")
+   (notebook :accessor widgets-notebook
+             :initform (make-instance 'notebook)
+             :documentation "Notebook, allows for tabs")
+   (pages-views :accessor widgets-pages-views
+                :initform (make-instance 'scrolled-window)
+                :documentation "should be a dynamic list of scrolled window containers")
+   (x11-xic :accessor widgets-x11-xic
+            :initform nil
+            :documentation "Hold x11's XIC reference to decode input keys")))
 
 (defclass browser ()
-  ((pages :initarg :pages
+  ((ui :accessor browser-ui
+       :initform (make-instance 'ui-views)
+       :documentation "The class for the view instances used in the interface")
+   (views :accessor browser-views
+          :initarg :inital-tabs
           :initform (list *uri-homepage*)
-          :accessor browser-pages)
-   ;; widgets
-   (win :accessor browser-win
-        :documentation "The gtk toplevel window")
-   ui-tabs
-   notebook
-   (hints-over-view :accessor browser-over
-                    :documentation "A gtk-overlay containing the notebook
-with ui-hints on top")
-   (ui-hints :accessor browser-hints
-             :documentation "A transparent webkit view to display link hints")
-   new-tab-view
-   ui-status
-   pane1
-   pane2))
+          :documentation "Give initial tabs, then will be replaced with tab instances")
+   (gtk :accessor browser-gtk
+        :initform (make-instance 'gtk-widgets)
+        :documentation "widgets used in the window"))
+  (:documentation "Starts an instance of the browser in a toplevel window"))
 
 (defmethod initialize-instance :after ((browser browser) &key)
-  (defclass-defuse browser
-      ((win (make-instance 'window
-                           :width 800 :height 600
-                           :title "LispKit"
-                           :has-resize-grip nil))
-       (ui-tabs (make-instance 'scrolled-window))
-
-       (notebook (make-instance 'notebook))
-       ;; (hints-over-view (make-instance 'overlay))
-       ;; (ui-hints (make-instance 'scrolled-window))
-
-       (new-tab-view (make-instance 'scrolled-window))
-       (ui-status (make-instance 'scrolled-window))
-       (pane1 (make-instance 'v-paned))
-       (pane2 (make-instance 'v-paned)))
-
-    ;; (widget-set-rgba ui-hints)
+  (let* ((gtk (browser-gtk browser))
+         (pane1 (widgets-pane1 gtk))
+         (pane2 (widgets-pane2 gtk))
+         (ui-tabs-scroll (widgets-tabs gtk))
+         (ui-status-scroll (widgets-status gtk))
+         (notebook (widgets-notebook gtk))
+         (gtk-win (widgets-window gtk))
+         (only-tab (widgets-pages-views gtk)))
 
     ;; Connect scrolling widgets with their content
-    (add ui-tabs (ui-new-view 'tabs))
-    (add ui-status (ui-new-view 'status))
+    (add ui-tabs-scroll
+         (ui-tabs (browser-ui browser)))
+    (add ui-status-scroll
+         (ui-status (browser-ui browser)))
+      (setf (foreign-slot-value (pointer ui-tabs-scroll)
+            '(:struct gtk-cffi::widget-class)
+            'gtk-cffi::get-preferred-height)
+            (callback ui-tabs-set-preferred-height))
 
-    ;; (setf (property ui-hints 'can-focus) nil)
-    ;; (setf (valign ui-hints) :start)
-    ;; (setf (halign ui-hints) :center)
-    ;; (setf (size-request ui-hints) '(400 100))
-    ;; (ui-new-view 'hints)
-    ;; (webkit-web-view-set-transparent (getf *ui-views* :hints) t)
-    ;; (add ui-hints (getf *ui-views* :hints))
 
-    ;; (setf (gsignal ui-hints "button-press-event") (callback on-button-press))
-    ;; (setf (gsignal hints-over-view "button-press-event") (callback on-button-press))
-
-    ;; First tab
-    (mapcar (lambda (uri)
-        (add new-tab-view (tab-new uri)))
-        ;; todo:
-        ;; dynamic scrolled views
-        ;; keep list slot in the class
-        ;; insert page
-            (browser-pages browser))
-    
-    ;; (add hints-over-view notebook)
-    ;; (gtk-overlay-add-overlay hints-over-view ui-hints)
-
+    ;; Incomplete tab stuff here
+    ;; Open the first 'tab', latter set up dynamic scrolling widgets
+    ;; Replace the initial 'views' slot with loaded URIs
+    (setf (browser-views browser)
+          (list (webview-new (first (browser-views browser)))))
+    (add only-tab (first (browser-views browser)))
     (gtk-notebook-set-show-tabs notebook nil)
     (gtk-notebook-set-show-border notebook nil)
-    (show new-tab-view)
+    (show only-tab)
     (gtk-notebook-set-current-page
      notebook
-     (gtk-notebook-insert-page notebook new-tab-view nil 0))
+     (gtk-notebook-insert-page notebook
+                               only-tab nil 0))
 
     ;; Layout configuration to get static heights on top and bottom
     ;; :shrink when nil respects the child's minimal size
     ;; :resize when t will resize along with the main window
-    (pack pane1 ui-tabs :resize nil :shrink nil)
+    (pack pane1 ui-tabs-scroll :resize nil :shrink nil)
     (pack pane1 pane2 :resize t :shrink t)
-    ;; (pack pane2 hints-over-view :resize t :shrink t)
     (pack pane2 notebook :resize t :shrink t)
-    (pack pane2 ui-status :resize nil :shrink nil)
+    (pack pane2 ui-status-scroll :resize nil :shrink nil)
 
-    ;; FIXME: 
-    ;; Set the 'minimal' heights of the ui widgets
-    (setf 
-     (property ui-tabs :min-content-height) 0
-     (property ui-tabs :height-request) 16
-     (property ui-status :height-request) 16
-     (property ui-status :min-content-height) 0
-     (size-request ui-tabs) '(-1 16)
-     (size-request ui-status) '(-1 16))
+    (add gtk-win pane1)
+    (setf (gsignal gtk-win "destroy") (callback exit))
 
-    (add win pane1)
-    
-    (init-keyevents win)
-    (setf ;; (gsignal win "screen-changed") (callback screen-changed)
-          (gsignal win "destroy") (callback exit))
+    (show gtk-win :all t)
+    ;; Needs to be shown to get the window xid from x11
+    (init-keyevents gtk-win (widgets-x11-xic gtk))))
 
-    (show win :all t)))
+(defcallback exit :void
+    ((window pobject))
+  (declare (ignore window))
+  ;; Clean up close window's instance
+  ;; check each instance in *windows* for win slot to match this arg
+  (destroy window))
+;; If last instance and not in slime (leave-gtk-main))
 
 (defvar *window* nil)
+(defun current-browser () *window*)
 (defun win ()
   "Open up the gtk window"
   (gtk-init)
   (gdk-threads-init)
-  (within-main-loop                     
-   (setf *window* (make-instance 'browser :pages (list *uri-homepage*)))))
+  (within-main-loop
+    (setf *window* (make-instance 'browser :inital-tabs (list *uri-homepage*)))))
 
-;;       ;; GTK3 Style
-;;       ;; BUG: The handle-size only works if it is in ~/etc/gtk-3.0/gtk.css
-;;       ;; don't display pane seperator
-;;       ;; (load-css (style-context win) "* { -GtkPaned-handle-size: 0; }")
-;;       ;; (load-css (style-context win) "* { background-image: url('/usr/share/pixmaps/htop.png'); }")
-;;       ;; Connect scrolling widgets with their content
-;;       (add ui-tabs (ui-new-view 'tabs))
-;;       ;; Note: first the outer ui widget shrink was nil, then min-positon is 70
-;;      ;; (setf (foreign-slot-value
-;;      ;;        ;; (mem-ref (pointer ui-tabs) :pointer)
-;;      ;;        (pointer ui-tabs)
-;;      ;;        '(:struct widget-methods)
-;;      ;;        'get-preferred-height)
-;;      ;;       ;; 'get-preferred-height
-;;      ;;       (callback pref-height))
-;;                                ;; 'button-press-event)
-;;            ;; (null-pointer))
-;;      ;; after that class->adjust_size_request is called; if needed
-
-;; defgeneric
-;; defmethod append-page
-;; LISPKIT> (foreign-slot-value (pointer *stat*) '(:struct widget-methods) 'get-preferred-height)
-;; #.(SB-SYS:INT-SAP #X7FFFD4029990)
-;; LISPKIT>  (setf (foreign-slot-value (pointer *stat*) '(:struct widget-methods) 'get-preferred-height) (null-pointer))
-;; #.(SB-SYS:INT-SAP #X00000000)
-;; LISPKIT>  (foreign-slot-value (pointer *stat*) '(:struct widget-methods) 'get-preferred-height)
-;; #.(SB-SYS:INT-SAP #X00000000)
-;; CL-USER>  (require :lispkit)(in-package :lispkit)
-;; LISPKIT> (win)
-;; ; No value
-;; LISPKIT>  (setf (foreign-slot-value (pointer *stat*) '(:struct widget-methods) 'get-preferred-height) (callback PREF-HEIGHT))
-;; #.(SB-SYS:INT-SAP #X20102290)
-;; http://common-lisp.net/project/cffi/manual/cffi-manual.html#index-defcallback-144
-;; https://github.com/masonh/wireshark/blob/7be4187b398c5082a5c36d69ce9a8fa7e5ed86f3/ui/gtk/bytes_view.c#L338
-;; https://github.com/mdsmus/alien/blob/63539d330d0214b8b4a1519c70c080416d8b8413/src/cl%2Bssl/bio.lisp
-
-
-;; (defvar *stat* nil)
-;; (defvar *top* nil)
-;; (defvar *pane1* nil)
-
-;; Commented until scrolling mechanism is complete
-;; Force the main frame to respond to it's parent container's policy change
-;; (defcallback true :boolean () t)
-;; (setf (gsignal (make-instance 'g-object :pointer
-;;                               (webkit-web-view-get-main-frame view))
-;;                "scrollbars-policy-changed")
-;;       (cffi:callback true))
-;; (setf (policy scrolled-win) '(:never :never))
-;; (defcstruct widget-methods
-;;   "for height setting"
-;;   (button-press-event :pointer)
-;;   (adjust-size-request :pointer)
-;;   (get-preferred-height :pointer))
-;; (defcallback button :boolean
-;;     ((widget pobject)
-;;      (event :pointer))
-;;   (print "b")
-;;   t)
-;; NOTE: works, real does not
-;; (let ((m (foreign-alloc :int))
-;;       (n (foreign-alloc :int)))
-;;   ;; called with &m; by address so will be changed out side of scope
-;;   (foreign-funcall-pointer
-;;    (callback pref-height) ()
-;;    :pointer (null-pointer)
-;;    :pointer m
-;;    :pointer n
-;;    :void) ;; ret type
-;;   (mem-ref m :int))
-;; (defcallback adj :void
-;;     ((widget pobject)
-;;      (orient orientation)
-;;      ;; created as 'gint' passed as pointer
-;;      (minimum :pointer)
-;;      (natural :pointer))
-;;   (declare (ignore widget))
-;;   (print "n")
-;;   (print minimum)
-;;   (print natural))
-;; (defcallback pref-height :void
-;;     ((widget pobject)
-;;      (minimum :pointer)
-;;      (natural :pointer))
-;;   (declare (ignore widget))
-;;   (print "set hegiht")
-;;   (print minimum)
-;;   (print natural)
-;;   (setf (mem-ref minimum :int) 16
-;;         (mem-ref natural :int) 16))
-;; (defcallback (cb-nil-test :convention :stdcall) :void ())
+(defun browser-find-view-s-instance (view)
+  "When a view is passed in a callback argument, find it's instance"
+  ;; note: update when multipe windows are supported
+  ;; loop over *windows*/browsers
+  (if (member view
+              (concatenate 'list
+                           (list
+                            (ui-tabs (browser-ui (current-browser)))
+                            (ui-status (browser-ui (current-browser))))
+                           (browser-views (current-browser))))
+      (current-browser)
+      (error "Unattached view was found")))

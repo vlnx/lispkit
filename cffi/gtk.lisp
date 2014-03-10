@@ -1,6 +1,9 @@
 (in-package :gtk-cffi)
 (export
  '(overlay
+   ;; widget-class-real
+   ;; get-preferred-height
+   gtk-scrolled-window-set-min-content-height
    gtk-overlay-add-overlay
    gtk-notebook-append-page
    gtk-notebook-insert-page
@@ -14,6 +17,12 @@
    gtk-widget-get-screen
    gtk-widget-set-visual))
 
+;; (defcfun "gtk_scrolled_window_set_min_content_height" :void
+;;   (scrolled-win pobject)
+;;   (height :int))
+;; (defcstruct (widget-class-real :size 824)
+;;   (get-preferred-height :pointer :offset 304)
+;;   (get-preferred-height-for-width :pointer :offset 328))
 
 (defclass overlay (container) ())
 (defcfun "gtk_overlay_new" :pointer)
@@ -64,9 +73,18 @@
 
 (in-package :gdk-cffi)
 (export
- '(gdk-screen-get-rgba-visual
+ '(
+   
+   gdk-x11-window-get-xid
+   gdk-x11-get-default-xdisplay
+
+   gdk-screen-get-rgba-visual
    gdk-window-add-filter
    gdk-window-remove-filter))
+
+(defcfun "gdk_x11_window_get_xid" :pointer
+  (gdk-window :pointer))
+(defcfun "gdk_x11_get_default_xdisplay" :pointer)
 
 (defcfun "gdk_screen_get_rgba_visual" :pointer
   (screen :pointer))
@@ -99,8 +117,5 @@
     :gdk-filter-translate ;; Native event translated into a GDK event and stored in the "event" structure that was passed in
     :gdk-filter-remove) ;; Terminate processing, removing event
 
-
-
-  
 ;; (let ((pack (find-package :gtk-cffi)))
 ;;   (do-all-symbols (sym pack) (when (eql (symbol-package sym) pack) (export sym))))
