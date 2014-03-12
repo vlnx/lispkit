@@ -70,10 +70,13 @@
          (ui-tabs (browser-ui browser)))
     (add ui-status-scroll
          (ui-status (browser-ui browser)))
-      (setf (foreign-slot-value (pointer ui-tabs-scroll)
-            '(:struct gtk-cffi::widget-class)
-            'gtk-cffi::get-preferred-height)
-            (callback ui-tabs-set-preferred-height))
+
+    (webview-hide-scrollbars
+     (ui-tabs (browser-ui browser))
+     ui-tabs-scroll)
+    (webview-hide-scrollbars
+     (ui-status (browser-ui browser))
+      ui-status-scroll)
 
 
     ;; Incomplete tab stuff here
@@ -100,6 +103,16 @@
 
     (add gtk-win pane1)
     (setf (gsignal gtk-win "destroy") (callback exit))
+
+    ;; Note: Small problem with growing the bottom beyond the natural page height
+    (setf
+     (size-request ui-status-scroll) '(-1 16)
+     (size-request ui-tabs-scroll) '(-1 16))
+
+     ;; XXX: fixed from Patch!
+     ;; (preferred-width (ui-tabs (browser-ui (current-browser))))
+     ;; (preferred-height (ui-tabs (browser-ui (current-browser))))
+     ;; => 0
 
     (show gtk-win :all t)
     ;; Needs to be shown to get the window xid from x11

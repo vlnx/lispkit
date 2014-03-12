@@ -121,15 +121,19 @@ Key events working
 # Update my keysym.lisp
 ***REMOVED***@Chelone:pts/16-> ~d » quicklisp » dists » quicklisp » software » clx-20121125-git ()
      λ⮀ cat keysyms.lisp
-# Long term bug: ComposeKey
+# MAJOR WORK DONE: Long term bug: ComposeKey
 gtk signal 'key-press-event' doesn't have X Input Methods enabled
 Have been testing pure Xlib C testing program for key presses
 Haven't worked out X Input Context yet
 When I do, will need to implemnt raw Xlib cffi's for the raw window
 and a defcallback like func called for with each event
-# Long term bug: GTK3 minimum vpane height
+# DONE: Long term bug: GTK3 minimum vpane height
 Found a way to change the height of panels
 technickly it's the 'minimum height' while the middle grabs the rest
 but the webview sugests it's own minimum hegiht that can't be overrulled get
 
+
 Undecided design: defkey, how should funcs ask for arguments
+todo, requestpolicy, whitelist each requested domain
+
+Distracted, by impemnteding colored uri segments

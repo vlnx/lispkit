@@ -92,6 +92,18 @@
 ;; (export '(webview-new
 ;;           webkit-web-view-get-main-frame))
 
+(defcallback true :boolean () t)
+(defun webview-hide-scrollbars (view scrolled-win)
+  "Must be run before size-requests are made, otherwise will intefere with
+complex logic deep inside webkit regarding visible content sizes"
+  ;; Force the main frame to respond to it's parent container's policy change
+  (setf (gsignal (make-instance 'g-object :pointer
+                                (webkit-web-view-get-main-frame view))
+                 "scrollbars-policy-changed")
+        (cffi:callback true))
+  (setf (policy scrolled-win) '(:never :never)))
+
 ;; Export all functions
 (let ((pack (find-package :webkit-binding)))
   (do-all-symbols (sym pack) (when (eql (symbol-package sym) pack) (export sym))))
+
