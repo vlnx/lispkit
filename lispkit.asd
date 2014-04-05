@@ -1,5 +1,5 @@
 (defpackage :lispkit-system
-  (:use :cl :asdf))
+  (:use #:cl #:asdf))
 (in-package :lispkit-system)
 
 (defsystem :lispkit
@@ -8,17 +8,17 @@
   :version "0.0.0"
   :maintainer "Nyx"
   :description "A webkit interface" 
-  :depends-on (:swank
+  :depends-on (;;:swank
                :gtk-cffi
                :bordeaux-threads
                :cl-json
                :cl-ppcre
-               #+sbcl :sb-posix)
+               :sb-posix)
   :serial t
   :components ((:file "package")
                (:file "utils")
-               (:file "patch-gtk3-main-loop")
 
+               (:file "patch-gtk3-main-loop")
                (:file "cffi/types")
                (:file "cffi/x11")
                (:file "cffi/gtk")
@@ -26,14 +26,20 @@
                (:file "cffi/webkit")
                (:file "cffi/js")
 
+               (:file "modules/transcompiler")
+               (:file "modules/keys/parse")
+               (:file "modules/keys/from-gdk")
+
                (:file "core/primitives")
-               (:file "core/transcompiler")
-               (:file "core/keysyms")
-               (:file "core/keypress")
-               (:file "core/keys")
-               (:file "core/defexports")
-               (:file "core/views")
-               ;; (:file "core/tabs")
+               (:file "core/browser-class")
+               (:file "core/tabs")
+               (:file "core/maps")
                (:file "core/window")
 
-               (:file "image/lispkit")))
+               (:file "core/defexports")
+               (:file "core/defscripts")
+               (:file "core/scripts")
+
+               (:file "core/views")
+
+               (:file "build/lispkit")))

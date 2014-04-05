@@ -1,3 +1,5 @@
+;; FIXME: Make it so simple-errors on the lisp side have other restarts than Abort gtk-main thread
+
 (in-package :gtk-cffi+threads)
 ;; may have to patch in to asd file's depends on
 
@@ -37,8 +39,10 @@
       (when (and *main-thread* (not (bordeaux-threads:thread-alive-p *main-thread*)))
         (setf *main-thread* nil))
       (unless *main-thread*
-        (setf *main-thread* (bordeaux-threads:make-thread (lambda () 
-                                              (with-gdk-threads-lock (gtk-main))) :name "cl-gtk2 main thread")
+        (setf *main-thread*
+              (bordeaux-threads:make-thread
+               (lambda () (with-gdk-threads-lock (gtk-main)))
+               :name "gtk3 main thread")
               *main-thread-level* 0))
       (incf *main-thread-level*))
     (values))

@@ -137,3 +137,11 @@ Undecided design: defkey, how should funcs ask for arguments
 todo, requestpolicy, whitelist each requested domain
 
 Distracted, by impemnteding colored uri segments
+
+Not yet:
+Name Spaces, packages, explict cffi/gt-cffi, webkit-bindings
+
+TODO: reimpement keystokes
+https://developer.gnome.org/gobject/unstable/gobject-Signals.html#g-signal-new
+https://developer.gnome.org/libsoup/stable/SoupSession.html
+https://developer.gnome.org/libsoup/stable/SoupURI.html#soup-uri-new

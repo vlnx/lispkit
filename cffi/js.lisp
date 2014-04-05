@@ -188,11 +188,11 @@ In the javascript context the function is within the global object 'Exported'"
 ;;     ;;    ;; (foreign-slot-value static-func-null '(:struct js-static-function) 'name) (null-pointer)
 ;;     ;;    ;; (foreign-slot-value static-func-null '(:struct js-static-function) 'func) (null-pointer)
 ;;     ;;    ;; (foreign-slot-value static-func-null '(:struct js-static-function) 'property-attributes) 0
-       
+
 ;;     ;;    ;; ;; Set array containing static function
 ;;     ;;    ;; (mem-aref arr :pointer 1) static-func
 ;;     ;;    ;; (mem-aref arr :pointer 2) static-func-null
-       
+
 ;;     ;;    ;; ;; Fill in class definiton
 ;;     ;;    ;; (foreign-slot-value class-def '(:struct js-class-definition) 'version) 0
 ;;     ;;    ;; (foreign-slot-value class-def '(:struct js-class-definition) 'attributes) 0
@@ -202,7 +202,7 @@ In the javascript context the function is within the global object 'Exported'"
 ;;       ;; (setf
 ;;       ;;  (foreign-slot-value class-def '(:struct js-class-definition) 'class-name) property-name-c
 ;;       ;;  (foreign-slot-value class-def '(:struct js-class-definition) 'call-as-function) callback-pointer
-       
+
 ;;       ;;  ;; Create the javascript object
 ;;       ;;  js-class (js-class-create class-def)
 ;;       ;;  )

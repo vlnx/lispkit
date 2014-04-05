@@ -34,24 +34,73 @@
    #:within-main-loop
    #:leave-gtk-main))
 
+(defpackage :lispkit/utils
+  (:use #:common-lisp)
+  (:export
+   #:as-keyword
+   #:as-symbol
+   #:symbol-to-string))
+
+(defpackage :lispkit/transcompile
+  (:use #:common-lisp
+        #:lispkit/utils)
+  (:export
+   *transcompiler-cache-dir*
+   #:transcompiler
+   *transcompilers*
+   #:transcompile))
+
+(defpackage :lispkit/primitives
+  (:use #:common-lisp
+        #:lispkit/utils
+        #:lispkit/transcompile)
+  (:export
+   #:ui-scheme-p
+   #:ui-symbol-to-uri
+   #:ui-scheme-uri-to-symbol
+   *lispkit-cache-dir*
+   *site-dir*
+   *uri-homepage*
+   *maps*
+   *uri-scripts*
+   *js-exports*
+   *hooks*
+   #:run-hook))
+
+(defpackage :lispkit/keys
+  (:use #:common-lisp
+        #:cffi #:cffi-objects
+        #:x11-binding)
+  ;; #:gdk-cffi
+  (:export
+   #:kbd
+   #:define-key
+   #:make-kmap
+   #:print-key
+   #:handle-keymap
+   #:create-xic
+   #:process-gdk-event->key))
+
 (defpackage :lispkit
   (:use #:common-lisp
         #:cffi-objects #:g-object-cffi
         :cffi ;; defcallback
         :gtk-cffi
         :gtk-cffi+threads
-        ;; :gdk-cffi ;; keys
         :cl-json
-        :js-binding
         :x11-binding
-        :webkit-binding)
+        :js-binding
+        #:webkit-binding
+        :lispkit/utils
+        :lispkit/transcompile
+        :lispkit/primitives
+        ;; #:lispkit/webviews
+        :lispkit/keys)
   ;; Import everything exepct
   (:shadowing-import-from :gtk-cffi
                           #:window
-                          #:image
-                          )
-                          ;;#:tabs)
-  (:shadow #:tabs)
+                          #:image)
+  (:shadow #:tabs #:uri)
   (:shadowing-import-from :g-object-cffi
                           #:with-object)
   (:export
