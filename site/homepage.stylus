@@ -1,0 +1,4 @@
+body, html
+    background-color grey
+a
+    color green

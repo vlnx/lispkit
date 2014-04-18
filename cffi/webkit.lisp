@@ -103,6 +103,12 @@ complex logic deep inside webkit regarding visible content sizes"
         (cffi:callback true))
   (setf (policy scrolled-win) '(:never :never)))
 
+(defcfun "webkit_web_view_get_inspector" pobject
+  (view pobject))
+(defcfun "webkit_web_inspector_get_web_view" pobject
+  (inspector pobject))
+;; (webkit-web-view-get-inspector
+
 ;; Export all functions
 (let ((pack (find-package :webkit-binding)))
   (do-all-symbols (sym pack) (when (eql (symbol-package sym) pack) (export sym))))

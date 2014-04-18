@@ -34,7 +34,9 @@
                (:file "core/browser-class")
                (:file "core/tabs")
                (:file "core/maps")
-               (:file "core/window")
+               (:file "core/browser-signals")
+               (:file "core/browser-init")
+               (:file "core/ui-update")
 
                (:file "core/defexports")
                (:file "core/defscripts")

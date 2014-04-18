@@ -44,7 +44,7 @@ body
     //     .extension
     //     .path
 
-    #passthroughWarning
+    #keymode
         background-color red
         color base03
 

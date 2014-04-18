@@ -59,10 +59,14 @@
   ((ui :accessor browser-ui
        :initform (make-instance 'ui-views)
        :documentation "The class for the view instances used in the interface")
-   (tabs :accessor browser-tabs ;; List of tab instances
+   (tabs :accessor browser-tabs
          :initarg :inital-tabs
          :initform (list *uri-homepage*)
-         :documentation "Give initial tabs, then will be replaced with tab instances")
+         :documentation "Give initial tabs, then will be replaced with
+                         the list of active tab instances")
+   (tabs-current-index :accessor browser-tabs-current-index
+                       :initform 0
+                       :documentation "Current tab index")
    (gtk :accessor browser-gtk
         :initform (make-instance 'gtk-widgets)
         :documentation "widgets used in the window")
@@ -77,13 +81,55 @@
             (tab-view tab))
           (browser-tabs b)))
 
-(defun current-tab (&optional (browser (current-browser)))
+(defun current-tab (&optional (slot 'view) (browser (current-browser)))
   "Maybe optimize, keep track of index, so don't have to cffi it each time"
-  (tab-view (nth 
-             (notebook-current-tab-index
-              (widgets-notebook (browser-gtk browser)))
-             (browser-tabs browser))))
+  (slot-value (nth 
+               (browser-tabs-current-index browser)
+               (browser-tabs browser)) slot))
 
 ;; (defun (setf browser-tabs) (browser new-tab-list)
 ;;   ;; diff -> already there, new, deleted
 ;;   )
+
+(defvar *window-inspector* nil)
+(defvar *window* nil)
+(defun current-browser () *window*)
+(defun browsers () (list (current-browser)))
+
+(defun browser-find-instance (widget &key of from)
+  "When a view or other widget is passed in a callback argument,
+   find it's browser instance
+ (browser-find-instance :of 'browser :from 'view widget)
+ (browser-find-instance :of 'tab :from 'scrolled-window widget)"
+  (let (source ;; List of items to filter
+        this-test) ;; Given each source item, will return the first true
+    (cond
+      ((and (eq of 'browser)
+            (eq from 'view))
+       (setf source (browsers)
+             this-test
+             (lambda (browser)
+               (let ((views (concatenate 'list
+                                         (list
+                                          (ui-tabs (browser-ui browser))
+                                          (ui-status (browser-ui browser)))
+                                         (browser-views browser))))
+                 (when (member widget views)
+                   browser)))))
+      ((and (eq of 'browser)
+            (eq from 'widget))
+       (setf source (browsers)
+             this-test
+             (lambda (browser)
+               ;; maybe fix, test each gtk widget in the instance
+               browser)))
+      ((and (eq of 'tab)
+            (eq from 'scrolled-window))
+       (setf source (first (mapcar #'browser-tabs ;; fix for multiple
+                                   (browsers)))
+             this-test (lambda (tab)
+                         (when (eq widget
+                                   (tab-scroll tab))
+                           tab))))
+      (t (error "Requested argument are not impemented")))
+    (first (delete-if #'null (mapcar this-test source)))))

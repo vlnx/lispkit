@@ -1,7 +1,15 @@
 (in-package :lispkit)
+
+(defun win ()
+  "Open up the gtk window"
+  (gtk-init)
+  (gdk-threads-init)
+  (within-main-loop
+    (setf *window* (make-instance 'browser
+                                  :inital-tabs
+                                  (list *uri-homepage* "http://10.1.7.1/")))))
+
 ;; In this file, this would be the executable, process args, swank, open window
-
-
 ;; (defvar *swank-server*)
 
 ;; Image startup

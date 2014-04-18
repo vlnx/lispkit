@@ -36,11 +36,10 @@ Next can be #'func a function name or an implcit lambda"
 ;; (macroexpand '(defkey :top t (a) a))
 ;; (DEFKEY-AUTO-KBD (GETF *MAPS* :TOP) T (LAMBDA (A) A))
 
-
-
 ;; Create/Empty keymaps
 (setf (getf *maps* :top) (make-kmap)
       (getf *maps* :prompt) (make-kmap)
+      (getf *maps* :group-slash-tabs) (make-kmap)
       (getf *maps* :passthrough) (make-kmap))
 
 (defkey :passthrough "C-z" (browser)
@@ -48,7 +47,7 @@ Next can be #'func a function name or an implcit lambda"
   (let ((kstate (browser-key-state browser)))
     (setf (passthrough-state kstate)
           (null (passthrough-state kstate)))
-    (ui-update (browser-ui browser) :passthrough
+    (ui-update browser :passthrough
                (passthrough-state kstate))))
 
 ;; (defun top-default (b key)
@@ -72,45 +71,97 @@ or just like in pure stumpwm one key selects a different map , or both")
 ;; (kbd "multiple") => '(#S<KEY> #S<KEY>)
 ;; (defkey :top "gT" #'keypress-buffer-empty)
 
-(defkey :top "n" (b)
+;; FIXME: Make keys more buffer centric
+;; FIXME: remove group-map
+;; FIXME: if do every use other map, show it in the bar
+(defkey :group-slash-tabs "t" (b)
   (let ((n (widgets-notebook (browser-gtk b))))
     (setf (notebook-current-tab-index n)
-          (+ 1 (notebook-current-tab-index n)))
-    ;; Get content tab
-    ;; will be scrolled-window get child
-    ;; ui-update :uri (property view :uri)
-    ))
-(defkey :top "p" (b)
+          (+ 1 (notebook-current-tab-index n))))
+  (setf (active-maps (browser-key-state b)) '(:top)))
+(defkey :group-slash-tabs "T" (b)
   (let ((n (widgets-notebook (browser-gtk b))))
     (setf (notebook-current-tab-index n)
-          (- 1 (notebook-current-tab-index n)))))
+          (- 1 (notebook-current-tab-index n))))
+  (setf (active-maps (browser-key-state b)) '(:top)))
+(defkey :top "g" (b)
+  (setf (active-maps (browser-key-state b))
+        '(:group-slash-tabs)))
+;; (defkey :top "n" (b)
+;;   (let ((n (widgets-notebook (browser-gtk b))))
+;;     (setf (notebook-current-tab-index n)
+;;           (+ 1 (notebook-current-tab-index n)))))
+;; (defkey :top "p" (b)
+;;   (let ((n (widgets-notebook (browser-gtk b))))
+;;     (setf (notebook-current-tab-index n)
+;;           (- 1 (notebook-current-tab-index n)))))
 
 (defkey :top "a" (b)
   (webkit-web-view-load-uri (current-tab b) "http://www.example.com"))
 (defkey :top "A" (b)
   (webkit-web-view-load-uri (current-tab b) "http://www.duckduckgo.com"))
 
-;; FIXME: Impemnte scrolling
+(defvar *scroll-step* 40)
 (defkey :top "j" (b)
-  (let ((v (current-tab b)))
-    (js-eval-webview v "window.alert('Scroll down');")))
+  "Scroll down on the current page by the scroll-step"
+  (scroll-to (current-tab 'scroll b) :x t :rel *scroll-step*))
 (defkey :top "k" (b)
-  (let ((v (current-tab b)))
-    (js-eval-webview v "window.alert('Scroll Up');")))
+  "Scroll up on the current page by the scroll-step"
+  (scroll-to (current-tab 'scroll b) :x t :rel (- *scroll-step*)))
+(defkey :top "h" (b)
+  "Scroll to the left"
+  (scroll-to (current-tab 'scroll b) :y t :rel (- *scroll-step*)))
+(defkey :top "l" (b)
+  "Scroll to the right"
+  (scroll-to (current-tab 'scroll b) :y t :rel *scroll-step*))
+(defkey :top "0" (b)
+  "Scroll to the top of the page"
+  (scroll-to (current-tab 'scroll b) :x 0))
+(defkey :top "G" (b)
+  "Scroll to the bottom of the page"
+  (scroll-to (current-tab 'scroll b) :x -1))
+(defkey :top "SPC" (b)
+  "Scroll to down a page"
+  (scroll-to (current-tab 'scroll b) :x t :rel t :page 1))
+(defkey :top "C-u" (b)
+  "Scroll to up half a page"
+  (scroll-to (current-tab 'scroll b) :x t :rel t :page -0.5))
+(defkey :top "C-d" (b)
+  "Scroll to down half a page"
+  (scroll-to (current-tab 'scroll b) :x t :rel t :page 0.5))
+
+;; (defkeys :top
+;;     (("j") "Scroll down on the current page by the scroll-step"
+;;      :x t :rel 20)
+;;   (("k") "Scroll up on the current page by the scroll-step"
+;;    :x t :rel -20)
+;;   (("h") "Scroll to the left"
+;;    :y t :rel -20)
+;;   (("l") "Scroll to the right"
+;;    :y t :rel 20)
+;;   (("gg") "Scroll to the top of the page"
+;;    :x 0)
+;;   (("G") "Scroll to the bottom of the page"
+;;    :x -1)
+;;   (("SPC") "Scroll to down a page"
+;;    :x t :rel t :page 1)
+;;   (("C-u") "Scroll to up half a page"
+;;    :x t :rel t :page -0.5)
+;;   (("C-d") "Scroll to down half a page"
+;;    :x t :rel t :page 0.5))
+
 
 (defun open-prompt-with (b starting-input)
   (setf (active-maps (browser-key-state b))
         '(:prompt))
-  (setf (size-request (ui-status (browser-ui b) 'scroll))
-        '(-1 32))
-  (ui-update (browser-ui b) :prompt-enter starting-input))
+  (ui-update b :prompt-enter starting-input))
 
 (defkey :top ";" (b)
   (open-prompt-with b ""))
 (defkey :prompt "ESC" (b)
   (setf (active-maps (browser-key-state b))
         '(:top))
-  (ui-update (browser-ui b)
+  (ui-update b
              :prompt-leave t))
 
 (defkey :top "o" (b)
@@ -118,12 +169,10 @@ or just like in pure stumpwm one key selects a different map , or both")
 (defkey :top "O" (b)
   (open-prompt-with
    b (format nil "open ~a"
-             (property (current-tab b) :uri))))
+             (property (current-tab 'view b) :uri))))
 
 (defkey :prompt t (b key)
-  (ui-update (browser-ui b)
-             :prompt-send-key
-             (print-key key)))
+  (ui-update b :prompt-send-key (print-key key)))
 
 ;; TODO: Give keys the, browser they were invoked on
 ;;       Define macros for maps, for javascript action calls

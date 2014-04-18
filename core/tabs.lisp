@@ -13,11 +13,40 @@
         ret)))
 (defun (setf notebook-current-tab-index) (new-index notebook)
   (gtk-notebook-set-current-page
-   notebook new-index)
-  ;; FIXME: run-hook *hooks* :switch-tab , arg new-tab
-)
+   notebook new-index))
 
-;; (setf (getf *hooks* :switch-tab)
-;;       (lambda (browser new-tab)
-;;         (ui-update (browser-ui browser)
-;;                    'uri (property (tab-view new-tab) :uri))))
+
+;; Scrolling,
+
+(defun scroll-to (scrolled-window &key
+                                    x ;; t or num
+                                    y ;; t or num
+                                    rel
+                                    page ;; if rel to page
+                                    percent)
+  ""
+  (let ((adj 
+         (if x
+             (vadjustment scrolled-window)
+             (hadjustment scrolled-window)))
+        val)
+    ;; (cond (x (vadjustment scrolled-window))
+    ;;                    (y (hadjustment scrolled-window))
+    ;;                    (t (error "Invalid Arguments")))))
+    (setf val
+          (cond
+            (rel (+ (property adj :value)
+                    (if page
+                        (ceiling (* (property adj :page-size) page))
+                        rel)))
+            (percent (ceiling (* (property adj :upper)
+                                 (/ percent 100))))
+            (t (if (or (eq x -1) (eq y -1))
+                   (property adj :upper)
+                   (or x y)))))
+    (setf (property adj :value) val)))
+
+;; (scroll-to (tab-scroll (current-tab)) :y t :rel 20)
+;; (scroll-to (tab-scroll (current-tab)) :x t :page t :rel 20)
+;; (scroll-to (tab-scroll (current-tab)) :x 0)
+;; (scroll-to (tab-scroll (current-tab)) :x -1)

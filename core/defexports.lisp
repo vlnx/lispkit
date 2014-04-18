@@ -1,6 +1,8 @@
 (in-package :lispkit)
 ;; Define macro to define lisp functions able to export to javascript
 
+;; NOTE: are defcallback's redefineable, if not, give defun invoke that can change
+
 (defun defexport-var-binding (let-binding body-func)
   (eval `(let ,let-binding ,body-func)))
 

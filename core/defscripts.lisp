@@ -39,22 +39,22 @@
              :scripts scripts))))))
 
 (defun lookup-scripts (uri)
-  (first 
-   (delete-if #'null
-              (mapcar
-               (lambda (binding)
-                 (let ((uri-struct (uri-scripts/binding-uri binding)))
-                   (cond
-                     ((uri-scripts/uri-exact-uri uri-struct)
-                      (when (string= (uri-scripts/uri-exact-uri uri-struct)
-                                     uri)
-                        binding))
-                     ((uri-scripts/uri-regex-uri uri-struct)
-                      (when (ppcre:scan 
-                             (uri-scripts/uri-regex-uri uri-struct)
-                             uri)
-                        binding)))))
-               (uri-scripts-bindings *uri-scripts*)))))
+  "Given a uri find any scripts that should apply"
+  (delete-if #'null
+             (mapcar
+              (lambda (binding)
+                (let ((uri-struct (uri-scripts/binding-uri binding)))
+                  (cond
+                    ((uri-scripts/uri-exact-uri uri-struct)
+                     (when (string= (uri-scripts/uri-exact-uri uri-struct)
+                                    uri)
+                       binding))
+                    ((uri-scripts/uri-regex-uri uri-struct)
+                     (when (ppcre:scan 
+                            (uri-scripts/uri-regex-uri uri-struct)
+                            uri)
+                       binding)))))
+              (uri-scripts-bindings *uri-scripts*))))
 
 ;; Setup transcompiler package
 (setf *transcompiler-cache-dir* *lispkit-cache-dir*)
@@ -84,15 +84,15 @@ Return the transcompiled file content"
         (error "needed file doesn't exist"))))
 
 
-(defun ui-get-js-to-apply-css (css)
-  "Given the css, return the js to apply it to ui-views"
-  ;; NOTE: also escape \'
-  (ppcre:regex-replace-all
-   "\\n"
-   (format nil "document.getElementsByTagName('style')[0].innerHTML = '~a'"
-           css)
-   "\\n"))
+(defun get-js-to-apply-css (css)
+  "Given the css, return the js to apply it"
+  (let ((template
+            (resource-content 'util-templates/apply-css 'coffee))
+        (css-one-line
+         (ppcre:regex-replace-all "\\n" css " "))) ;; NOTE: also escape \'
+    (ppcre:regex-replace-all "{{{snip}}}" template css-one-line)))
 
+;; somehow per page load connected to a view, have status of applyed scripts
 (defun invoke-scripts (view scripts)
   (let ((exports (uri-scripts/scripts-exports
                   scripts))
@@ -123,34 +123,8 @@ Return the transcompiled file content"
               js))
     (when styles
       (mapcar (lambda (i)
-                ;; Todo make better apply script and also way toggle userstyles
                 (js-eval-webview
                  view
-                 (ui-get-js-to-apply-css
+                 (get-js-to-apply-css
                   (resource-content i 'stylus))))
               styles))))
-
-
-(defun ui-update (ui &key
-                       prompt-send-key
-                       prompt-enter
-                       prompt-leave
-                       (passthrough 0)
-                       uri)
-  "Take an element of the iterface with any number of arguments, eval what
-needs to be done"
-  (flet ((js-status (str)
-           (js-eval-webview (ui-status ui) str)))
-    (when prompt-send-key (js-status
-                           (format nil "prompt.sendKey('~a');" prompt-send-key)))
-    (when prompt-enter (js-status
-                        (format nil "prompt.open('~a');" prompt-enter)))
-    (when prompt-leave (js-status "prompt.close();"))
-    (unless (eq 0 passthrough)
-        (js-status
-         (if passthrough
-             "statusbar.passthrough(true);"
-             "statusbar.passthrough(false);")))
-    (when uri (js-status
-               (format nil "statusbar.updateUri('~a');" 
-                       uri)))))
