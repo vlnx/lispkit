@@ -36,17 +36,20 @@ body
     padding 2px
     max-height 16px
 
-    span#history
+    .history
         margin-left 3px
         
-    #uri
+    .uri
+    .progressIndicator
+    .history
         float left
+
     //     .protocol
     //     .domain
     //     .extension
     //     .path
 
-    #keymode
+    .keymode
         background-color red
         color base03
 

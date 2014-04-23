@@ -1,5 +1,5 @@
 (in-package :lispkit)
-;; Connect class arguments
+;; Connect gtk class slots
 
 (defmethod initialize-instance :after ((tab tab) &key)
   (setf (tab-view tab) ;; Transform inital uri to view

@@ -97,9 +97,9 @@ or just like in pure stumpwm one key selects a different map , or both")
 ;;           (- 1 (notebook-current-tab-index n)))))
 
 (defkey :top "a" (b)
-  (webkit-web-view-load-uri (current-tab b) "http://www.example.com"))
+  (webkit-web-view-load-uri (current-tab 'view b) "http://www.example.com"))
 (defkey :top "A" (b)
-  (webkit-web-view-load-uri (current-tab b) "http://www.duckduckgo.com"))
+  (webkit-web-view-load-uri (current-tab 'view b) "http://www.duckduckgo.com"))
 
 (defvar *scroll-step* 40)
 (defkey :top "j" (b)

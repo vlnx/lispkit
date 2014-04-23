@@ -109,6 +109,11 @@ complex logic deep inside webkit regarding visible content sizes"
   (inspector pobject))
 ;; (webkit-web-view-get-inspector
 
+(defcfun "webkit_web_view_can_go_back" :boolean
+  (view pobject))
+(defcfun "webkit_web_view_can_go_forward" :boolean
+  (view pobject))
+
 ;; Export all functions
 (let ((pack (find-package :webkit-binding)))
   (do-all-symbols (sym pack) (when (eql (symbol-package sym) pack) (export sym))))

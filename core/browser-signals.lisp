@@ -119,6 +119,9 @@ output => list of kmaps"
                                                 :of 'tab
                                                 :from 'scrolled-window)))
     (ui-update (current-browser)
+               :history (tab-view switched-to-tab)
+               :progress (tab-view switched-to-tab)
+               :scroll-indicator (tab-scroll switched-to-tab)
                :tabs-switched-page page-num
                :uri (tab-view switched-to-tab))))
 ;; :update-tab-list t)

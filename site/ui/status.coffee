@@ -5,7 +5,7 @@ class Uri extends Backbone.Model
     defaults: uri: 'Give URI'
 class UriView extends Backbone.View
     tagName: 'span'
-    id: 'uri'
+    className: 'uri'
     render: =>
         # http://nodejs.org/api/all.html#all_url
         $(@el).html @model.get 'uri'
@@ -19,7 +19,7 @@ class Keymode extends Backbone.Model
     defaults: mode: 'top'
 class KeymodeView extends Backbone.View
     tagName: 'span'
-    id: 'keymode'
+    className: 'keymode'
     render: =>
         if @model.get('mode') is 'top'
             $(@el).html ''
@@ -37,16 +37,18 @@ class History extends Backbone.Model
         forward: no
 class HistoryView extends Backbone.View
     tagName: 'span'
-    id: 'history'
-    render: =>
-        $(@el).html (if @model.get 'forward' and @model.get 'backward'
+    className: 'history'
+    logic: =>
+        if @model.get('forward') and @model.get 'backward'
             '[+-]'
         else if @model.get 'forward'
             '[-]'
         else if @model.get 'backward'
             '[+]'
         else
-            '')
+            ''
+    render: =>
+        $(@el).html @logic()
         return this
     model: new History
     initialize: =>
@@ -59,7 +61,7 @@ class TabIndicator extends Backbone.Model
         total: 0
 class TabIndicatorView extends Backbone.View
     tagName: 'span'
-    id: 'tabIndicator'
+    className: 'tabIndicator'
     render: =>
         $(@el).html "[#{@model.get 'current'}/#{@model.get 'total'}]"
         return this
@@ -76,7 +78,7 @@ class ScrollIndicator extends Backbone.Model
         xmax: 0
 class ScrollIndicatorView extends Backbone.View
     tagName: 'span'
-    id: 'scrollIndicator'
+    className: 'scrollIndicator'
     logic: =>
         if Number(@model.get 'ymax') is 0
             'All'
@@ -94,6 +96,25 @@ class ScrollIndicatorView extends Backbone.View
         @listenTo @model, 'change', @render
         @listenTo @model, 'destroy', @remove
 
+class ProgressIndicator extends Backbone.Model
+    defaults: progress: 0
+class ProgressIndicatorView extends Backbone.View
+    tagName: 'span'
+    className: 'progressIndicator'
+    logic: =>
+        if @model.get('progress') is '100'
+            ''
+        else
+            "(#{@model.get 'progress'})%"
+    render: =>
+        $(@el).html @logic()
+        return this
+    model: new ProgressIndicator
+    initialize: =>
+        @listenTo @model, 'change', @render
+        @listenTo @model, 'destroy', @remove
+
+
 class StatusBar extends Backbone.View
     id: 'statusbar'
     uri: new UriView
@@ -101,9 +122,11 @@ class StatusBar extends Backbone.View
     history: new HistoryView
     tabIndicator: new TabIndicatorView
     scrollIndicator: new ScrollIndicatorView
+    progressIndicator: new ProgressIndicatorView
     initialize: =>
         $(@el).append @uri.render().el
         $(@el).append @history.render().el
+        $(@el).append @progressIndicator.render().el
         $(@el).append @keymode.render().el
         $(@el).append @tabIndicator.render().el
         $(@el).append @scrollIndicator.render().el
@@ -130,7 +153,8 @@ class InputView extends Backbone.View
     moveCursor: (key) -> alert key
     backspace: =>
         content = @model.get 'content'
-        if content.length is 1 then bar.prompt.close() # trigger shouldClose
+        if content.length is 1
+            @trigger 'shouldClosePrompt'
         @model.set 'content', content.substring(0, content.length-1)
     initialize: =>
         @listenTo @model, 'change', @render
@@ -149,13 +173,13 @@ class Prompt extends Backbone.View
         @input.model.set 'content', ''
         $(@el).hide()
     initialize: =>
+        @listenTo @input, 'shouldClosePrompt', @close
         $(@el).append @input.el
         $(@el).hide()
     sendKey: (keystr) =>
         console.log "Prompt Key: #{keystr}"
         switch keystr
             when 'SPC' then @input.addStr ' '
-            when 'S-:' then @input.addStr ':' # ;?
             when 'Left', 'Right', 'Up', 'Down'
                 @input.moveCursor keystr
             when 'BS' then @input.backspace()
@@ -180,6 +204,8 @@ class AppView extends Backbone.View
         $(@el).append @status.el
         $(@el).append @prompt.el
 window.bar = new AppView()
+
+# TODO: request information to initialize
 
 notify = (str) -> bar.prompt.input.model.set 'content', str
 # promptHistory = $.cache('promptHistory').set('156645',':open last.fm')

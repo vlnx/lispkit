@@ -13,9 +13,11 @@
       ((or (eq status :webkit-load-committed)
            (eq status :webkit-load-finished))
        ;; This may be called too much for the same uri
-       (ui-update 
-        (browser-find-instance view :of 'browser :from 'view)
-        :uri view)))))
+       (unless (ui-scheme-p (or (property view :uri) "about:blank"))
+         (ui-update
+          (browser-find-instance view :of 'browser :from 'view)
+          :uri view
+          :history view))))))
 
 ;; Used to load content for ui schemes
 (defcallback navigation-request :boolean
@@ -25,7 +27,7 @@
      (action :pointer)
      (policy :pointer))
   (declare (ignore action policy source-view))
-  (let ((uri (property 
+  (let ((uri (property
               (make-instance 'g-object :pointer request)
               :uri)))
     (if (ui-scheme-p uri)
@@ -81,8 +83,8 @@
      (title :pointer))
   (declare (ignore source-frame title))
   (ui-update (browser-find-instance view
-                         :of 'browser
-                         :from 'view)
+                                    :of 'browser
+                                    :from 'view)
              :tabs-update-title view))
 
 ;; Called on scrolling mouse events
@@ -91,27 +93,44 @@
      (event :pointer))
   (declare (ignore widget event))
   (ui-update (current-browser)
-              :scroll-indicator (current-tab 'scroll)))
+             :scroll-indicator (current-tab 'scroll)))
+
+(defcallback notify-progress :void
+    ((source-view pobject))
+  (when (current-browser) ;; First called before browser is set
+    (ui-update (current-browser) :progress source-view)))
 
 ;; '((:enable-plugins nil)
 ;;   (:enable-scripts nil)
 ;;   (:user-agent "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:21.0) Gecko/20100101 Firefox/21.0")))
 ;; (setf (property (webkit-get-default-session) :proxy-uri)
 ;;       (soup-uri-new "http://127.0.0.1:8123/"))
-(defun connect-webview-signals (view)
+
+(defun connect-webview-signals (view &key ui-only-view)
+  "Connect signals to new webviews, if the view is intended for ui only,
+don't connect signals that update the status bar"
+
+  ;; (when ui-only-view)
+
+  (unless ui-only-view
+    (setf
+     (gsignal view "scroll-event")
+     (callback scroll-event)
+
+     (gsignal view "notify::progress")
+     (callback notify-progress)))
+
+
   (setf
    (gsignal view "navigation-policy-decision-requested")
    (callback navigation-request)
 
-   (gsignal view "console-message")
-   (callback console-message)
-
-   (gsignal view "scroll-event")
-   (callback scroll-event)
-
    (gsignal view "notify::load-status")
-   (callback notify-load-status))
-  
+   (callback notify-load-status)
+
+   (gsignal view "console-message")
+   (callback console-message))
+
   (let ((inspector (make-instance 'g-object
                                   :pointer
                                   (webkit-web-view-get-inspector view))))
@@ -129,6 +148,7 @@
     (webview-change-settings view
                              '((:enable-developer-extras t))))
   (when signals
-    (connect-webview-signals view))
+    (connect-webview-signals view
+                             :ui-only-view (ui-scheme-p uri)))
   (when uri
     (webkit-web-view-load-uri view uri)))
