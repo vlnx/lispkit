@@ -85,6 +85,14 @@
                          :from 'view)
              :tabs-update-title view))
 
+;; Called on scrolling mouse events
+(defcallback scroll-event :boolean
+    ((widget pobject)
+     (event :pointer))
+  (declare (ignore widget event))
+  (ui-update (current-browser)
+              :scroll-indicator (current-tab 'scroll)))
+
 ;; '((:enable-plugins nil)
 ;;   (:enable-scripts nil)
 ;;   (:user-agent "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:21.0) Gecko/20100101 Firefox/21.0")))
@@ -98,8 +106,8 @@
    (gsignal view "console-message")
    (callback console-message)
 
-   (gsignal view "notify::title")
-   (callback notify-title)
+   (gsignal view "scroll-event")
+   (callback scroll-event)
 
    (gsignal view "notify::load-status")
    (callback notify-load-status))

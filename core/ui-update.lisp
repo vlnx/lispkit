@@ -6,6 +6,7 @@
                             prompt-leave
                             (passthrough 0)
                             uri
+                            scroll-indicator
                             tabs-reset-list
                             tabs-update-title
                             tabs-switched-page)
@@ -31,10 +32,10 @@ needs to be done"
     ;; "bar.status.history.model.set('forward',true);"
     (when uri ;; Give view, so about:blank can be done here
       (js-status
-       (format nil "bar.status.uri.model.set('uri','~a');" 
+       (format nil "bar.status.uri.model.set('uri','~a');"
                (or (property uri :uri)
                    "about:blank"))))
-    
+
     (when tabs-reset-list
       (js-tabs "tabbar.collection.remove(tabbar.collection.models);")
       (let ((views (browser-views browser)))
@@ -48,7 +49,10 @@ needs to be done"
 
     (when tabs-switched-page ;; gives new page index, also found by browser-tabs-current-index
       (js-tabs (format nil "tabbar.collection.moveCurrentTo(~a);"
-                       (+ 1 tabs-switched-page))))
+                       (+ 1 tabs-switched-page)))
+      (js-status (format nil "bar.status.tabIndicator.model.set({current: ~a, total: ~a});"
+                         (+ 1 tabs-switched-page)
+                         (length (browser-tabs browser)))))
 
     (when tabs-update-title ;; gives the view that needs the title updated
       (let* ((view tabs-update-title)
@@ -60,4 +64,16 @@ needs to be done"
                     "tabbar.collection.findOrder(~a).set('title','~a');"
                     (+ 1 order)
                     title)))))
+
+    (when scroll-indicator ;; give a tab-scroll
+      (js-status (format nil "bar.status.scrollIndicator.model.set({y: ~a, ymax: ~a, x: ~a, xmax: ~a});"
+                         (floor (property (vadjustment scroll-indicator) :value))
+                         (-
+                          (floor (property (vadjustment scroll-indicator) :upper))
+                          (floor (property (vadjustment scroll-indicator) :page-size)))
+                         (floor (property (hadjustment scroll-indicator) :value))
+                         (-
+                          (floor (property (hadjustment scroll-indicator) :upper))
+                          (floor (property (hadjustment scroll-indicator) :page-size))))))
+
     ))

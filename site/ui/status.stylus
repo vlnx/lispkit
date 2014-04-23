@@ -32,13 +32,15 @@ body
     color base0
     
 #statusbar
+    text-align right
     padding 2px
     max-height 16px
 
     span#history
         margin-left 3px
         
-    // #uri
+    #uri
+        float left
     //     .protocol
     //     .domain
     //     .extension

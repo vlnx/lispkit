@@ -44,7 +44,9 @@
             (t (if (or (eq x -1) (eq y -1))
                    (property adj :upper)
                    (or x y)))))
-    (setf (property adj :value) val)))
+    (setf (property adj :value) val))
+  (ui-update (current-browser)
+             :scroll-indicator scrolled-window))
 
 ;; (scroll-to (tab-scroll (current-tab)) :y t :rel 20)
 ;; (scroll-to (tab-scroll (current-tab)) :x t :page t :rel 20)

@@ -53,15 +53,60 @@ class HistoryView extends Backbone.View
         @listenTo @model, 'change', @render
         @listenTo @model, 'destroy', @remove
 
+class TabIndicator extends Backbone.Model
+    defaults:
+        current: 0
+        total: 0
+class TabIndicatorView extends Backbone.View
+    tagName: 'span'
+    id: 'tabIndicator'
+    render: =>
+        $(@el).html "[#{@model.get 'current'}/#{@model.get 'total'}]"
+        return this
+    model: new TabIndicator
+    initialize: =>
+        @listenTo @model, 'change', @render
+        @listenTo @model, 'destroy', @remove
+
+class ScrollIndicator extends Backbone.Model
+    defaults:
+        y: 0
+        ymax: 0
+        x: 0
+        xmax: 0
+class ScrollIndicatorView extends Backbone.View
+    tagName: 'span'
+    id: 'scrollIndicator'
+    logic: =>
+        if Number(@model.get 'ymax') is 0
+            'All'
+        else if Number(@model.get 'y') is 0
+            'Top'
+        else if Number(@model.get 'y') is Number(@model.get 'ymax')
+            'Bot'
+        else
+            "#{Math.floor (@model.get('y') / @model.get('ymax')) * 100}%"
+    render: =>
+        $(@el).html @logic()
+        return this
+    model: new ScrollIndicator
+    initialize: =>
+        @listenTo @model, 'change', @render
+        @listenTo @model, 'destroy', @remove
+
 class StatusBar extends Backbone.View
     id: 'statusbar'
     uri: new UriView
     keymode: new KeymodeView
     history: new HistoryView
+    tabIndicator: new TabIndicatorView
+    scrollIndicator: new ScrollIndicatorView
     initialize: =>
         $(@el).append @uri.render().el
         $(@el).append @history.render().el
         $(@el).append @keymode.render().el
+        $(@el).append @tabIndicator.render().el
+        $(@el).append @scrollIndicator.render().el
 
 
 Commands =
