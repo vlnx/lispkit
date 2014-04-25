@@ -57,6 +57,16 @@
 
 
 ;; Inspector Signals
+(defcallback inspector-close :void
+    ((window pobject))
+  (let ((tab (browser-find-instance window
+                                    :of 'tab :from 'inspector-window)))
+    (when tab
+      (webkit-web-inspector-close
+       (inspector-pointer (tab-inspector tab)))
+      (destroy window)
+      (setf (tab-inspector tab) nil))))
+
 (defcallback inspector-start :pointer
     ((inspector-obj pobject)
      (view pobject)) ;; view to be inspected
@@ -76,6 +86,8 @@
                                           :from 'inspector-pointer)))
     (when inspector
       ;; append title of inspector-window with the title of the tab's view title
+      (setf (gsignal (inspector-window inspector) "destroy")
+            (callback inspector-close))
       (add (inspector-window inspector)
            (inspector-view inspector))
       (show (inspector-window inspector) :all t))

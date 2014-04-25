@@ -164,6 +164,16 @@
                                                  (tab-inspector tab))))
                            (tab-inspector tab)))))
       ((and (eq of 'tab)
+            (eq from 'inspector-window))
+       (setf source (first (mapcar ;; fix for multiple
+                            #'browser-all-tabs
+                            (browsers)))
+             this-test (lambda (tab)
+                         (when (and (tab-inspector tab)
+                                    (eq widget
+                                        (inspector-window (tab-inspector tab))))
+                           tab))))
+      ((and (eq of 'tab)
             (eq from 'view))
        (setf source (first (mapcar ;; fix for multiple
                             #'browser-all-tabs
