@@ -19,8 +19,8 @@ body
     display table
     table-layout fixed
 
-.tab:not(:first-child)
-    border-left 1px solid yellow
+// .tab:not(:first-child)
+//     border-left 1px solid yellow
 
 .tab > .num
      padding-right 5px

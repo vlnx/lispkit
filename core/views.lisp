@@ -58,24 +58,28 @@
 
 ;; Inspector Signals
 (defcallback inspector-start :pointer
-    ((inspector pobject)
+    ((inspector-obj pobject)
      (view pobject)) ;; view to be inspected
-  (declare (ignore inspector))
-  ;; return new webview to place inspector in
-  (pointer (make-instance 'webkit-webview :signals nil)))
+  (let ((tab (browser-find-instance view
+                                    :of 'tab :from 'view)))
+    (setf (tab-inspector tab)
+          (make-instance 'inspector
+                         :pointer inspector-obj
+                         :view (make-instance 'webkit-webview :signals nil)))
+    ;; return new webview to place inspector in
+    (pointer (inspector-view (tab-inspector tab)))))
 
 (defcallback inspector-show :boolean
-    ((inspector pobject))
-  ;; This function may be called twice so only create one window
-  (unless *window-inspector*
-    (setf *window-inspector* (make-instance 'window
-                                            :width 800 :height 600
-                                            :title "LispKit - Inspector"
-                                            :has-resize-grip nil))
-    (add *window-inspector*
-         (webkit-web-inspector-get-web-view inspector))
-    (show *window-inspector* :all t))
-  t)
+    ((inspector-obj pobject))
+  (let ((inspector (browser-find-instance inspector-obj
+                                          :of 'inspector
+                                          :from 'inspector-pointer)))
+    (when inspector
+      ;; append title of inspector-window with the title of the tab's view title
+      (add (inspector-window inspector)
+           (inspector-view inspector))
+      (show (inspector-window inspector) :all t))
+    t))
 
 (defcallback notify-title :void
     ((view pobject)

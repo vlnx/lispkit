@@ -105,8 +105,8 @@ complex logic deep inside webkit regarding visible content sizes"
 
 (defcfun "webkit_web_view_get_inspector" pobject
   (view pobject))
-(defcfun "webkit_web_inspector_get_web_view" pobject
-  (inspector pobject))
+;; (defcfun "webkit_web_inspector_get_web_view" pobject
+;;   (inspector pobject))
 ;; (webkit-web-view-get-inspector
 
 (defcfun "webkit_web_view_can_go_back" :boolean

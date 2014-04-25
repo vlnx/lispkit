@@ -17,10 +17,10 @@
   (setf (active-maps (browser-key-state (current-browser)))
         '(:top)))
 
-(defexport tabs-init ()
-  (ui-update (current-browser)
-             :tabs-reset-list t
-             :tabs-switched-page (browser-tabs-current-index (current-browser))))
+;; (defexport tabs-init ()
+;;   (ui-update (current-browser)
+;;              :tabs-reset-list t
+;;              :tabs-switched-page (browser-tabs-current-index (current-browser))))
 
 ;; Resource content per uri
 (setf *uri-scripts* (make-uri-scripts))
@@ -35,7 +35,7 @@
 (defscript
     `(:exact-uri ,(ui-symbol-to-uri 'tabs))
     '(:deps (ui/deps) ;; browserify-coffee
-      :exports (tabs-init)
+      :exports ()
       :scripts (ui/tabs) ;; look for coffee
       :ui-base-html ui/tabs ;; look for jade
       :styles (ui/tabs))) ;; look for css

@@ -1,19 +1,37 @@
 (in-package :lispkit)
 
+(defclass inspector ()
+  ((view  :accessor inspector-view
+          :initarg :view
+          :documentation "the view for the inspector")
+   (inspector-pointer :accessor inspector-pointer
+                      :initarg :pointer
+                      :documentation "the object for the inspector")
+   (window :accessor inspector-window
+           :initform (make-instance 'window
+                                    :width 800 :height 600
+                                    :title "LispKit - Inspector"
+                                    :has-resize-grip nil)
+           :documentation "the toplevel window"))
+  (:documentation "Contain an inspector's refs"))
+
 (defclass tab ()
   ((view  :accessor tab-view
           :initarg :inital-uri
           :documentation "initialy a uri, translated to a new webview")
    (scroll :accessor tab-scroll
            :initform (make-instance 'scrolled-window)
-           :documentation "it's scrolled window container"))
+           :documentation "it's scrolled window container")
+   (inspector :accessor tab-inspector
+              :initform nil
+              :documentation "inspector class for the tab"))
   (:documentation "Only for WebKit1, create a container and add it"))
 
 (defclass ui-views ()
-  ((tabs 
+  ((tabs
     :initform (make-instance 'tab :inital-uri (ui-symbol-to-uri 'tabs))
     :documentation "Tabs view")
-   (status 
+   (status
     :initform (make-instance 'tab :inital-uri (ui-symbol-to-uri 'status))
     :documentation "Status bar view")))
 
@@ -83,7 +101,7 @@
 
 (defun current-tab (&optional (slot 'view) (browser (current-browser)))
   "Maybe optimize, keep track of index, so don't have to cffi it each time"
-  (slot-value (nth 
+  (slot-value (nth
                (browser-tabs-current-index browser)
                (browser-tabs browser)) slot))
 
@@ -91,10 +109,15 @@
 ;;   ;; diff -> already there, new, deleted
 ;;   )
 
-(defvar *window-inspector* nil)
 (defvar *window* nil)
 (defun current-browser () *window*)
 (defun browsers () (list (current-browser)))
+(defun browser-all-tabs (b)
+  (concatenate 'list
+               (list
+                (slot-value (browser-ui b) 'tabs)
+                (slot-value (browser-ui b) 'status))
+               (browser-tabs b)))
 
 (defun browser-find-instance (widget &key of from)
   "When a view or other widget is passed in a callback argument,
@@ -123,6 +146,32 @@
              (lambda (browser)
                ;; maybe fix, test each gtk widget in the instance
                browser)))
+      ((and (eq of 'inspector)
+            (eq from 'inspector-pointer))
+       (setf source (first (mapcar ;; fix for multiple
+                            #'browser-all-tabs
+                            (browsers)))
+             this-test (lambda (tab)
+                         (when (and (tab-inspector tab)
+                                    ;; (pointer-eq (if (null-pointer-p
+                                    ;;                  (pointer widget))
+                                    ;;                 widget
+                                    ;;                 (pointer widget))
+                                    (pointer-eq (if (pointerp widget)
+                                                    widget
+                                                    (pointer widget))
+                                                (inspector-pointer
+                                                 (tab-inspector tab))))
+                           (tab-inspector tab)))))
+      ((and (eq of 'tab)
+            (eq from 'view))
+       (setf source (first (mapcar ;; fix for multiple
+                            #'browser-all-tabs
+                            (browsers)))
+             this-test (lambda (tab)
+                         (when (eq widget
+                                   (tab-view tab))
+                           tab))))
       ((and (eq of 'tab)
             (eq from 'scrolled-window))
        (setf source (first (mapcar #'browser-tabs ;; fix for multiple

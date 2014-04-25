@@ -35,16 +35,25 @@ in order to hide scrollbars; thus in WebKit1, allow any height in a shrink nil v
               (show (tab-scroll tab)))
             (browser-tabs browser))
 
+
     ;; Add tabs to notebook
     (mapcar (lambda (tab)
               (notebook-add-tab notebook (tab-scroll tab)))
             (browser-tabs browser))
-    
+
     ;; Select starting index of the notebook
     (setf (notebook-current-tab-index notebook) 0)
 
     ;; Connect signals to notebook
     (connect-gtk-notebook-signals notebook)
+
+    ;; FIXME: Race conditions XXX:
+    ;; Init ui tabs
+    (ui-update browser
+               :tabs-reset-list t
+               :tabs-switched-page (browser-tabs-current-index browser))
+
+
 
     ;; Layout configuration to get static heights on top and bottom
     ;; :shrink when nil respects the child's minimal size

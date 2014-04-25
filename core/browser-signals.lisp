@@ -106,6 +106,8 @@ output => list of kmaps"
      (child-widget :pointer)
      (page-num :int))
   (declare (ignore notebook child-widget page-num))
+  (print "page-added")
+  (finish-output)
   ;; (ui-update :update-tab-list t)
   ;; :statusbar-tabs-count
   )
