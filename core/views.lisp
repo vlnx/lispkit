@@ -60,8 +60,10 @@
 (defcallback inspector-close :void
     ((window pobject))
   (let ((tab (browser-find-instance window
-                                    :of 'tab :from 'inspector-window)))
+                                    :of 'tab
+                                    :from 'inspector-window)))
     (when tab
+      ;; Also destroy the view attached?
       (webkit-web-inspector-close
        (inspector-pointer (tab-inspector tab)))
       (destroy window)
@@ -84,20 +86,23 @@
   (let ((inspector (browser-find-instance inspector-obj
                                           :of 'inspector
                                           :from 'inspector-pointer)))
-    (when inspector
-      ;; append title of inspector-window with the title of the tab's view title
+    (when (and inspector
+               (null (inspector-shown inspector)))
       (setf (gsignal (inspector-window inspector) "destroy")
-            (callback inspector-close))
+            (callback inspector-close)
+            (inspector-shown inspector) t)
       (add (inspector-window inspector)
            (inspector-view inspector))
-      (show (inspector-window inspector) :all t))
-    t))
+      (show (inspector-window inspector) :all t)
+      t)))
 
 (defcallback notify-title :void
     ((view pobject)
      (source-frame :pointer)
      (title :pointer))
   (declare (ignore source-frame title))
+  ;; TODO: On notify-title, if the connected tab has an inspector
+  ;; append new title to the inspector window
   (ui-update (browser-find-instance view
                                     :of 'browser
                                     :from 'view)

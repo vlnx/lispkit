@@ -7,6 +7,9 @@
    (inspector-pointer :accessor inspector-pointer
                       :initarg :pointer
                       :documentation "the object for the inspector")
+   (shown :accessor inspector-shown
+          :initform nil
+          :documentation "If the view is already added to the toplevel window and shown toplevel")
    (window :accessor inspector-window
            :initform (make-instance 'window
                                     :width 800 :height 600
