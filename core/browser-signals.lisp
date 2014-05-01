@@ -60,7 +60,8 @@ output => list of kmaps"
 
 (defcallback exit :void
     ((window pobject))
-  ;; TODO: Clean up close window's instance
+  ;; TODO: Free each view and widget slot
+  ;; Clean up close window's instance
   ;; check each instance in *windows* for win slot to match this arg
   ;; If last instance and not in slime (leave-gtk-main))
   (destroy window))

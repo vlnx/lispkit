@@ -12,8 +12,40 @@
         (error "Notebook has no pages, can't get current index")
         ret)))
 (defun (setf notebook-current-tab-index) (new-index notebook)
+  (print "try to change index to")
+  (print new-index)
+  (print notebook)
+  (finish-output)
   (gtk-notebook-set-current-page
    notebook new-index))
+
+(defun tab-new (browser uri &key background initializing-class-notebook)
+  ""
+  (let ((notebook (widgets-notebook (browser-gtk browser)))
+        (tab (make-instance 'tab :inital-uri uri))
+        new-index)
+    (print notebook)
+    (finish-output)
+
+    ;; Append new tab to browser's tablist slot
+    (setf (browser-tabs browser)
+          (append (browser-tabs browser)
+                  (list tab)))
+
+    ;; Show tab container, in order to be added to the notebook
+    (show (tab-scroll tab))
+
+    ;; Add tab to notebook
+    (setf new-index
+          (notebook-add-tab
+           notebook
+           (tab-scroll tab)))
+
+    ;; Maybe switch to the new tab
+    (unless background
+      (setf (notebook-current-tab-index notebook)
+            new-index))))
+
 
 
 ;; Scrolling,
@@ -24,8 +56,14 @@
                                     rel
                                     page ;; if rel to page
                                     percent)
-  ""
-  (let ((adj 
+  "
+Examples:
+    (scroll-to (tab-scroll (current-tab)) :y t :rel 20)
+    (scroll-to (tab-scroll (current-tab)) :x t :page t :rel 20)
+    (scroll-to (tab-scroll (current-tab)) :x 0)
+    (scroll-to (tab-scroll (current-tab)) :x -1)
+"
+  (let ((adj
          (if x
              (vadjustment scrolled-window)
              (hadjustment scrolled-window)))
@@ -47,8 +85,3 @@
     (setf (property adj :value) val))
   (ui-update (current-browser)
              :scroll-indicator scrolled-window))
-
-;; (scroll-to (tab-scroll (current-tab)) :y t :rel 20)
-;; (scroll-to (tab-scroll (current-tab)) :x t :page t :rel 20)
-;; (scroll-to (tab-scroll (current-tab)) :x 0)
-;; (scroll-to (tab-scroll (current-tab)) :x -1)

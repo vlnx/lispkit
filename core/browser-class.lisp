@@ -108,14 +108,14 @@
                (browser-tabs-current-index browser)
                (browser-tabs browser)) slot))
 
-;; (defun (setf browser-tabs) (browser new-tab-list)
-;;   ;; diff -> already there, new, deleted
-;;   )
 
-(defvar *window* nil)
-(defun current-browser () *window*)
-(defun browsers () (list (current-browser)))
+(defvar *browsers* nil)
+(defun current-browser ()
+  "Later use focus callbacks to index the current"
+  (first (last *browsers*)))
+
 (defun browser-all-tabs (b)
+  "Return all tab instances including user interface views"
   (concatenate 'list
                (list
                 (slot-value (browser-ui b) 'tabs)
@@ -128,11 +128,12 @@
  (browser-find-instance :of 'browser :from 'view widget)
  (browser-find-instance :of 'tab :from 'scrolled-window widget)"
   (let (source ;; List of items to filter
-        this-test) ;; Given each source item, will return the first true
+        this-test ;; Given each source item, will return the first true
+        ret)
     (cond
       ((and (eq of 'browser)
             (eq from 'view))
-       (setf source (browsers)
+       (setf source *browsers*
              this-test
              (lambda (browser)
                (let ((views (concatenate 'list
@@ -144,22 +145,25 @@
                    browser)))))
       ((and (eq of 'browser)
             (eq from 'widget))
-       (setf source (browsers)
+       (setf source *browsers*
              this-test
              (lambda (browser)
                ;; maybe fix, test each gtk widget in the instance
                browser)))
+      ((and (eq of 'browser)
+            (eq from 'notebook))
+       (setf source *browsers*
+             this-test (lambda (browser)
+                         (when (eq (widgets-notebook (browser-gtk browser))
+                                   widget)
+                           browser))))
       ((and (eq of 'inspector)
             (eq from 'inspector-pointer))
        (setf source (first (mapcar ;; fix for multiple
                             #'browser-all-tabs
-                            (browsers)))
+                            *browsers*))
              this-test (lambda (tab)
                          (when (and (tab-inspector tab)
-                                    ;; (pointer-eq (if (null-pointer-p
-                                    ;;                  (pointer widget))
-                                    ;;                 widget
-                                    ;;                 (pointer widget))
                                     (pointer-eq (if (pointerp widget)
                                                     widget
                                                     (pointer widget))
@@ -170,7 +174,7 @@
             (eq from 'inspector-window))
        (setf source (first (mapcar ;; fix for multiple
                             #'browser-all-tabs
-                            (browsers)))
+                            *browsers*))
              this-test (lambda (tab)
                          (when (and (tab-inspector tab)
                                     (eq widget
@@ -178,20 +182,24 @@
                            tab))))
       ((and (eq of 'tab)
             (eq from 'view))
-       (setf source (first (mapcar ;; fix for multiple
+       (setf source (first (mapcar ;; fix for multiple, my be nil
                             #'browser-all-tabs
-                            (browsers)))
+                            *browsers*))
              this-test (lambda (tab)
                          (when (eq widget
                                    (tab-view tab))
                            tab))))
       ((and (eq of 'tab)
             (eq from 'scrolled-window))
-       (setf source (first (mapcar #'browser-tabs ;; fix for multiple
-                                   (browsers)))
+       (setf source (first (mapcar #'browser-tabs ;; fix for multiple XXX: maybe nil
+                                   *browsers*))
              this-test (lambda (tab)
                          (when (eq widget
                                    (tab-scroll tab))
                            tab))))
       (t (error "Requested argument are not impemented")))
-    (first (delete-if #'null (mapcar this-test source)))))
+    (unless source (error "Empty source"))
+    (setf ret
+          (first (delete-if #'null (mapcar this-test source))))
+    (unless ret (error "Unattached widget"))
+    ret))

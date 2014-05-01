@@ -17,43 +17,15 @@ in order to hide scrollbars; thus in WebKit1, allow any height in a shrink nil v
 
 (defmethod initialize-instance :after ((browser browser) &key)
   "Pack the widgets, created in the initforms"
+  ;; Callbacks depend on this (current-browser) and the browser list
+  (setf *browsers* (append *browsers*
+                           (list browser)))
   (let* ((gtk (browser-gtk browser))
          (pane1 (widgets-pane1 gtk))
          (pane2 (widgets-pane2 gtk))
          (ui (browser-ui browser))
          (notebook (widgets-notebook gtk))
          (gtk-win (widgets-window gtk)))
-
-    ;; Create tab instances
-    (setf (browser-tabs browser)
-          (mapcar (lambda (uri)
-                    (make-instance 'tab :inital-uri uri))
-                  (browser-tabs browser))) ;; :initial-tabs uri list
-
-    ;; Show all tab containers, in order to be added to the notebook
-    (mapcar (lambda (tab)
-              (show (tab-scroll tab)))
-            (browser-tabs browser))
-
-
-    ;; Add tabs to notebook
-    (mapcar (lambda (tab)
-              (notebook-add-tab notebook (tab-scroll tab)))
-            (browser-tabs browser))
-
-    ;; Select starting index of the notebook
-    (setf (notebook-current-tab-index notebook) 0)
-
-    ;; Connect signals to notebook
-    (connect-gtk-notebook-signals notebook)
-
-    ;; FIXME: Race conditions XXX:
-    ;; Init ui tabs
-    (ui-update browser
-               :tabs-reset-list t
-               :tabs-switched-page (browser-tabs-current-index browser))
-
-
 
     ;; Layout configuration to get static heights on top and bottom
     ;; :shrink when nil respects the child's minimal size
@@ -73,6 +45,20 @@ in order to hide scrollbars; thus in WebKit1, allow any height in a shrink nil v
     ;; (preferred-width (ui-tabs (browser-ui (current-browser))))
     ;; (preferred-height (ui-tabs (browser-ui (current-browser))))
     ;; => 0
+
+    ;; Connect signals to notebook
+    (connect-gtk-notebook-signals notebook)
+
+    (let ((inital-uris (browser-tabs browser))) ;; :initial-tabs uri list
+      (setf (browser-tabs browser) nil)
+      (mapcar (lambda (uri)
+                (tab-new browser uri
+                         :background nil))
+              inital-uris))
+
+    ;; ;; Select starting index of the notebook
+    ;; (setf (notebook-current-tab-index notebook) 0)
+
 
     (show gtk-win :all t)
 
