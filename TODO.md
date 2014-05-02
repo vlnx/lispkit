@@ -64,7 +64,7 @@ Tabs
     need to hook up signals to ui actions
     make keymap first, then ui backbone, then signals
     free views
-Scrolling
+Done: Scrolling
     scroll keys, j/k to current view, scroll window ajustments
     look through luakit's scrolling funcs
     visually update status of scroll
@@ -72,3 +72,14 @@ Scrolling
 
 Use a testing framework
 http://www.cliki.net/test%20framework
+
+Tabs
+    add remove, ui-updates for models
+    status bar commands
+    buffer keys
+
+Ui-views
+    initialize race conditions
+
+Status-bar commands
+    :open allow search engines

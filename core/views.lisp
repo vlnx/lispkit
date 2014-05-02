@@ -1,7 +1,7 @@
 (in-package :lispkit)
 
 (defcallback notify-load-status :void
-    ((view pobject))
+  ((view pobject))
   (let ((status (webkit-web-view-get-load-status view)))
     (cond
       ((eq status :webkit-load-first-visually-non-empty-layout)
@@ -14,18 +14,22 @@
            (eq status :webkit-load-finished))
        ;; This may be called too much for the same uri
        (unless (ui-scheme-p (or (property view :uri) "about:blank"))
-         (ui-update
-          (browser-find-instance view :of 'browser :from 'view)
-          :uri view
-          :history view))))))
+         (let ((b
+                (browser-find-instance view
+                                       :of 'browser
+                                       :from 'view)))
+           (when b
+             (ui-update b
+                        :uri view
+                        :history view))))))))
 
 ;; Used to load content for ui schemes
 (defcallback navigation-request :boolean
-    ((source-view pobject)
-     (source-frame pobject)
-     (request :pointer)
-     (action :pointer)
-     (policy :pointer))
+  ((source-view pobject)
+   (source-frame pobject)
+   (request :pointer)
+   (action :pointer)
+   (policy :pointer))
   (declare (ignore action policy source-view))
   (let ((uri (property
               (make-instance 'g-object :pointer request)
@@ -45,11 +49,11 @@
 
 ;; Filter common automatic console messages
 (defcallback console-message :boolean
-    ;; return true to stop propagation
-    ((source-view :pointer)
-     (message c-string)
-     (line :int)
-     (source-id c-string))
+  ;; return true to stop propagation
+  ((source-view :pointer)
+   (message c-string)
+   (line :int)
+   (source-id c-string))
   (declare (ignore source-view line source-id))
   ;; (print message)
   ;; if match is true then stop propagation else nil and print like normal
@@ -58,7 +62,7 @@
 
 ;; Inspector Signals
 (defcallback inspector-close :void
-    ((window pobject))
+  ((window pobject))
   (let ((tab (browser-find-instance window
                                     :of 'tab
                                     :from 'inspector-window)))
@@ -70,8 +74,8 @@
       (setf (tab-inspector tab) nil))))
 
 (defcallback inspector-start :pointer
-    ((inspector-obj pobject)
-     (view pobject)) ;; view to be inspected
+  ((inspector-obj pobject)
+   (view pobject)) ;; view to be inspected
   (let ((tab (browser-find-instance view
                                     :of 'tab :from 'view)))
     (setf (tab-inspector tab)
@@ -82,7 +86,7 @@
     (pointer (inspector-view (tab-inspector tab)))))
 
 (defcallback inspector-show :boolean
-    ((inspector-obj pobject))
+  ((inspector-obj pobject))
   (let ((inspector (browser-find-instance inspector-obj
                                           :of 'inspector
                                           :from 'inspector-pointer)))
@@ -97,9 +101,9 @@
       t)))
 
 (defcallback notify-title :void
-    ((view pobject)
-     (source-frame :pointer)
-     (title :pointer))
+  ((view pobject)
+   (source-frame :pointer)
+   (title :pointer))
   (declare (ignore source-frame title))
   ;; TODO: On notify-title, if the connected tab has an inspector
   ;; append new title to the inspector window
@@ -110,28 +114,28 @@
 
 ;; Called on scrolling mouse events
 (defcallback scroll-event :boolean
-    ((widget pobject)
-     (event :pointer))
+  ((widget pobject)
+   (event :pointer))
   (declare (ignore widget event))
   (ui-update (current-browser)
              :scroll-indicator (current-tab 'scroll)))
 
 (defcallback notify-progress :void
-    ((source-view pobject))
+  ((source-view pobject))
   (when (current-browser) ;; First called before browser is set
     (ui-update (current-browser) :progress source-view)))
 
+;; TODO: Settings
 ;; '((:enable-plugins nil)
 ;;   (:enable-scripts nil)
 ;;   (:user-agent "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:21.0) Gecko/20100101 Firefox/21.0")))
+;; TODO: Proxy
 ;; (setf (property (webkit-get-default-session) :proxy-uri)
 ;;       (soup-uri-new "http://127.0.0.1:8123/"))
 
 (defun connect-webview-signals (view &key ui-only-view)
   "Connect signals to new webviews, if the view is intended for ui only,
 don't connect signals that update the status bar"
-
-  ;; (when ui-only-view)
 
   (unless ui-only-view
     (setf
@@ -140,7 +144,6 @@ don't connect signals that update the status bar"
 
      (gsignal view "notify::progress")
      (callback notify-progress)))
-
 
   (setf
    (gsignal view "navigation-policy-decision-requested")

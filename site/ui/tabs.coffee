@@ -2,7 +2,6 @@
 document.onkeydown = (e) -> console.log "keydown #{e.keyCode}"
 document.onkeyup = (e) -> console.log "keyup #{e.keyCode}"
 
-
 class Tab extends Backbone.Model
     defaults:
         order: 0
@@ -39,12 +38,22 @@ class TabView extends Backbone.View
 class TabBar extends Backbone.View
     el: $('#tablist')[0]
     collection: new Tabs
+    hideBar: -> # When collection is empty
+        # Exported.tabbarRequestHeight 0
+    showBar: ->
+        # Exported.tabbarRequestHeight 16
     initialize: =>
+        @hideBar() # Started off empty right?
         @listenTo @collection, 'add', (model) =>
+            if @collection.models.length is 1
+                @showBar # Added first so show bar
             console.log @collection.indexOf model
             $(@el).append (new TabView model: model).render().el
         @listenTo @collection, 'remove', (model, collection, options) =>
             model.destroy()
+            if @collection.models.length is 0
+                @showBar # Removed last so hide
+
     #     @collection.on 'sort', =>
     #         @render
     # bruteForceViewReorder: => # REFACTOR:
@@ -52,7 +61,11 @@ class TabBar extends Backbone.View
 
 window.tabbar = new TabBar()
 
-Exported.tabsInit()
+# HACK: Fixed race condition
+#  once backbone structure is loaded and content exists fill in model
+# while Exported.uitabsTabsExistP() is 'true'
+#     Exported.tabsInit()
+#     break
 
 # T = tabbar.collection
 # T.add title: 'TabOne', order: 1, current: yes

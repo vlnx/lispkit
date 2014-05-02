@@ -1,5 +1,8 @@
 window.jade = require 'jade/lib/jade.js'
 
+window.S = require 'string'
+window._ = require 'underscore'
+
 # DOM utilites built with browserify using ender to combine librarys into a
 # jQuery like interface
 window.$ = require 'ender-js'
@@ -20,9 +23,6 @@ $._select = (s, r) ->
         $.create(s, r)
     else
         qwery(s, r)
-
-# console.log 'n'
-# window.A = "aa"
 
 window.Backbone = require 'backbone'
 Backbone.$ = $ # Give backbone, ender to function

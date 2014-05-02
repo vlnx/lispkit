@@ -108,8 +108,6 @@
                (browser-tabs-current-index browser)
                (browser-tabs browser)) slot))
 
-
-(defvar *browsers* nil)
 (defun current-browser ()
   "Later use focus callbacks to index the current"
   (first (last *browsers*)))
@@ -155,6 +153,13 @@
        (setf source *browsers*
              this-test (lambda (browser)
                          (when (eq (widgets-notebook (browser-gtk browser))
+                                   widget)
+                           browser))))
+      ((and (eq of 'browser)
+            (eq from 'window))
+       (setf source *browsers*
+             this-test (lambda (browser)
+                         (when (eq (widgets-window (browser-gtk browser))
                                    widget)
                            browser))))
       ((and (eq of 'inspector)

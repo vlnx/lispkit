@@ -7,32 +7,40 @@
   (eval `(let ,let-binding ,body-func)))
 
 (defun defexport-return-value-pointer (jsc-context lisp-val)
-  (declare (ignore lisp-val))
-  (finish-output) ;; HACK: sbcl inferior-lisp buffer lags (without this)?
-  (js-value-make-undefined jsc-context))
+  "If the body evals to a string return that to the jsc"
+  (if (stringp lisp-val)
+      (progn
+        (let ((str-ref (js-create-string
+                        (convert-to-foreign lisp-val :string)))
+              js-value)
+          (setf js-value
+                (js-value-make-string jsc-context str-ref))
+          (js-free-string str-ref)
+          js-value))
+      (js-value-make-undefined jsc-context)))
 
 (defmacro js-callback (name args &body body)
   `(defcallback ,name :pointer
-       ((context :pointer)
-        (function :pointer)
-        (this-object :pointer)
-        (argument-count :int)
-        (arguments :pointer)
-        (execption :pointer))
+     ((context :pointer)
+      (function :pointer)
+      (this-object :pointer)
+      (argument-count :int)
+      (arguments :pointer)
+      (execption :pointer))
      (declare (ignore function this-object execption))
      (defexport-return-value-pointer context
          (if (= argument-count (length ',args))
-             (defexport-var-binding
+             (defexport-var-binding ;; HACK: dynamic let binding
                  (mapcar
                   (lambda (symbol) ;; Map across args
                     (list symbol ;; returning a list containg the argument
                           (js-result-to-string ;; and it's found value
                            context
-                           (mem-ref arguments :pointer 
+                           (mem-ref arguments :pointer
                                     (position symbol ',args)))))
                   ',args)
                  '(progn ,@body))
-             (print
+             (error
               (concatenate
                'string (symbol-name ',name)
                " was called with invalid number of javascript arguments"))))))
@@ -53,8 +61,9 @@
 ;;               "lisp-from-js/" (symbol-to-string sym))))
 
 (defmacro defexport (symbol args &body body)
+  ;; XXX: this in it's own function fails
   ;; (let ((cb-name (js-prefix-callback symbol))
-  (let ((cb-name 
+  (let ((cb-name
          (as-symbol (concatenate
                      'string
                      "lisp-from-js/" (symbol-to-string symbol))))

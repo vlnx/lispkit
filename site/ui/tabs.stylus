@@ -34,6 +34,7 @@ body
     white-space nowrap
     color fg
     background-color bg
+    -webkit-user-select none
 
 .tab.current
 .tab.current > .num

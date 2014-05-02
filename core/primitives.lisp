@@ -15,6 +15,9 @@
 (defvar *maps* '()
   "A plist of map names to a kmap structrue")
 
+(defvar *browsers* nil
+  "The list for the open browser instances, that contain toplevel windows")
+
 (defun ui-scheme-p (uri)
   (ppcre:scan-to-strings "^ui://" uri))
 (defun ui-symbol-to-uri (symbol)
@@ -24,45 +27,15 @@
 
 (defvar *hooks* '()
   "The plist for hooks")
-;; Hooks
-;; add catches
+
 (defun run-hook (hook &rest args)
   "Call each function in HOOK and pass args to it."
-  ;; (print args)
+  ;; NOTE: look to stumpwm to expand hooks
   (dolist (fn (getf *hooks* hook))
     (apply fn args)))
-;; (handler-case
-;;     (with-simple-restart (abort-hooks "Abort running the remaining hooks.")
-;;       (with-restarts-menu
-;;           (dolist (fn (getf *hooks* hook))
-;;             (with-simple-restart (continue-hooks "Continue running the remaining hooks.")
-;;               (apply fn args)))))
-;;   (t (c) (message "^B^1*Error on hook ^b~S^B!~% ^n~A" hook c) (values nil c))))
-
-;; (defun run-hook (hook)
-;;   "Call each function in HOOK."
-;;   (run-hook-with-args hook))
-;; (defmacro add-hook (hook fn)
-;;   "Add @var{function} to the hook @var{hook-variable}. For example, to
-;; display a message whenever you switch frames:
-
-;; @example
-;; \(defun my-rad-fn (to-frame from-frame)
-;;   (stumpwm:message \"Mustard!\"))
-
-;; \(stumpmwm:add-hook stumpwm:*focus-frame-hook* 'my-rad-fn)
-;; @end example"
-;;   `(setf ,hook (adjoin ,fn ,hook)))
-
-;; (defmacro remove-hook (hook fn)
-;;   "Remove the specified function from the hook."
-;;   `(setf ,hook (remove ,fn ,hook)))
-
-;; (defmacro replace-hook (hook fn)
-;;   `(remove-hook ,hook ,fn)
-;;   `(add-hook ,hook ,fn))
 
 (defvar *uri-scripts* nil
   "Global var for for uri to scripts structures")
+
 (defvar *js-exports* '()
   "plist of symbols to callback locations")

@@ -30,8 +30,8 @@ output => list of kmaps"
 
 ;; Window Events
 (defcallback on-key-press :boolean
-    ((widget :pointer)
-     (gdk-event :pointer))
+  ((widget :pointer)
+   (gdk-event :pointer))
   (let* ((browser (browser-find-instance widget :of 'browser :from 'widget))
          (kstate (browser-key-state browser))
          (key (process-gdk-event->key
@@ -49,8 +49,8 @@ output => list of kmaps"
     (null (passthrough-state kstate)))) ;; returning true stops propagation of the event
 
 (defcallback on-key-release :boolean
-    ((widget :pointer)
-     (event :pointer))
+  ((widget :pointer)
+   (event :pointer))
   (declare (ignore event))
   ;; Define this only to not let keys escape to the webviews
   (null ;; returning true stops propagation of the event
@@ -59,24 +59,14 @@ output => list of kmaps"
      (browser-find-instance widget :of 'browser :from 'widget)))))
 
 (defcallback exit :void
-    ((window pobject))
-  ;; TODO: Free each view and widget slot
-  ;; Clean up close window's instance
-  ;; check each instance in *windows* for win slot to match this arg
+  ((window pobject))
+  (let ((b (browser-find-instance window
+                                  :of 'browser
+                                  :from 'window)))
+    (setf *browsers* (remove b *browsers*)))
   ;; If last instance and not in slime (leave-gtk-main))
-  (destroy window))
+  (destroy window)) ;; note: Free each view and widget slot?
 
-(defun connect-gtk-window-signals (gtk-win)
-  "Connect the signals for the window widget"
-  (setf (gsignal gtk-win "key-press-event")
-        (callback on-key-press)
-
-        (gsignal gtk-win "key-release-event")
-        (callback on-key-release)
-        ;; (gsignal gtk-window "focus-in-event") (callback on-focus-in)
-        ;; (gsignal gtk-window "focus-out-event") (callback on-focus-out)
-        (gsignal gtk-win "destroy")
-        (callback exit)))
 ;; Reset IC as well?
 ;; (defcallback on-focus-in :boolean
 ;;     ((widget :pointer)
@@ -98,45 +88,16 @@ output => list of kmaps"
 ;;      (lispkit::browser-find-instance-from :widget widget)))
 ;;    nil)
 ;;   nil)
+;; (gsignal gtk-window "focus-in-event") (callback on-focus-in)
+;; (gsignal gtk-window "focus-out-event") (callback on-focus-out)
 
+(defun connect-gtk-window-signals (gtk-win)
+  "Connect the signals for the window widget"
+  (setf (gsignal gtk-win "key-press-event")
+        (callback on-key-press)
 
-;; Notebook Signals
+        (gsignal gtk-win "key-release-event")
+        (callback on-key-release)
 
-(defcallback notebook-page-added :void
-    ((notebook :pointer)
-     (child-widget :pointer)
-     (page-num :int))
-  (declare (ignore notebook child-widget page-num))
-  (print "page-added")
-  (finish-output)
-  ;; (ui-update :update-tab-list t)
-  ;; :statusbar-tabs-count
-  )
-(defcallback notebook-switch-page :void
-    ((notebook :pointer)
-     (child-widget pobject)
-     (page-num :int))
-  (declare (ignore notebook))
-  (setf (browser-tabs-current-index (current-browser)) page-num)
-  (let ((switched-to-tab (browser-find-instance child-widget
-                                                :of 'tab
-                                                :from 'scrolled-window)))
-    (ui-update (current-browser)
-               :history (tab-view switched-to-tab)
-               :progress (tab-view switched-to-tab)
-               :scroll-indicator (tab-scroll switched-to-tab)
-               :tabs-switched-page page-num
-               :uri (tab-view switched-to-tab))))
-;; :update-tab-list t)
-;; :statusbar-tabs-count
-;; :window-title t
-;; :uri t
-;; :progress t
-(defun connect-gtk-notebook-signals (notebook)
-  "Connect the signals for the notebook widget"
-  (setf (gsignal notebook "page-added")
-        (callback notebook-page-added)
-
-        (gsignal notebook "switch-page")
-        (callback notebook-switch-page)
-        ))
+        (gsignal gtk-win "destroy")
+        (callback exit)))

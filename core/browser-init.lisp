@@ -17,7 +17,7 @@ in order to hide scrollbars; thus in WebKit1, allow any height in a shrink nil v
 
 (defmethod initialize-instance :after ((browser browser) &key)
   "Pack the widgets, created in the initforms"
-  ;; Callbacks depend on this (current-browser) and the browser list
+  ;; Callbacks depend on *browsers*, so add to it here
   (setf *browsers* (append *browsers*
                            (list browser)))
   (let* ((gtk (browser-gtk browser))
@@ -53,12 +53,8 @@ in order to hide scrollbars; thus in WebKit1, allow any height in a shrink nil v
       (setf (browser-tabs browser) nil)
       (mapcar (lambda (uri)
                 (tab-new browser uri
-                         :background nil))
+                         :background nil)) ;; Switch to each new tab as created
               inital-uris))
-
-    ;; ;; Select starting index of the notebook
-    ;; (setf (notebook-current-tab-index notebook) 0)
-
 
     (show gtk-win :all t)
 

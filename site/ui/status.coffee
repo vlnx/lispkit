@@ -132,10 +132,27 @@ class StatusBar extends Backbone.View
         $(@el).append @scrollIndicator.render().el
 
 
+searchEngines =
+    ddg: "https://duckduckgo.com/?q=%s"
+openInterpret = (arg) ->
+    # Check blanks
+    if S(arg).isEmpty() then return 'about:blank'
+    if arg is 'about:blank' then return arg
+    # Split off first word
+    args = arg.split ' '
+    searchArg = S(arg).replaceAll(args[0],'').s
+    # If search engines of first word exists
+    if searchEngines[args[0]]?
+        # Replace the %s with the rest of the commands's argument
+        return S(searchEngines[args[0]]).replaceAll('%s',encodeURIComponent(searchArg)).s
+    return arg
 Commands =
-    open: (buffer) ->
-        console.log buffer
-        Exported.loadUri buffer
+    open: (arg) ->
+        console.log arg
+        Exported.loadUri openInterpret arg
+    tabopen: (arg) ->
+        console.log arg
+        Exported.statusBarNewTab openInterpret arg
 class Input extends Backbone.Model
     defaults:
         content: ''
@@ -182,14 +199,17 @@ class Prompt extends Backbone.View
             when 'SPC' then @input.addStr ' '
             when 'Left', 'Right', 'Up', 'Down'
                 @input.moveCursor keystr
-            when 'BS' then @input.backspace()
+            when 'BS', 'C-h' then @input.backspace()
             when 'RET'
                 regex = /^:(\w+)\s?(.*)$/
                 matches = regex.exec @input.model.get 'content'
                 cmd = matches[1]; arg = matches[2]
                 # TODO:close prompt,  put in to history, localStorage or text file
+    # latest
+    # JSON.parse('{"123":":opene","456":":tabopen n"}')[_.max(_.keys(JSON.parse('{"123":":opene","456":":tabopen n"}')))]
                 if Commands[cmd]?
-                    Commands[cmd] arg
+                    Commands[cmd] arg, (err) ->
+                        if err then throw err
                 else
                     notify "Command '#{cmd}' does not exist, called with '#{arg}'"
             else

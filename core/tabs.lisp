@@ -1,26 +1,67 @@
 (in-package :lispkit)
 
+;; Notebook Signals
+(defcallback notebook-page-added :void
+  ((notebook pobject)
+   (child-widget :pointer)
+   (page-num :int))
+  (declare (ignore notebook child-widget page-num))
+  (print "page-added")
+  (finish-output))
+
+(defcallback notebook-switch-page :void
+  ((notebook pobject)
+   (child-widget pobject)
+   (page-num :int))
+  (let ((browser (or (browser-find-instance notebook
+                                            :of 'browser
+                                            :from 'notebook)
+                     (current-browser)))
+        (switched-to-tab (browser-find-instance child-widget
+                                                :of 'tab
+                                                :from 'scrolled-window)))
+    (print browser)
+    (print switched-to-tab)
+    (finish-output)
+    (ui-update browser
+               :history (tab-view switched-to-tab)
+               :progress (tab-view switched-to-tab)
+               :scroll-indicator (tab-scroll switched-to-tab)
+               :tabs-switched-page page-num
+               :uri (tab-view switched-to-tab))))
+
+(defun connect-gtk-notebook-signals (notebook)
+  "Connect the signals for the notebook widget"
+  (setf (gsignal notebook "page-added")
+        (callback notebook-page-added)
+        (gsignal notebook "switch-page")
+        (callback notebook-switch-page)))
+
 (defun notebook-add-tab (notebook widget &optional index)
   (let ((i (if index
                (error "fixme to check if in range")
                -1))) ;; append
     (gtk-notebook-insert-page notebook
                               widget nil i)))
-(defun notebook-current-tab-index (notebook)
-  (let ((ret (gtk-notebook-get-current-page notebook)))
-    (if (= ret -1)
-        (error "Notebook has no pages, can't get current index")
-        ret)))
-(defun (setf notebook-current-tab-index) (new-index notebook)
+;; won't need this much since the browser slot should be in sync from setting it calling swich-page
+;; (defun notebook-current-tab-index (notebook)
+;;   (let ((ret (gtk-notebook-get-current-page notebook)))
+;;     (if (= ret -1)
+;;         (error "Notebook has no pages, can't get current index")
+;;         ret)))
+(defun (setf browser-tabs-current-index) (new-index browser)
+  (setf (slot-value browser 'tabs-current-index)
+        new-index)
   (print "try to change index to")
   (print new-index)
-  (print notebook)
+  (print (widgets-notebook (browser-gtk browser)))
   (finish-output)
   (gtk-notebook-set-current-page
-   notebook new-index))
+   (widgets-notebook (browser-gtk browser))
+   new-index))
 
 (defun tab-new (browser uri &key background initializing-class-notebook)
-  ""
+  "Add a new tab to the notebook"
   (let ((notebook (widgets-notebook (browser-gtk browser)))
         (tab (make-instance 'tab :inital-uri uri))
         new-index)
@@ -43,12 +84,8 @@
 
     ;; Maybe switch to the new tab
     (unless background
-      (setf (notebook-current-tab-index notebook)
+      (setf (browser-tabs-current-index browser)
             new-index))))
-
-
-
-;; Scrolling,
 
 (defun scroll-to (scrolled-window &key
                                     x ;; t or num
