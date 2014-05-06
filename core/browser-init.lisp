@@ -31,16 +31,16 @@ in order to hide scrollbars; thus in WebKit1, allow any height in a shrink nil v
     ;; Layout configuration to get static heights on top and bottom
     ;; :shrink when nil respects the child's minimal size
     ;; :resize when t will resize along with the main window
-    (pack pane1 (ui-tabs ui 'scroll) :resize nil :shrink nil)
+    (pack pane1 (tab-scroll (ui-tabs ui)) :resize nil :shrink nil)
     (pack pane1 pane2 :resize t :shrink t)
     (pack pane2 notebook :resize t :shrink t)
-    (pack pane2 (ui-status ui 'scroll) :resize nil :shrink nil)
+    (pack pane2 (tab-scroll (ui-status ui)) :resize nil :shrink nil)
     (add gtk-win pane1)
 
     ;; maybe small problem with growing the bottom beyond the natural page height
     (setf
-     (size-request (ui-status ui 'scroll)) '(-1 16)
-     (size-request (ui-tabs ui 'scroll)) '(-1 16))
+     (size-request (tab-scroll (ui-status ui))) '(-1 16)
+     (size-request (tab-scroll (ui-tabs ui))) '(-1 16))
     ;; related but ineffective :height-request 10 :min-content-height 10
     ;; HACK: fixed from Patch!
     ;; (preferred-width (ui-tabs (browser-ui (current-browser))))

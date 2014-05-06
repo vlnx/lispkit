@@ -19,13 +19,13 @@
   (setf height (parse-integer height))
   ;; If height is 0 it still shows 1 px handle? XXX: if so maybe call hide
   (setf (size-request
-         (ui-tabs (browser-ui (current-browser)) 'scroll))
-        `(-1 ,height)))
+         (tab-scroll (ui-tabs (browser-ui (current-browser))))
+        `(-1 ,height))))
 
 (defexport statusbar-request-height (height) ;; Number
   (setf height (parse-integer height))
   (setf (size-request
-         (ui-status (browser-ui (current-browser)) 'scroll))
+         (tab-scroll (ui-status (browser-ui (current-browser)))))
         `(-1 ,height)))
 
 (defexport prompt-close ()

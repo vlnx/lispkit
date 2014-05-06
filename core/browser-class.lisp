@@ -32,19 +32,13 @@
 
 (defclass ui-views ()
   ((tabs
+    :accessor ui-tabs
     :initform (make-instance 'tab :inital-uri (ui-symbol-to-uri 'tabs))
     :documentation "Tabs view")
    (status
+    :accessor ui-status
     :initform (make-instance 'tab :inital-uri (ui-symbol-to-uri 'status))
     :documentation "Status bar view")))
-
-;; Wrapper reader functions for 'tab instances
-(defun ui-tabs (ui &optional (slot-name 'view))
-  "Quick access to slots of tab instances"
-  (slot-value (slot-value ui 'tabs) slot-name))
-(defun ui-status (ui &optional (slot-name 'view))
-  "Quick access to slots of tab instances"
-  (slot-value (slot-value ui 'status) slot-name))
 
 (defclass gtk-widgets ()
   ((window :accessor widgets-window

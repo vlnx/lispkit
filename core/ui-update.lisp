@@ -17,9 +17,9 @@
   "Take an element of the iterface with any number of arguments, eval what
 needs to be done"
   (flet ((js-status (str)
-           (js-eval-webview (ui-status (browser-ui browser)) str))
+           (js-eval-webview (tab-view (ui-status (browser-ui browser))) str))
          (js-tabs (str)
-           (js-eval-webview (ui-tabs (browser-ui browser)) str)))
+           (js-eval-webview (tab-view (ui-tabs (browser-ui browser))) str)))
 
     (when prompt-send-key (js-status
                            (format nil "bar.prompt.sendKey('~a');" prompt-send-key)))
