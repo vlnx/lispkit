@@ -49,6 +49,7 @@ Next can be #'func a function name or an implcit lambda"
 
 (defkey :passthrough "C-z" (browser)
         "Toggle browser object's passthrough-state and update ui to reflect it"
+        ;; XXX: also focus current tab view
         (let ((kstate (browser-key-state browser)))
           (setf (passthrough-state kstate)
                 (null (passthrough-state kstate)))

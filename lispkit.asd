@@ -7,7 +7,7 @@
   :author "Nyx"
   :version "0.0.0"
   :maintainer "Nyx"
-  :description "A webkit interface" 
+  :description "A webkit interface"
   :depends-on (;;:swank
                :gtk-cffi
                :bordeaux-threads
@@ -21,6 +21,7 @@
                (:file "patch-gtk3-main-loop")
                (:file "cffi/types")
                (:file "cffi/x11")
+               (:file "cffi/gdk")
                (:file "cffi/gtk")
                (:file "cffi/soup")
                (:file "cffi/webkit")

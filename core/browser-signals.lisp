@@ -30,9 +30,11 @@ output => list of kmaps"
 
 ;; Window Events
 (defcallback on-key-press :boolean
-  ((widget :pointer)
-   (gdk-event :pointer))
-  (let* ((browser (browser-find-instance widget :of 'browser :from 'widget))
+    ((win pobject)
+     (gdk-event :pointer))
+  (let* ((browser (browser-find-instance win
+                                         :of 'browser
+                                         :from 'window))
          (kstate (browser-key-state browser))
          (key (process-gdk-event->key
                gdk-event
@@ -49,17 +51,19 @@ output => list of kmaps"
     (null (passthrough-state kstate)))) ;; returning true stops propagation of the event
 
 (defcallback on-key-release :boolean
-  ((widget :pointer)
-   (event :pointer))
+    ((win pobject)
+     (event :pointer))
   (declare (ignore event))
   ;; Define this only to not let keys escape to the webviews
   (null ;; returning true stops propagation of the event
    (passthrough-state
     (browser-key-state
-     (browser-find-instance widget :of 'browser :from 'widget)))))
+     (browser-find-instance win
+                            :of 'browser
+                            :from 'window)))))
 
 (defcallback exit :void
-  ((window pobject))
+    ((window pobject))
   (let ((b (browser-find-instance window
                                   :of 'browser
                                   :from 'window)))
