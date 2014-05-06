@@ -20,6 +20,7 @@ in order to hide scrollbars; thus in WebKit1, allow any height in a shrink nil v
   ;; Callbacks depend on *browsers*, so add to it here
   (setf *browsers* (append *browsers*
                            (list browser)))
+  (setf *browser-current-index* (position browser *browsers*))
   (let* ((gtk (browser-gtk browser))
          (pane1 (widgets-pane1 gtk))
          (pane2 (widgets-pane2 gtk))

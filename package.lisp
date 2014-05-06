@@ -50,23 +50,6 @@
    *transcompilers*
    #:transcompile))
 
-(defpackage :lispkit/primitives
-  (:use #:common-lisp
-        #:lispkit/utils
-        #:lispkit/transcompile)
-  (:export
-   #:ui-scheme-p
-   #:ui-symbol-to-uri
-   #:ui-scheme-uri-to-symbol
-   *lispkit-cache-dir*
-   *site-dir*
-   *uri-homepage*
-   *maps*
-   *uri-scripts*
-   *js-exports*
-   *hooks*
-   #:run-hook))
-
 (defpackage :lispkit/keys
   (:use #:common-lisp
         #:cffi #:cffi-objects
@@ -93,7 +76,6 @@
         #:webkit-binding
         :lispkit/utils
         :lispkit/transcompile
-        :lispkit/primitives
         ;; #:lispkit/webviews
         :lispkit/keys)
   ;; Import everything exepct

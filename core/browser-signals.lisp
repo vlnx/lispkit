@@ -68,28 +68,22 @@ output => list of kmaps"
   (destroy window)) ;; note: Free each view and widget slot?
 
 ;; Reset IC as well?
-;; (defcallback on-focus-in :boolean
-;;     ((widget :pointer)
-;;      (event :pointer))
-;;   (declare (ignore event))
-;;   (x11-binding::xic-focus
-;;    (widgets-x11-xic
-;;     (browser-gtk
-;;      (lispkit::browser-find-instance-from :widget widget)))
-;;    t)
-;;   nil)
+(defcallback on-focus-in :boolean
+    ((widget pobject)
+     (event :pointer))
+  (declare (ignore event))
+  ;; (x11-binding::xic-focus ;;  (widgets-x11-xic ;;   (browser-gtk ;;  t)
+  (let ((b (browser-find-instance widget
+                                  :of 'browser
+                                  :from 'window)))
+    (setf *browser-current-index* (position b *browsers*)))
+  nil)
+
 ;; (defcallback on-focus-out :boolean
-;;     ((widget :pointer)
+;;     ((widget pobject)
 ;;      (event :pointer))
 ;;   (declare (ignore event))
-;;   (x11-binding::xic-focus
-;;    (widgets-x11-xic
-;;     (browser-gtk
-;;      (lispkit::browser-find-instance-from :widget widget)))
-;;    nil)
-;;   nil)
-;; (gsignal gtk-window "focus-in-event") (callback on-focus-in)
-;; (gsignal gtk-window "focus-out-event") (callback on-focus-out)
+;; nil)
 
 (defun connect-gtk-window-signals (gtk-win)
   "Connect the signals for the window widget"
@@ -98,6 +92,12 @@ output => list of kmaps"
 
         (gsignal gtk-win "key-release-event")
         (callback on-key-release)
+
+        (gsignal gtk-win "focus-in-event")
+        (callback on-focus-in)
+
+        ;; (gsignal gtk-window "focus-out-event")
+        ;; (callback on-focus-out)
 
         (gsignal gtk-win "destroy")
         (callback exit)))

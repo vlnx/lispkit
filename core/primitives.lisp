@@ -1,4 +1,4 @@
-(in-package :lispkit/primitives)
+(in-package :lispkit)
 ;; In general, use plists when useful, like not polluting the scope
 
 (defvar *lispkit-cache-dir* (concatenate 'string
@@ -15,6 +15,7 @@
 (defvar *maps* '()
   "A plist of map names to a kmap structrue")
 
+(defvar *browser-current-index* 0)
 (defvar *browsers* nil
   "The list for the open browser instances, that contain toplevel windows")
 
