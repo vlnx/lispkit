@@ -109,8 +109,10 @@
                (browser-tabs browser)) slot))
 
 (defun current-browser ()
-  "Later use focus callbacks to index the current"
-  (first (last *browsers*)))
+  "Use focus callbacks to index the current"
+  (nth
+   *browser-current-index*
+   *browsers*))
 
 (defun browser-all-tabs (b)
   "Return all tab instances including user interface views"
