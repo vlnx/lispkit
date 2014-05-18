@@ -48,3 +48,16 @@ pre
     background-color current-bg
     color current-fg
 
+// Powerline Left
+.triangle-left
+    width 0
+    height 0
+    border-top 8px solid transparent
+    border-right 11px solid current-bg
+    border-bottom 8px solid transparent
+.triangle-right
+    width 0
+    height 0
+    border-left 8px solid transparent
+    border-top 11px solid current-bg
+    border-bottom 8px solid transparent
