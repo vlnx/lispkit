@@ -1,4 +1,5 @@
 (in-package :gtk-cffi)
+
 (export
  '(overlay
    gtk-scrolled-window-set-min-content-height
@@ -11,29 +12,22 @@
    gtk-widget-get-parent-window
    gtk-widget-get-window))
 
-;; NOTE: gtk3 minimal height work, patched in source instead for now
-;; (defcfun "gtk_scrolled_window_set_min_content_height" :void
-;;   (scrolled-win pobject)
-;;   (height :int))
-;; (defcstruct (widget-class-real :size 824)
-;;   (get-preferred-height :pointer :offset 304)
-;;   (get-preferred-height-for-width :pointer :offset 328))
-
+;; GtkOverlay
 (defclass overlay (container) ())
 
-(defcfun "gtk_overlay_new" :pointer)
+(defcfun gtk-overlay-new :pointer)
 
 (defmethod gconstructor ((overlay overlay) &rest rest)
   (declare (ignore rest))
   (gtk-overlay-new))
 
-(defcfun "gtk_overlay_add_overlay" :void
+(defcfun gtk-overlay-add-overlay :void
   (overlay-obj pobject)
   (widget pobject))
 
+;; GtkNotebook
 
-;; Extension of gtk-cffi/gtk/notebook.lisp
-(defcfun "gtk_notebook_insert_page" :int
+(defcfun gtk-notebook-insert-page :int
   (notebook pobject)
   (child pobject)
   (inital-label pobject)
@@ -47,90 +41,41 @@
   (notebook pobject)
   (bool :boolean))
 
-(defcfun "gtk_notebook_set_current_page" :void
+(defcfun gtk-notebook-set-current-page :void
   (notebook pobject)
   (page-num :int))
 
-(defcfun "gtk_notebook_get_current_page" :int
+(defcfun gtk-notebook-get-current-page :int
   (notebook pobject))
 
-;; number of pages
-(defcfun "gtk_notebook_get_n_pages" :int
+(defcfun gtk-notebook-get-n-pages :int
+  "number of pages"
   (notebook pobject))
 
-;; content of n page
-(defcfun "gtk_notebook_get_nth_page" :int
+(defcfun gtk-notebook-get-nth-page :int
+  "content of n page"
   (notebook pobject))
 
-;; redefine to accept opts
 (defmethod gconstructor ((notebook notebook)
                          &rest rest &key (show-tabs t) (show-border t))
+  "redefine to accept opts"
   (declare (ignore rest))
   (let ((n (gtk-notebook-new)))
     (gtk-notebook-set-show-tabs n show-tabs)
     (gtk-notebook-set-show-border n show-border)
     n))
 
-(defcfun "gtk_widget_set_visual" :void
+;; Misc
+
+(defcfun gtk-widget-set-visual :void
   (widget pobject)
   (visual :pointer))
 
-(defcfun "gtk_widget_get_screen" :pointer
+(defcfun gtk-widget-get-screen :pointer
   (widget pobject))
 
-(defcfun "gtk_widget_get_parent_window" :pointer
+(defcfun gtk-widget-get-parent-window :pointer
   (widget pobject))
 
-(defcfun "gtk_widget_get_window" :pointer
+(defcfun gtk-widget-get-window :pointer
   (widget pobject))
-
-
-(in-package :gdk-cffi)
-(export
- '(gdk-x11-window-get-xid
-   gdk-x11-get-default-xdisplay
-   gdk-x11-get-default-root-xwindow
-   gdk-screen-get-rgba-visual
-   gdk-window-add-filter
-   gdk-window-remove-filter))
-
-(defcfun "gdk_x11_window_get_xid" :pointer
-  (gdk-window :pointer))
-
-(defcfun "gdk_x11_get_default_xdisplay" :pointer)
-
-(defcfun "gdk_x11_get_default_root_xwindow" :pointer)
-
-(defcfun "gdk_window_add_filter" :void
-  (window :pointer)
-  (func :pointer))
-
-(defcfun "gdk_window_remove_filter" :void
-  (window :pointer)
-  (func :pointer))
-
-(defcenum :gdk-filter-return
-  :gdk-filter-continue ;; Event not handled, continue processesing
-  :gdk-filter-translate ;; Native event translated into a GDK event and stored in the "event" structure that was passed in
-  :gdk-filter-remove) ;; Terminate processing, removing event
-
-;; NOTE: Transparent work
-;; (defcfun "gdk_screen_get_rgba_visual" :pointer
-;;   (screen :pointer))
-;; (defun widget-set-rgba (widget)
-;;   (gtk-widget-set-visual
-;;    widget
-;;    (gdk-screen-get-rgba-visual
-;;     (gtk-widget-get-screen widget))))
-;; (defcallback screen-changed :void
-;;     ((widget pobject)
-;;      (prev-screen :pointer))
-;;   (declare (ignore prev-screen))
-;;   (widget-set-rgba widget))
-;; (defcallback on-button-press :boolean
-;;     ((widget pobject)
-;;      (event :pointer))
-;;   (declare (ignore event))
-;;   (show widget)
-;;   (widget-set-rgba widget)
-;;   t)
