@@ -37,6 +37,7 @@
 (defpackage :lispkit/utils
   (:use #:common-lisp)
   (:export
+   #:listify
    #:as-keyword
    #:as-symbol
    #:symbol-to-string))

@@ -20,3 +20,8 @@
 ;;            ,(mapcar (lambda (l) (car l)) bindings)
 ;;          ,instance
 ;;        ,@body)))
+
+(defun listify (symbol-or-list)
+  (if (listp symbol-or-list)
+      symbol-or-list
+      (list symbol-or-list)))
