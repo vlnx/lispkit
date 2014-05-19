@@ -8,12 +8,12 @@
         `(-1 ,height))))
 
 (defscript
-    `(:exact-uri ,(ui-symbol-to-uri 'tabs))
-    '(:deps (ui/deps) ;; browserify-coffee
-      :exports (tabbar-request-height)
-      :scripts (ui/tabs) ;; look for coffee
-      :ui-base-html ui/tabs ;; look for jade
-      :styles (ui/tabs))) ;; look for css
+    :exact-uri (ui-symbol-to-uri 'tabs)
+  :deps 'ui/deps
+  :exports '(tabbar-request-height)
+  :scripts 'ui/tabs
+  :ui-base-html 'ui/tabs
+  :styles 'ui/tabs)
 
 ;; fixme: still
 ;; (defmacro once-browser-exists (&body body)

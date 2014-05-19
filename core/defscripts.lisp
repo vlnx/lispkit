@@ -1,28 +1,39 @@
 (in-package :lispkit)
 ;; Define all scripts that interact with webviews
 
-;; Structures 
+;; Structures
 (defstruct uri-scripts/uri
   exact-uri regex-uri)
 (defstruct uri-scripts/scripts
   exports deps scripts styles
-  ui-base-html) ;; Maybe add load-time for page load status per script
+  ui-base-html
+  enabled) ;; TODO: Make an interface to enable/disable scripts, also use this
+;; property to filter scripts to invoke
+;; Maybe add load-time for page load status per script
 (defstruct uri-scripts/binding
   uri scripts)
 (defstruct uri-scripts
   bindings)
 
-(defun defscript (uri-plist scripts-plist)
-  "Manage the *uri-scripts* structure, based on define-key"
+;; could make a macro interface to this so each key doesn't need a quote
+(defun defscript (&key
+                    exact-uri
+                    regex-uri
+                    exports
+                    deps
+                    scripts
+                    ui-base-html
+                    styles)
+  "Add to the *uri-scripts* structure, based on define-key"
   (let* ((uri (make-uri-scripts/uri
-               :exact-uri (getf uri-plist :exact-uri)
-               :regex-uri (getf uri-plist :regex-uri)))
+               :exact-uri (first (listify exact-uri))
+               :regex-uri (first (listify regex-uri))))
          (scripts (make-uri-scripts/scripts
-                   :exports (getf scripts-plist :exports)
-                   :deps (getf scripts-plist :deps)
-                   :scripts (getf scripts-plist :scripts)
-                   :ui-base-html (getf scripts-plist :ui-base-html)
-                   :styles (getf scripts-plist :styles)))
+                   :exports (listify exports)
+                   :deps (listify deps)
+                   :scripts (listify scripts)
+                   :ui-base-html (first (listify ui-base-html))
+                   :styles (listify styles)))
          (found-existing-binding  (find uri
                                         (uri-scripts-bindings *uri-scripts*)
                                         :key 'uri-scripts/binding-uri
@@ -137,5 +148,9 @@ by *script-list* or provided argument"
   (mapcar (lambda (site)
             (load (concatenate 'string
                                *site-dir*
-                               (symbol-to-string))))
+                               (symbol-to-string site))))
           scripts))
+
+(defun (setf *script-list*) (value)
+  (setf *script-list* value)
+  (load-scripts *script-list*))

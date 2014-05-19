@@ -22,12 +22,12 @@
         '(:top)))
 
 (defscript
-    `(:exact-uri ,(ui-symbol-to-uri 'status))
-    '(:exports (status-bar-new-tab
-                load-uri
-                prompt-close
-                statusbar-request-height)
-      :deps (ui/deps) ;; browserify-coffee
-      :scripts (ui/status) ;; look for coffee
-      :ui-base-html ui/status ;; look for jade
-      :styles (ui/status))) ;; look for css
+    :exact-uri (ui-symbol-to-uri 'status)
+  :exports '(status-bar-new-tab
+             load-uri
+             prompt-close
+             statusbar-request-height)
+  :deps 'ui/deps
+  :scripts 'ui/status
+  :ui-base-html 'ui/status
+  :styles 'ui/status)
