@@ -23,14 +23,14 @@
                    :scripts (getf scripts-plist :scripts)
                    :ui-base-html (getf scripts-plist :ui-base-html)
                    :styles (getf scripts-plist :styles)))
-         (found-existing-binding  (find uri 
+         (found-existing-binding  (find uri
                                         (uri-scripts-bindings *uri-scripts*)
                                         :key 'uri-scripts/binding-uri
                                         :test 'equalp)))
     (setf (uri-scripts-bindings *uri-scripts*)
-          (append 
+          (append
            (if found-existing-binding ;; Replace if found
-               (delete found-existing-binding 
+               (delete found-existing-binding
                        (uri-scripts-bindings *uri-scripts*))
                (uri-scripts-bindings *uri-scripts*))
            (list
@@ -50,7 +50,7 @@
                                     uri)
                        binding))
                     ((uri-scripts/uri-regex-uri uri-struct)
-                     (when (ppcre:scan 
+                     (when (ppcre:scan
                             (uri-scripts/uri-regex-uri uri-struct)
                             uri)
                        binding)))))
@@ -87,7 +87,7 @@ Return the transcompiled file content"
 (defun get-js-to-apply-css (css)
   "Given the css, return the js to apply it"
   (let ((template
-            (resource-content 'util-templates/apply-css 'coffee))
+         (resource-content 'util-templates/apply-css 'coffee))
         (css-one-line
          (ppcre:regex-replace-all "\\n" css " "))) ;; NOTE: also escape \'
     (ppcre:regex-replace-all "{{{snip}}}" template css-one-line)))
@@ -112,13 +112,13 @@ Return the transcompiled file content"
     (when deps
       (mapcar (lambda (i)
                 (js-eval-webview
-                 view 
+                 view
                  (resource-content i 'browserify-coffee)))
               deps))
     (when js
       (mapcar (lambda (i)
                 (js-eval-webview
-                 view 
+                 view
                  (resource-content i 'coffee)))
               js))
     (when styles
