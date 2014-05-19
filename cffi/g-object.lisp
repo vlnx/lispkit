@@ -4,7 +4,7 @@
 
 (defcfun g-signal-emit-by-name :void
   (widget pobject)
-  (name c-string)
+  (name cffi:c-string)
   (signal-param pobject)
   (ret :pointer))
 
