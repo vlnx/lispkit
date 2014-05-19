@@ -42,7 +42,7 @@
 
                (:file "core/defexports")
                (:file "core/defscripts")
-               (:file "core/scripts")
+               (:file "site/scripts")
 
                (:file "core/views")
 

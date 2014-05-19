@@ -7,7 +7,8 @@
   "The directory to store compiled scripts")
 (sb-ext:run-program "/bin/mkdir" (list "-p" *lispkit-cache-dir*))
 
-(defvar *site-dir* "/home/***REMOVED***/dev/lispkit/site/")
+(defvar *site-dir* "/home/***REMOVED***/dev/lispkit/site/"
+  "Path where all page modifcation data is located")
 
 (defvar *uri-homepage* "http://10.1.7.1/startpage/index.html"
   "The homepage uri to load by default")
@@ -38,5 +39,9 @@
 (defvar *uri-scripts* nil
   "Global var for for uri to scripts structures")
 
-(defvar *js-exports* '()
+(defvar *js-exports* nil
   "plist of symbols to callback locations")
+
+(defvar *script-list* nil
+  "A list of symbols to turn to strings and load lisp files
+from when appended to *site-dir*")

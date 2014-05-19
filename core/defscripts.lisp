@@ -128,3 +128,14 @@ Return the transcompiled file content"
                  (get-js-to-apply-css
                   (resource-content i 'stylus))))
               styles))))
+
+(defun load-scripts (&optional (scripts *script-list*))
+  "Populate *js-exports* and *uri-scripts* from content of files listed
+by *script-list* or provided argument"
+  (setf *js-exports* '())
+  (setf *uri-scripts* (make-uri-scripts))
+  (mapcar (lambda (site)
+            (load (concatenate 'string
+                               *site-dir*
+                               (symbol-to-string))))
+          scripts))
