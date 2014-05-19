@@ -83,3 +83,10 @@ Ui-views
 
 Status-bar commands
     :open allow search engines
+
+# uri-scripts-update branch plan:
+For the `site` directory search for .lisp, for each load from `scripts.lisp`
+the file will contain defexports and defscripts
+also update  defscripts syntax
+might have to create an enabled list of defscripts, that can be tuned from the interface
+create an 'enabled' property in the uri-scripts structure, that when invoke-scrpts will be searched for
