@@ -21,6 +21,7 @@
                (:file "patch-gtk3-main-loop")
                (:file "cffi/types")
                (:file "cffi/x11")
+               (:file "cffi/g-object")
                (:file "cffi/gdk")
                (:file "cffi/gtk")
                (:file "cffi/soup")
