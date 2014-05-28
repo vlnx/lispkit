@@ -14,6 +14,7 @@
                             :output stdout)
         (sb-ext:run-program (car l)
                             (append (cdr l) (list file))
+                            :directory (directory-namestring (pathname file))
                             :output stdout))))
 
 (defun get-cached-location (filepath)
