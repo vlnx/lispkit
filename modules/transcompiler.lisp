@@ -21,16 +21,27 @@
   (concatenate 'string *transcompiler-cache-dir*
                (ppcre:regex-replace-all "/" filepath "%")))
 
-(defun cache (source)
-  "Given source file.
-if it's cache file exists and is newer, return that path
-eles return nil"
-  (let ((cached (get-cached-location source)))
-    (if (and (probe-file cached)
-             (< (sb-posix:stat-mtime (sb-posix:stat source))
-                (sb-posix:stat-mtime (sb-posix:stat cached))))
-        cached
-        nil)))
+(defun mtime (file)
+  "Given a file path string evaluate to the modification time of the file"
+  (sb-posix:stat-mtime (sb-posix:stat file)))
+
+(defun most-recent (files)
+  "Evaluate to the most recent mtime in the given file list"
+  (apply #'max (mapcar #'mtime files)))
+
+(defun cache (source &optional cache-invalidation-files &key cached)
+  "Find a current cache file for the input file. Optionally accept a list of
+files that invalidate the cache besides the source file.
+If the cache file is found to be current return the location of the cache file
+otherwise nil."
+  (unless cached
+    (setf cached (get-cached-location source)))
+  ;; when provides an implicit nil
+  (when (and (probe-file cached)
+             (< (most-recent (append (list source)
+                                     cache-invalidation-files))
+                (mtime cached)))
+    cached))
 
 (defun file-content-to-string (file)
   (with-output-to-string (output)
@@ -44,7 +55,7 @@ eles return nil"
 (defun compile-cached (cmd source use-stdin)
   "Take a souce file and the type of the lang
 Make a cache file for next time
-Return the complied string" 
+Return the complied string"
   ;; this output needs to be the same as file-content-to-string
   (let ((content (with-output-to-string (output)
                    (if use-stdin
@@ -56,17 +67,17 @@ Return the complied string"
       (write content :stream out :escape nil))
     content))
 
-(defun transcompiler (cmd &key string file (use-stdin t))
-  (if string 
+(defun transcompiler (cmd &key string file (use-stdin t) cache-invalidation-files)
+  (if string
       (with-output-to-string (output)
         (with-input-from-string (in string)
           (exec cmd :stdin in :stdout output)))
-      (let ((ret (cache file)))
+      (let ((ret (cache file cache-invalidation-files)))
         (if ret
             (file-content-to-string ret)
             (compile-cached cmd file use-stdin)))))
 
-(defun transcompile (&key file string type cmd (use-stdin t))
+(defun transcompile (&key file string type cmd (use-stdin t) cache-invalidation-files)
   "Infer from optional arguments, pass on to transcompiler
 Expamples:
     (transcompile :type 'coffee :string \"command arg\")
@@ -76,9 +87,10 @@ Expamples:
     (setf cmd
           (if type
               (getf *transcompilers* (as-keyword type))
-              (getf *transcompilers* (as-keyword 
+              (getf *transcompilers* (as-keyword
                                       (as-symbol
                                        (pathname-type (pathname file))))))))
   (if string
       (transcompiler cmd :string string)
-      (transcompiler cmd :file file :use-stdin use-stdin)))
+      (transcompiler cmd :file file :use-stdin use-stdin
+                     :cache-invalidation-files cache-invalidation-files)))
