@@ -21,13 +21,30 @@
   (setf (active-maps (browser-key-state (current-browser)))
         '(:top)))
 
+(defexport statusbar-init ()
+  (ui-update (current-browser) ;; XXX: FIX ui-update syntax
+             :uri (current-tab 'view)
+             :scroll-indicator (current-tab 'scroll)
+             :progress (current-tab 'view)
+             :history (current-tab 'view)))
+
 (defscript
     :exact-uri (ui-symbol-to-uri 'status)
-  :exports '(status-bar-new-tab
+  :exports '(statusbar-init
+             status-bar-new-tab
              load-uri
              prompt-close
              statusbar-request-height)
-  :deps 'ui/deps
-  :scripts 'ui/status
+  :scripts '(:browserify ((ui/deps ())
+                          (ui/status (ui/bar/main
+                                      ui/bar/history
+                                      ui/bar/keymode
+                                      ui/bar/progress
+                                      ui/bar/tabs
+                                      ui/bar/uri
+                                      ui/prompt/main
+                                      ui/prompt/input
+                                      ui/prompt/commands)))
+             :coffee ())
   :ui-base-html 'ui/status
   :styles 'ui/status)

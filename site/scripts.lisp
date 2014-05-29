@@ -3,4 +3,4 @@
 (setf (*script-list*)
       '(ui/tabs
         ui/status
-        misc))
+        misc/testing))

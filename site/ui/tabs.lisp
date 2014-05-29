@@ -5,13 +5,13 @@
   ;; If height is 0 it still shows 1 px handle? XXX: if so maybe call hide
   (setf (size-request
          (tab-scroll (ui-tabs (browser-ui (current-browser))))
-        `(-1 ,height))))
+         `(-1 ,height))))
 
 (defscript
     :exact-uri (ui-symbol-to-uri 'tabs)
-  :deps 'ui/deps
   :exports '(tabbar-request-height)
-  :scripts 'ui/tabs
+  :scripts '(:browserify ((ui/deps ()))
+             :coffee ((ui/tabs (:closure nil))))
   :ui-base-html 'ui/tabs
   :styles 'ui/tabs)
 
