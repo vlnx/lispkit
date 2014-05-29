@@ -5,7 +5,7 @@
 (defstruct uri-scripts/uri
   exact-uri regex-uri)
 (defstruct uri-scripts/scripts
-  exports deps scripts styles
+  exports scripts styles
   ui-base-html
   enabled) ;; TODO: Make an interface to enable/disable scripts, also use this
 ;; property to filter scripts to invoke
@@ -20,18 +20,20 @@
                     exact-uri
                     regex-uri
                     exports
-                    deps
                     scripts
                     ui-base-html
                     styles)
   "Add to the *uri-scripts* structure, based on define-key"
+  ;; TODO: modify input arguments
+  ;; list for uri matches?
+  ;; minimal syntax for scripts property
+  ;; error if ui-base-html is a list
   (let* ((uri (make-uri-scripts/uri
                :exact-uri (first (listify exact-uri))
                :regex-uri (first (listify regex-uri))))
          (scripts (make-uri-scripts/scripts
                    :exports (listify exports)
-                   :deps (listify deps)
-                   :scripts (listify scripts)
+                   :scripts scripts
                    :ui-base-html (first (listify ui-base-html))
                    :styles (listify styles)))
          (found-existing-binding  (find uri
@@ -71,29 +73,28 @@
 (setf *transcompiler-cache-dir* *lispkit-cache-dir*)
 (setf *transcompilers*
       '(:coffee "/usr/local/bin/coffee --stdio --print --bare"
+        :coffee-closure "/usr/local/bin/coffee --stdio --print"
         :browserify-coffee "/usr/local/bin/browserify --transform coffeeify --debug" ;;needs file
         :jade "/usr/local/bin/jade --pretty"
         :stylus "/usr/local/bin/stylus --compress"))
 
-(defun resource-content (symbol-path type)
-  "Take a symbol thats a path in the site dir, and the type of content needed
-Return the transcompiled file content"
+(defun resource-location (symbol-path type)
+  "Get the path of a resource from a relative symbol-path and file type"
   (let ((file (concatenate 'string *site-dir*
                            (symbol-to-string symbol-path)
                            (case type
-                             (browserify-coffee ".coffee")
                              (jade ".jade")
                              (stylus ".stylus")
                              (coffee ".coffee")))))
     (if (probe-file file)
-        (if (eq type 'browserify-coffee)
-            (transcompile :type type
-                          :file file
-                          :use-stdin nil)
-            (transcompile :type type
-                          :file file))
-        (error "needed file doesn't exist"))))
+        file
+        (error "resource file doesn't exist"))))
 
+(defun resource-content (symbol-path type)
+  "implicit `resource-location` and transcompile for given type"
+  (let ((file (resource-location symbol-path type)))
+    (transcompile :type type
+                  :file file)))
 
 (defun get-js-to-apply-css (css)
   "Given the css, return the js to apply it"
@@ -107,8 +108,6 @@ Return the transcompiled file content"
 (defun invoke-scripts (view scripts)
   (let ((exports (uri-scripts/scripts-exports
                   scripts))
-        (deps (uri-scripts/scripts-deps
-               scripts))
         (js (uri-scripts/scripts-scripts
              scripts))
         (styles (uri-scripts/scripts-styles
@@ -120,18 +119,36 @@ Return the transcompiled file content"
                  (js-exports-symbol-to-name i)
                  (js-exports-symbol-to-callback i)))
               exports))
-    (when deps
-      (mapcar (lambda (i)
-                (js-eval-webview
-                 view
-                 (resource-content i 'browserify-coffee)))
-              deps))
     (when js
-      (mapcar (lambda (i)
-                (js-eval-webview
-                 view
-                 (resource-content i 'coffee)))
-              js))
+      (mapcar (lambda (entry)
+                (let ((entry-file (resource-location
+                                   (first entry)
+                                   'coffee))
+                      (deps (mapcar (lambda (f) (resource-location
+                                                 f
+                                                 'coffee))
+                                    (second entry))))
+                  ;; If watchify has missed changes to 'deps', recompile
+                  (js-eval-webview view
+                                   (transcompile :type 'browserify-coffee
+                                                 :file entry-file
+                                                 :use-stdin nil
+                                                 :cache-invalidation-files deps)
+                                   :source ;; for source maps to be realized
+                                   entry-file)))
+              (getf js :browserify))
+      (mapcar (lambda (entry)
+                (let ((file (resource-location (first entry)
+                                               'coffee))
+                      (opts (second entry)))
+                  (js-eval-webview view
+                                   (transcompile :type
+                                                 (if (getf opts :closure)
+                                                     'coffee-closure
+                                                     'coffee)
+                                                 :file file)
+                                   :source file)))
+              (getf js :coffee)))
     (when styles
       (mapcar (lambda (i)
                 (js-eval-webview
