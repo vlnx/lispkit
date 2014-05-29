@@ -133,6 +133,13 @@
 ;; (setf (property (webkit-get-default-session) :proxy-uri)
 ;;       (soup-uri-new "http://127.0.0.1:8123/"))
 
+(defun reload-view (view)
+  (webkit-web-view-load-uri
+   view
+   (property view :uri)))
+
+;; TODO: on view resize, update scrolls
+
 (defun connect-webview-signals (view &key ui-only-view)
   "Connect signals to new webviews, if the view is intended for ui only,
 don't connect signals that update the status bar"
