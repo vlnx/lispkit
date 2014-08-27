@@ -10,7 +10,7 @@
 (defvar *site-dir* "/home/***REMOVED***/dev/lispkit/site/"
   "Path where all page modifcation data is located")
 
-(defvar *uri-homepage* "http://10.1.7.1/startpage/index.html"
+(defvar *uri-homepage* "http://vlnx.lan/startpage/"
   "The homepage uri to load by default")
 
 (defvar *maps* '()

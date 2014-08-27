@@ -9,8 +9,8 @@
   (within-main-loop
     (make-instance 'browser
                    :inital-tabs (list
-                                 *uri-homepage*
-                                 "http://10.1.7.1/"))))
+                                 "http://vlnx.lan/"
+                                 *uri-homepage*))))
 
 ;; In this file, this would be the executable, process args, swank, open window
 ;; (defvar *swank-server*)
