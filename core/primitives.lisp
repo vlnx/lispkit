@@ -7,7 +7,9 @@
   "The directory to store compiled scripts")
 (sb-ext:run-program "/bin/mkdir" (list "-p" *lispkit-cache-dir*))
 
-(defvar *site-dir* "/home/***REMOVED***/dev/lispkit/site/"
+(defvar *site-dir* (concatenate 'string
+                                (sb-ext:posix-getenv "DEV_HOME")
+                                "/lispkit/site/")
   "Path where all page modifcation data is located")
 
 (defvar *uri-homepage* "http://vlnx.lan/startpage/"
