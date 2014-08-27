@@ -2,7 +2,9 @@
 ;; Connect gtk class slots
 
 (defmethod initialize-instance :after ((tab tab) &key)
-  (setf (tab-view tab) ;; Transform inital uri to view
+  "Transform view slot's initarg ':inital-uri' to a view
+Also connect view slot to scroll slot"
+  (setf (tab-view tab)
         (make-instance 'webkit-webview :uri (tab-view tab)))
   (add (tab-scroll tab) (tab-view tab)))
 
