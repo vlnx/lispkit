@@ -1,7 +1,7 @@
 {
     "name"                    : "lispkitdeps",
     "version"                 : "0.0.0",
-    "author"                  : "Nyx",
+    "author"                  : "vlnx",
     "private": true,
     "description"             : "Deps for lispkit user interface",
     "dependencies"            : {
