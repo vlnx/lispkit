@@ -1,14 +1,15 @@
 (defpackage :lispkit-system
   (:use #:cl #:asdf))
+
 (in-package :lispkit-system)
 
 (defsystem :lispkit
   :name "LispKit"
   :author "Nyx"
   :version "0.0.0"
-  :maintainer "Nyx"
+  :maintainer "vlnx"
   :description "A webkit interface"
-  :depends-on (;;:swank
+  :depends-on (; :swank
                :gtk-cffi
                :bordeaux-threads
                :cl-json
@@ -46,4 +47,4 @@
 
                (:file "core/views")
 
-               (:file "build/lispkit")))
+               (:file "main")))
