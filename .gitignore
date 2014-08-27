@@ -1,4 +1,2 @@
-docs/cffi-manual_html.pdf
-docs/uris
-lispkit
-site/ui/node_modules/
+site/node_modules/
+_untracked/
