@@ -5,21 +5,20 @@
 
 (defsystem :lispkit
   :name "LispKit"
-  :author "Nyx"
+  :author "vlnx"
   :version "0.0.0"
   :maintainer "vlnx"
   :description "A webkit interface"
-  :depends-on (; :swank
-               :gtk-cffi
+  :depends-on (:gtk-cffi
                :bordeaux-threads
                :cl-json
                :cl-ppcre
-               :sb-posix)
+               :sb-posix) ; :swank
   :serial t
   :components ((:file "package")
                (:file "utils")
 
-               (:file "patch-gtk3-main-loop")
+               (:file "cffi/patch-gtk3-main-loop")
                (:file "cffi/types")
                (:file "cffi/x11")
                (:file "cffi/g-object")
