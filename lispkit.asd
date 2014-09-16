@@ -18,21 +18,18 @@
   :components ((:file "package")
                (:file "utils")
 
-               (:file "cffi/patch-gtk3-main-loop")
                (:file "cffi/types")
-               (:file "cffi/x11")
+               (:file "cffi/gtk/main-loop-patch")
+               (:file "cffi/x11/input-method")
                (:file "cffi/g-object/signals")
-
                (:file "cffi/gdk/event-filter")
                (:file "cffi/gdk/x11-interface")
                (:file "cffi/gdk/rgba")
-
                (:file "cffi/gtk/widget-misc")
                (:file "cffi/gtk/notebook")
                (:file "cffi/gtk/overlay")
-
                (:file "cffi/libsoup/soup-uri")
-               (:file "cffi/webkit")
+               (:file "cffi/libwebkitgtk/webkit")
                (:file "cffi/libjavascriptcoregtk/eval")
 
                (:file "modules/transcompiler")
