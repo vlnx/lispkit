@@ -33,7 +33,7 @@
 
                (:file "cffi/libsoup/soup-uri")
                (:file "cffi/webkit")
-               (:file "cffi/js")
+               (:file "cffi/libjavascriptcoregtk/eval")
 
                (:file "modules/transcompiler")
                (:file "modules/keys/parse")
