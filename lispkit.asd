@@ -22,7 +22,11 @@
                (:file "cffi/types")
                (:file "cffi/x11")
                (:file "cffi/g-object")
-               (:file "cffi/gdk")
+
+               (:file "cffi/gdk/event-filter")
+               (:file "cffi/gdk/x11-interface")
+               (:file "cffi/gdk/rgba")
+
                (:file "cffi/gtk")
                (:file "cffi/soup")
                (:file "cffi/webkit")
