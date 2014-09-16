@@ -27,7 +27,10 @@
                (:file "cffi/gdk/x11-interface")
                (:file "cffi/gdk/rgba")
 
-               (:file "cffi/gtk")
+               (:file "cffi/gtk/widget-misc")
+               (:file "cffi/gtk/notebook")
+               (:file "cffi/gtk/overlay")
+
                (:file "cffi/soup")
                (:file "cffi/webkit")
                (:file "cffi/js")
