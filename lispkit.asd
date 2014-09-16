@@ -31,7 +31,7 @@
                (:file "cffi/gtk/notebook")
                (:file "cffi/gtk/overlay")
 
-               (:file "cffi/soup")
+               (:file "cffi/libsoup/soup-uri")
                (:file "cffi/webkit")
                (:file "cffi/js")
 
