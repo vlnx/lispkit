@@ -21,7 +21,7 @@
                (:file "cffi/patch-gtk3-main-loop")
                (:file "cffi/types")
                (:file "cffi/x11")
-               (:file "cffi/g-object")
+               (:file "cffi/g-object/signals")
 
                (:file "cffi/gdk/event-filter")
                (:file "cffi/gdk/x11-interface")
