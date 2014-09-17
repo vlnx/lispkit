@@ -96,11 +96,10 @@
             (tab-view tab))
           (browser-tabs b)))
 
-(defun current-tab (&optional (slot 'view) (browser (current-browser)))
+(defun current-tab (&optional (browser (current-browser)))
   "Maybe optimize, keep track of index, so don't have to cffi it each time"
-  (slot-value (nth
-               (browser-tabs-current-index browser)
-               (browser-tabs browser)) slot))
+  (nth (browser-tabs-current-index browser)
+       (browser-tabs browser)))
 
 (defun current-browser ()
   "Use focus callbacks to index the current"

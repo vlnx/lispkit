@@ -79,39 +79,39 @@ or just like in pure stumpwm one key selects a different map , or both")
 
 (defkey :top "a" (b)
         (webkit-web-view-load-uri
-         (current-tab 'view b) "http://www.example.com"))
+         (tab-view (current-tab b)) "http://www.example.com"))
 (defkey :top "A" (b)
         (webkit-web-view-load-uri
-         (current-tab 'view b) "http://www.duckduckgo.com"))
+         (tab-view (current-tab b)) "http://www.duckduckgo.com"))
 
 (defvar *scroll-step* 40)
 (defkey :top "j" (b)
         "Scroll down on the current page by the scroll-step"
-        (scroll-to (current-tab 'scroll b) :x t :rel *scroll-step*))
+        (scroll-to (tab-scroll (current-tab b)) :x t :rel *scroll-step*))
 (defkey :top "k" (b)
         "Scroll up on the current page by the scroll-step"
-        (scroll-to (current-tab 'scroll b) :x t :rel (- *scroll-step*)))
+        (scroll-to (tab-scroll (current-tab b)) :x t :rel (- *scroll-step*)))
 (defkey :top "h" (b)
         "Scroll to the left"
-        (scroll-to (current-tab 'scroll b) :y t :rel (- *scroll-step*)))
+        (scroll-to (tab-scroll (current-tab b)) :y t :rel (- *scroll-step*)))
 (defkey :top "l" (b)
         "Scroll to the right"
-        (scroll-to (current-tab 'scroll b) :y t :rel *scroll-step*))
+        (scroll-to (tab-scroll (current-tab b)) :y t :rel *scroll-step*))
 (defkey :top "0" (b)
         "Scroll to the top of the page"
-        (scroll-to (current-tab 'scroll b) :x 0))
+        (scroll-to (tab-scroll (current-tab b)) :x 0))
 (defkey :top "G" (b)
         "Scroll to the bottom of the page"
-        (scroll-to (current-tab 'scroll b) :x -1))
+        (scroll-to (tab-scroll (current-tab b)) :x -1))
 (defkey :top "SPC" (b)
         "Scroll to down a page"
-        (scroll-to (current-tab 'scroll b) :x t :rel t :page 1))
+        (scroll-to (tab-scroll (current-tab b)) :x t :rel t :page 1))
 (defkey :top "C-u" (b)
         "Scroll to up half a page"
-        (scroll-to (current-tab 'scroll b) :x t :rel t :page -0.5))
+        (scroll-to (tab-scroll (current-tab b)) :x t :rel t :page -0.5))
 (defkey :top "C-d" (b)
         "Scroll to down half a page"
-        (scroll-to (current-tab 'scroll b) :x t :rel t :page 0.5))
+        (scroll-to (tab-scroll (current-tab b)) :x t :rel t :page 0.5))
 ;; TODO: let macro the scrolling keys
 ;; (defkeys :top
 ;;     (("j") "Scroll down on the current page by the scroll-step"
@@ -153,7 +153,7 @@ or just like in pure stumpwm one key selects a different map , or both")
 (defkey :top "O" (b)
         (open-prompt-with
          b (format nil "open ~a"
-                   (property (current-tab 'view b) :uri))))
+                   (property (tab-view (current-tab b)) :uri))))
 
 (defkey :top "t" (b)
         (open-prompt-with b "tabopen "))
@@ -161,7 +161,7 @@ or just like in pure stumpwm one key selects a different map , or both")
 (defkey :top "T" (b)
         (open-prompt-with
          b (format nil "tabopen ~a"
-                   (property (current-tab 'view b) :uri))))
+                   (property (tab-view (current-tab b)) :uri))))
 
 (defkey :prompt t (b key)
         (ui-update b :prompt-send-key (print-key key)))
