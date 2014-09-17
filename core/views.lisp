@@ -112,13 +112,20 @@
                                     :from 'view)
              :tabs-update-title view))
 
-;; Called on scrolling mouse events
+;; Connected to "scroll-event" for mouse wheel scrolling
+;; Also connected to "draw", called on re-rendering of the view
 (defcallback scroll-event :boolean
-  ((widget pobject)
+  ((view pobject)
    (event :pointer))
-  (declare (ignore widget event))
-  (ui-update (current-browser)
-             :scroll-indicator (current-tab 'scroll)))
+  (declare (ignore event))
+  (let ((b (browser-find-instance view
+                         :of 'browser
+                         :from 'view)))
+    (if (eq (tab-view (current-tab b))
+            view)
+          (ui-update b
+                     :scroll-indicator (tab-scroll (current-tab b)))))
+  nil) ; continue
 
 (defcallback notify-progress :void
   ((source-view pobject))
@@ -138,8 +145,6 @@
    view
    (property view :uri)))
 
-;; TODO: on view resize, update scrolls
-
 (defun connect-webview-signals (view &key ui-only-view)
   "Connect signals to new webviews, if the view is intended for ui only,
 don't connect signals that update the status bar"
@@ -147,6 +152,9 @@ don't connect signals that update the status bar"
   (unless ui-only-view
     (setf
      (gsignal view "scroll-event")
+     (callback scroll-event)
+
+     (gsignal view "draw")
      (callback scroll-event)
 
      (gsignal view "notify::progress")
