@@ -36,7 +36,7 @@
 (defun js-eval-script (&key context
                          script
                          (this-object nil)
-                         source
+                         (source "")
                          (starting-line-number 1)
                          (exception nil))
   (let* ((ref-script (js-create-string (convert-to-foreign script :string)))
@@ -47,9 +47,7 @@
                       (if this-object
                           (convert-to-foreign this-object :pointer)
                           (null-pointer))
-                      (if ref-source
-                          ref-source
-                          (null-pointer))
+                      ref-source
                       (convert-to-foreign starting-line-number :int)
                       (if exception
                           (convert-to-foreign exception :pointer)
