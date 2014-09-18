@@ -22,11 +22,10 @@
         '(:top)))
 
 (defexport statusbar-init ()
-  (ui-update (current-browser) ;; XXX: FIX ui-update syntax
-             :uri (tab-view (current-tab))
-             :scroll-indicator (tab-scroll (current-tab))
-             :progress (tab-view (current-tab))
-             :history (tab-view (current-tab))))
+  (ui-update (current-browser) :uri (tab-view (current-tab)))
+  (ui-update (current-browser) :scroll-indicator (tab-scroll (current-tab)))
+  (ui-update (current-browser) :progress (tab-view (current-tab)))
+  (ui-update (current-browser) :history (tab-view (current-tab))))
 
 (defscript
     :exact-uri (ui-symbol-to-uri 'status)

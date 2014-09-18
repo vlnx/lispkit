@@ -23,12 +23,11 @@
     (print browser)
     (print switched-to-tab)
     (finish-output)
-    (ui-update browser
-               :history (tab-view switched-to-tab)
-               :progress (tab-view switched-to-tab)
-               :scroll-indicator (tab-scroll switched-to-tab)
-               :tabs-switched-page page-num
-               :uri (tab-view switched-to-tab))))
+    (ui-update browser :history (tab-view switched-to-tab))
+    (ui-update browser :progress (tab-view switched-to-tab))
+    (ui-update browser :scroll-indicator (tab-scroll switched-to-tab))
+    (ui-update browser :tabs-switched-page page-num)
+    (ui-update browser :uri (tab-view switched-to-tab))))
 
 (defun connect-gtk-notebook-signals (notebook)
   "Connect the signals for the notebook widget"

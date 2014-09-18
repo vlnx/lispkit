@@ -144,8 +144,7 @@ or just like in pure stumpwm one key selects a different map , or both")
 (defkey :prompt "ESC" (b)
         (setf (active-maps (browser-key-state b))
               '(:top))
-        (ui-update b
-                   :prompt-leave t))
+        (ui-update b :prompt-leave t))
 
 (defkey :top "o" (b)
         (open-prompt-with b "open "))

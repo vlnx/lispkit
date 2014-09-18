@@ -19,9 +19,8 @@
                                        :of 'browser
                                        :from 'view)))
            (when b
-             (ui-update b
-                        :uri view
-                        :history view))))))))
+             (ui-update b :uri view)
+             (ui-update b :history view))))))))
 
 ;; Used to load content for ui schemes
 (defcallback navigation-request :boolean
