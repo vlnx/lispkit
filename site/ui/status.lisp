@@ -4,7 +4,7 @@
   (print "Hello from javascript in lisp")
   (print maybe-uri)
   (finish-output)
-  (webkit-web-view-load-uri (current-tab) maybe-uri))
+  (webkit-web-view-load-uri (tab-view (current-tab)) maybe-uri))
 
 (defexport status-bar-new-tab (maybe-uri)
   (tab-new (current-browser)
@@ -23,10 +23,10 @@
 
 (defexport statusbar-init ()
   (ui-update (current-browser) ;; XXX: FIX ui-update syntax
-             :uri (current-tab 'view)
-             :scroll-indicator (current-tab 'scroll)
-             :progress (current-tab 'view)
-             :history (current-tab 'view)))
+             :uri (tab-view (current-tab))
+             :scroll-indicator (tab-scroll (current-tab))
+             :progress (tab-view (current-tab))
+             :history (tab-view (current-tab))))
 
 (defscript
     :exact-uri (ui-symbol-to-uri 'status)
