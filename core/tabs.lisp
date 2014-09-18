@@ -76,6 +76,9 @@
     ;; Show tab container, in order to be added to the notebook
     (show (tab-scroll tab))
 
+    ;; Hide native scrollbars now the scroll indicator is working
+    (webview-hide-scrollbars (tab-view tab) (tab-scroll tab))
+
     ;; Add tab to notebook
     (setf new-index
           (notebook-add-tab
