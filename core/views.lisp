@@ -156,6 +156,9 @@ don't connect signals that update the status bar"
      (gsignal view "draw")
      (callback scroll-event)
 
+     (gsignal view "notify::title")
+     (callback notify-title)
+
      (gsignal view "notify::progress")
      (callback notify-progress)))
 
