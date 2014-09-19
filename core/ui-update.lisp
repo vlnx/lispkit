@@ -38,6 +38,11 @@
              (format nil "bar.status.uri.model.set('uri','~a');"
                      (uri-fallback (property view :uri)))))
 
+(defmethod ui-update (browser (sym (eql :link-hover)) uri)
+  (js-status browser
+             (format nil
+                     "bar.status.uri.model.set('hover','~a');" uri)))
+
 (defmethod ui-update (browser (sym (eql :scroll-indicator)) scrolled)
   (js-status browser
              (format

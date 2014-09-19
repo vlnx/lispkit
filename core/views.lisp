@@ -131,6 +131,16 @@
   (when (current-browser) ;; First called before browser is set
     (ui-update (current-browser) :progress source-view)))
 
+(defcallback hovering-over-link :void
+  ((view pobject)
+   (title c-string)
+   (uri c-string))
+  (declare (ignore view title))
+  (ui-update (current-browser)
+             :link-hover (if uri
+                             uri
+                             "")))
+
 ;; TODO: Settings
 ;; '((:enable-plugins nil)
 ;;   (:enable-scripts nil)
@@ -158,6 +168,9 @@ don't connect signals that update the status bar"
 
      (gsignal view "notify::title")
      (callback notify-title)
+
+     (gsignal view "hovering-over-link")
+     (callback hovering-over-link)
 
      (gsignal view "notify::progress")
      (callback notify-progress)))
