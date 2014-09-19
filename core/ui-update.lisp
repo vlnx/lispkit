@@ -5,9 +5,16 @@
   (js-eval-webview (tab-view (ui-status (browser-ui b))) str))
 (defun js-tabs (b str)
   (js-eval-webview (tab-view (ui-tabs (browser-ui b))) str))
+(defun tab-title-fallback (property-value)
+  (or property-value "(untitled)"))
+(defun uri-fallback (property-value)
+  (or property-value "about:blank"))
+
 
 (defgeneric ui-update (browser symbol value))
 
+
+;; Prompt
 (defmethod ui-update (browser (sym (eql :prompt-send-key)) str)
   (js-status browser
              (format nil "bar.prompt.sendKey('~a');" str)))
@@ -19,6 +26,7 @@
 (defmethod ui-update (browser (sym (eql :prompt-leave)) val)
   (js-status browser "bar.prompt.close();"))
 
+;; Status Display
 (defmethod ui-update (browser (sym (eql :passthrough)) val)
   (js-status browser
              (if val
@@ -28,37 +36,7 @@
 (defmethod ui-update (browser (sym (eql :uri)) view)
   (js-status browser
              (format nil "bar.status.uri.model.set('uri','~a');"
-                     (or (property view :uri)
-                         "about:blank"))))
-
-(defmethod ui-update (browser (sym (eql :tabs-reset-list)) val)
-  (js-tabs browser "tabbar.collection.remove(tabbar.collection.models);")
-  (let ((views (browser-views browser)))
-    (mapcar (lambda (view)
-              (js-tabs browser (format
-                                nil
-                                "tabbar.collection.add({order:~a,title:'~a'});"
-                                (+ 1 (position view views))
-                                (property view :title))))
-            views)))
-
-(defmethod ui-update (browser (sym (eql :tabs-switched-page)) new-index)
-  ;; gives new page index, also found by browser-tabs-current-index
-  (js-tabs browser (format nil "tabbar.collection.moveCurrentTo(~a);"
-                           (+ 1 new-index)))
-  (js-status browser (format nil "bar.status.tabIndicator.model.set({current: ~a, total: ~a});"
-                             (+ 1 new-index)
-                             (length (browser-tabs browser)))))
-
-(defmethod ui-update (browser (sym (eql :tabs-update-title)) view)
-  (let ((order (position view (browser-views browser)))
-        (title (or (property view :title) "(untitled)")))
-    (when (and order title)
-      (js-tabs browser (format
-                        nil
-                        "tabbar.collection.findOrder(~a).set('title','~a');"
-                        (+ 1 order)
-                        title)))))
+                     (uri-fallback (property view :uri)))))
 
 (defmethod ui-update (browser (sym (eql :scroll-indicator)) scrolled)
   (js-status browser
@@ -88,3 +66,34 @@
                                  "true" "false")
                              (if (webkit-web-view-can-go-forward view)
                                  "true" "false"))))
+
+;; Tabs
+(defmethod ui-update (browser (sym (eql :tabs-reset-list)) val)
+  (js-tabs browser "tabbar.collection.remove(tabbar.collection.models);")
+  (let ((views (browser-views browser)))
+    (mapcar (lambda (view)
+              (let ((title (tab-title-fallback (property view :title)))
+                    (order (+ 1 (position view views))))
+                (js-tabs browser (format
+                                  nil
+                                  "tabbar.collection.add({order:~a,title:'~a'});"
+                                  order title))))
+            views)))
+
+(defmethod ui-update (browser (sym (eql :tabs-switched-page)) new-index)
+  ;; gives new page index, also found by browser-tabs-current-index
+  (js-tabs browser (format nil "tabbar.collection.moveCurrentTo(~a);"
+                           (+ 1 new-index)))
+  (js-status browser (format nil "bar.status.tabIndicator.model.set({current: ~a, total: ~a});"
+                             (+ 1 new-index)
+                             (length (browser-tabs browser)))))
+
+(defmethod ui-update (browser (sym (eql :tabs-update-title)) view)
+  (let ((order (position view (browser-views browser)))
+        (title (tab-title-fallback (property view :title))))
+    (when (and order title)
+      (js-tabs browser (format
+                        nil
+                        "tabbar.collection.findOrder(~a).set('title','~a');"
+                        (+ 1 order)
+                        title)))))

@@ -13,7 +13,7 @@
       ((or (eq status :webkit-load-committed)
            (eq status :webkit-load-finished))
        ;; This may be called too much for the same uri
-       (unless (ui-scheme-p (or (property view :uri) "about:blank"))
+       (unless (ui-scheme-p (uri-fallback (property view :uri)))
          (let ((b
                 (browser-find-instance view
                                        :of 'browser
