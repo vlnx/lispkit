@@ -27,8 +27,10 @@ class TabView extends Backbone.View
     span.title #{title}
     '''
     render: =>
-        $(@el).addClass 'current' if @model.get 'current'
-        $(@el).removeClass 'current' if not @model.get 'current'
+        if @model.get 'current'
+            $(@el).addClass 'current'
+        else
+            $(@el).removeClass 'current'
         $(@el).html @template @model.toJSON()
         return this
     initialize: ->
@@ -60,16 +62,7 @@ class TabBar extends Backbone.View
     #     @collection.add @collection.remove @collection.models
 
 window.tabbar = new TabBar()
-
-# HACK: Fixed race condition
-#  once backbone structure is loaded and content exists fill in model
-# while Exported.uitabsTabsExistP() is 'true'
-#     Exported.tabsInit()
-#     break
-
-# T = tabbar.collection
-# T.add title: 'TabOne', order: 1, current: yes
-# T.add title: 'TabTwo', order: 2
+Exported.tabsInit()
 
 # T.remove Tabs.findOrder 0
 

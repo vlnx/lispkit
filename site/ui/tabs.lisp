@@ -7,9 +7,15 @@
          (tab-scroll (ui-tabs (browser-ui (current-browser))))
          `(-1 ,height))))
 
+(defexport tabs-init ()
+   (ui-update (current-browser) :tabs-reset-list t)
+   (ui-update (current-browser)
+              :tabs-switched-page (browser-tabs-current-index (current-browser))))
+
 (defscript
     :exact-uri (ui-symbol-to-uri 'tabs)
-  :exports '(tabbar-request-height)
+  :exports '(tabbar-request-height
+             tabs-init)
   :scripts '(:browserify ((ui/deps ()))
              :coffee ((ui/tabs (:closure nil))))
   :ui-base-html 'ui/tabs
@@ -26,7 +32,3 @@
 ;;            (first (browser-tabs (current-browser))))
 ;;       "true"
 ;;       "false"))
-;; (defexport tabs-init ()
-;;    (ui-update (current-browser)
-;;               :tabs-reset-list t
-;;               :tabs-switched-page (browser-tabs-current-index (current-browser))))
