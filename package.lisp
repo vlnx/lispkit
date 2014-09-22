@@ -48,7 +48,9 @@
    #:listify
    #:as-keyword
    #:as-symbol
-   #:symbol-to-string))
+   #:symbol-to-string
+   #:circular-index-next
+   #:circular-index-prev))
 
 (defpackage :lispkit/transcompile
   (:use #:cl

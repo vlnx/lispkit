@@ -70,13 +70,6 @@ or just like in pure stumpwm one key selects a different map , or both")
 ;; (defkey :top "ESC" #'keypress-buffer-empty)
 ;; (kbd "multiple") => '(#S<KEY> #S<KEY>)
 
-(defkey :top "n" (b) ;; gt
-        (setf (browser-tabs-current-index b)
-              (+ 1 (browser-tabs-current-index b))))
-(defkey :top "p" (b) ;; gT
-        (setf (browser-tabs-current-index b)
-              (- (browser-tabs-current-index b) 1)))
-
 (defkey :top "a" (b)
         (webkit-web-view-load-uri
          (tab-view (current-tab b)) "http://www.example.com"))
@@ -171,3 +164,13 @@ or just like in pure stumpwm one key selects a different map , or both")
 ;; (action-map *prompt-mode*
 ;;             (t "prompt.insert('#{key}')") ;; Catch all
 ;;             ("C-t" "prompt.toggleTabOpen()"))
+
+;; Tab Comamnds
+(defkey :top "n" (b) ; gt
+  (setf (browser-tabs-current-index b)
+        (circular-index-next (browser-tabs-current-index b)
+                             (browser-tabs b))))
+(defkey :top "p" (b) ; gT
+  (setf (browser-tabs-current-index b)
+        (circular-index-prev (browser-tabs-current-index b)
+                             (browser-tabs b))))
