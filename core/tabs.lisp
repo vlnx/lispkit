@@ -20,9 +20,9 @@
         (switched-to-tab (browser-find-instance child-widget
                                                 :of 'tab
                                                 :from 'scrolled-window)))
-    (print browser)
-    (print switched-to-tab)
-    (finish-output)
+    ;; Update the browser current tab slot
+    (setf (slot-value browser 'tabs-current-index)
+          page-num)
     (ui-update browser :history t)
     (ui-update browser :progress t)
     (ui-update browser :scroll-indicator t)
@@ -49,12 +49,6 @@
 ;;         (error "Notebook has no pages, can't get current index")
 ;;         ret)))
 (defun (setf browser-tabs-current-index) (new-index browser)
-  (setf (slot-value browser 'tabs-current-index)
-        new-index)
-  (print "try to change index to")
-  (print new-index)
-  (print (widgets-notebook (browser-gtk browser)))
-  (finish-output)
   (gtk-notebook-set-current-page
    (widgets-notebook (browser-gtk browser))
    new-index))
