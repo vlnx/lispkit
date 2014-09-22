@@ -48,13 +48,12 @@ Next can be #'func a function name or an implcit lambda"
       (getf *maps* :passthrough) (make-kmap))
 
 (defkey :passthrough "C-z" (browser)
-        "Toggle browser object's passthrough-state and update ui to reflect it"
-        ;; XXX: also focus current tab view
-        (let ((kstate (browser-key-state browser)))
-          (setf (passthrough-state kstate)
-                (null (passthrough-state kstate)))
-          (ui-update browser :passthrough
-                     (passthrough-state kstate))))
+  "Toggle browser object's passthrough-state and update ui to reflect it"
+  ;; XXX: also focus current tab view
+  (let ((kstate (browser-key-state browser)))
+    (setf (passthrough-state kstate)
+          (null (passthrough-state kstate)))
+    (ui-update browser :passthrough t)))
 
 (defkey :top t (b key)
         "Could buffer keys here

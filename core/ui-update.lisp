@@ -29,11 +29,12 @@
 ;; Status Display
 (defmethod ui-update (browser (sym (eql :passthrough)) val)
   (js-status browser
-             (if val
+             (if (passthrough-state (browser-key-state browser))
                  "bar.status.keymode.model.set('mode','Passthrough');"
                  "bar.status.keymode.model.set('mode','top');")))
 
 (defmethod ui-update (browser (sym (eql :uri)) view)
+  (setf view (tab-view (current-tab browser)))
   (js-status browser
              (format nil "bar.status.uri.model.set('uri','~a');"
                      (uri-fallback (property view :uri)))))
@@ -44,6 +45,7 @@
                      "bar.status.uri.model.set('hover','~a');" uri)))
 
 (defmethod ui-update (browser (sym (eql :scroll-indicator)) scrolled)
+  (setf scrolled (tab-scroll (current-tab browser)))
   (js-status browser
              (format
               nil "bar.status.scrollIndicator.model.set({y: ~a, ymax: ~a, x: ~a, xmax: ~a});"
@@ -57,6 +59,7 @@
                (floor (property (hadjustment scrolled) :page-size))))))
 
 (defmethod ui-update (browser (sym (eql :progress)) view)
+  (setf view (tab-view (current-tab browser)))
   (js-status browser (format nil "bar.status.progressIndicator.model.set('progress', '~a');"
                              (let ((p (property view :progress)))
                                (floor (* 100 (or
@@ -66,6 +69,7 @@
                                               777)))))))
 
 (defmethod ui-update (browser (sym (eql :history)) view)
+  (setf view (tab-view (current-tab browser)))
   (js-status browser (format nil "bar.status.history.model.set({backward: ~a, forward: ~a});"
                              (if (webkit-web-view-can-go-back view)
                                  "true" "false")

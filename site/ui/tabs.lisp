@@ -9,8 +9,7 @@
 
 (defexport tabs-init ()
    (ui-update (current-browser) :tabs-reset-list t)
-   (ui-update (current-browser)
-              :tabs-switched-page (browser-tabs-current-index (current-browser))))
+   (ui-update (current-browser) :tabs-switched-page t))
 
 (defscript
     :exact-uri (ui-symbol-to-uri 'tabs)

@@ -19,8 +19,8 @@
                                        :of 'browser
                                        :from 'view)))
            (when b
-             (ui-update b :uri view)
-             (ui-update b :history view))))))))
+             (ui-update b :uri t)
+             (ui-update b :history t))))))))
 
 ;; Used to load content for ui schemes
 (defcallback navigation-request :boolean
@@ -122,14 +122,16 @@
                          :from 'view)))
     (if (eq (tab-view (current-tab b))
             view)
-          (ui-update b
-                     :scroll-indicator (tab-scroll (current-tab b)))))
+          (ui-update b :scroll-indicator t)))
   nil) ; continue
 
 (defcallback notify-progress :void
   ((source-view pobject))
-  (when (current-browser) ;; First called before browser is set
-    (ui-update (current-browser) :progress source-view)))
+  (declare (ignore source-view))
+  ;; First called before browser is set
+  (when (and (current-browser)
+             (current-tab (current-browser)))
+    (ui-update (current-browser) :progress t)))
 
 (defcallback hovering-over-link :void
   ((view pobject)
