@@ -77,25 +77,28 @@
                                  "true" "false"))))
 
 ;; Tabs
+(defmethod ui-update (browser (sym (eql :add-tab)) tab)
+  (let ((title (tab-title-fallback (property (tab-view tab) :title)))
+        (order (position tab (browser-tabs browser))))
+    (js-tabs browser (format
+                      nil
+                      "tabbar.collection.add({order:~a,title:'~a'});"
+                      order title))))
+
 (defmethod ui-update (browser (sym (eql :tabs-reset-list)) val)
   (js-tabs browser "tabbar.collection.remove(tabbar.collection.models);")
-  (let ((views (browser-views browser)))
-    (mapcar (lambda (view)
-              (let ((title (tab-title-fallback (property view :title)))
-                    (order (+ 1 (position view views))))
-                (js-tabs browser (format
-                                  nil
-                                  "tabbar.collection.add({order:~a,title:'~a'});"
-                                  order title))))
-            views)))
+  (mapcar (lambda (tab)
+            (ui-update browser :add-tab tab))
+          (browser-tabs browser)))
 
-(defmethod ui-update (browser (sym (eql :tabs-switched-page)) new-index)
-  ;; gives new page index, also found by browser-tabs-current-index
-  (js-tabs browser (format nil "tabbar.collection.moveCurrentTo(~a);"
-                           (+ 1 new-index)))
-  (js-status browser (format nil "bar.status.tabIndicator.model.set({current: ~a, total: ~a});"
-                             (+ 1 new-index)
-                             (length (browser-tabs browser)))))
+(defmethod ui-update (browser (sym (eql :tabs-switched-page)) val)
+  (let ((index (browser-tabs-current-index browser))
+        (zerobased-length (1- (length (browser-tabs browser)))))
+    (js-tabs browser (format nil "tabbar.collection.moveCurrentTo(~a);"
+                             index))
+    (js-status browser (format nil "bar.status.tabIndicator.model.set({current: ~a, total: ~a});"
+                               index
+                               zerobased-length))))
 
 (defmethod ui-update (browser (sym (eql :tabs-update-title)) view)
   (let ((order (position view (browser-views browser)))
@@ -104,5 +107,5 @@
       (js-tabs browser (format
                         nil
                         "tabbar.collection.findOrder(~a).set('title','~a');"
-                        (+ 1 order)
+                        order
                         title)))))

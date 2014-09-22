@@ -78,6 +78,8 @@
            notebook
            (tab-scroll tab)))
 
+    (ui-update browser :add-tab tab)
+
     ;; Maybe switch to the new tab
     (unless background
       (setf (browser-tabs-current-index browser)

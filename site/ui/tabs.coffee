@@ -26,12 +26,17 @@ class TabView extends Backbone.View
     span.num #{order}
     span.title #{title}
     '''
+    templateData: =>
+        # Display the order as starting at 1
+        m = @model.toJSON()
+        m.order = m.order + 1
+        m
     render: =>
         if @model.get 'current'
             $(@el).addClass 'current'
         else
             $(@el).removeClass 'current'
-        $(@el).html @template @model.toJSON()
+        $(@el).html @template @templateData()
         return this
     initialize: ->
         @listenTo @model, 'change', @render

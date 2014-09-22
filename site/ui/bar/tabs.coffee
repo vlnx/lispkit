@@ -7,7 +7,8 @@ class TabIndicatorView extends Backbone.View
     tagName: 'span'
     className: 'tabIndicator'
     render: =>
-        $(@el).html "[#{@model.get 'current'}/#{@model.get 'total'}]"
+        # Model order zero based index, display as starting at 1
+        $(@el).html "[#{@model.get('current') + 1}/#{@model.get('total') + 1}]"
         return this
     model: new TabIndicator
     initialize: =>
