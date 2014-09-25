@@ -6,6 +6,7 @@
    gtk-notebook-set-show-border
    gtk-notebook-insert-page
    gtk-notebook-set-current-page
+   gtk-notebook-remove-page
    gtk-notebook-get-current-page))
 
 (defcfun gtk-notebook-insert-page :int
@@ -36,6 +37,11 @@
 (defcfun gtk-notebook-get-nth-page :int
   "content of n page"
   (notebook pobject))
+
+(defcfun gtk-notebook-remove-page :void
+  "Remove a page by index"
+  (notebook pobject)
+  (page-num :int))
 
 (defmethod gconstructor ((notebook notebook)
                          &rest rest &key (show-tabs t) (show-border t))
