@@ -5,11 +5,12 @@
   (js-eval-webview (tab-view (ui-status (browser-ui b))) str))
 (defun js-tabs (b str)
   (js-eval-webview (tab-view (ui-tabs (browser-ui b))) str))
-(defun tab-title-fallback (property-value)
-  (or property-value "(untitled)"))
 (defun uri-fallback (property-value)
   (or property-value "about:blank"))
 
+(defun tab-title (tab)
+  (or (property (tab-view tab) :title)
+      (property (tab-view tab) :uri)))
 
 (defgeneric ui-update (browser symbol value))
 
@@ -78,7 +79,7 @@
 
 ;; Tabs
 (defmethod ui-update (browser (sym (eql :add-tab)) tab)
-  (let ((title (tab-title-fallback (property (tab-view tab) :title)))
+  (let ((title (tab-title tab))
         (order (position tab (browser-tabs browser))))
     (js-tabs browser (format
                       nil
@@ -100,9 +101,9 @@
                                index
                                zerobased-length))))
 
-(defmethod ui-update (browser (sym (eql :tabs-update-title)) view)
-  (let ((order (position view (browser-views browser)))
-        (title (tab-title-fallback (property view :title))))
+(defmethod ui-update (browser (sym (eql :tabs-update-title)) tab)
+  (let ((order (position tab (browser-tabs browser)))
+        (title (tab-title tab)))
     (when (and order title)
       (js-tabs browser (format
                         nil

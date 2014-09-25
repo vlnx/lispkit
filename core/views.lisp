@@ -109,7 +109,9 @@
   (ui-update (browser-find-instance view
                                     :of 'browser
                                     :from 'view)
-             :tabs-update-title view))
+             :tabs-update-title (browser-find-instance view
+                                                       :of 'tab
+                                                       :from 'view)))
 
 ;; Connected to "scroll-event" for mouse wheel scrolling
 ;; Also connected to "draw", called on re-rendering of the view
