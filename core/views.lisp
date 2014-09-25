@@ -13,7 +13,9 @@
       ((or (eq status :webkit-load-committed)
            (eq status :webkit-load-finished))
        ;; This may be called too much for the same uri
-       (unless (ui-scheme-p (uri-fallback (property view :uri)))
+       ;; Because these are not loaded in the main tab, don't update for them
+       (unless (or (string= "ui://tabs" (property view :uri))
+                   (string= "ui://status" (property view :uri)))
          (let ((b
                 (browser-find-instance view
                                        :of 'browser
