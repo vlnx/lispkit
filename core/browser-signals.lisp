@@ -67,9 +67,13 @@ output => list of kmaps"
   (let ((b (browser-find-instance window
                                   :of 'browser
                                   :from 'window)))
-    (setf *browsers* (remove b *browsers*)))
-  ;; If last instance and not in slime (leave-gtk-main))
-  (destroy window)) ;; note: Free each view and widget slot?
+    ;; Don't spawn a new tab if closing
+    (setf (browser-always-one-tab b) nil)
+    (mapcar #'(lambda (tab) (tab-remove b tab))
+            (browser-tabs b))
+    (destroy window)
+    (setf *browsers* (remove b *browsers*))))
+    ;; If last instance and not in slime (leave-gtk-main))
 
 ;; Reset IC as well?
 (defcallback on-focus-in :boolean

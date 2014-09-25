@@ -9,6 +9,37 @@
   (print "page-added")
   (finish-output))
 
+(defcallback notebook-page-removed :void
+  ((notebook pobject)
+   (child-widget pobject)
+   (page-num :int))
+  (declare (ignore page-num))
+  (print "page-removed") (finish-output)
+  (let ((browser (or (browser-find-instance notebook
+                                            :of 'browser
+                                            :from 'notebook)
+                     (current-browser)))
+        (removed-tab (browser-find-instance child-widget
+                                            :of 'tab
+                                            :from 'scrolled-window)))
+    ;; Destroy content, guess the content was already free'd
+    ;; (destroy (tab-view removed-tab))
+    ;; (destroy (tab-scroll removed-tab))
+    ;; Remove from list
+    (setf (browser-tabs browser)
+          (remove removed-tab (browser-tabs browser)))
+    ;; If it was the last tab, Open a new blank tab
+    (when (and (browser-always-one-tab browser)
+               (= 0 (length (browser-tabs browser))))
+      (print "last-tab") (finish-output)
+      (tab-new browser nil))
+    ;; Update display
+    (ui-update browser :tabs-reset-list t)
+    ;; Update the current tab index, that was changed by removing this page
+    (setf (slot-value browser 'tabs-current-index)
+          (gtk-notebook-get-current-page notebook))
+    (ui-update browser :current-tab t)))
+
 (defcallback notebook-switch-page :void
   ((notebook pobject)
    (child-widget pobject)
@@ -33,6 +64,8 @@
   "Connect the signals for the notebook widget"
   (setf (gsignal notebook "page-added")
         (callback notebook-page-added)
+        (gsignal notebook "page-removed")
+        (callback notebook-page-removed)
         (gsignal notebook "switch-page")
         (callback notebook-switch-page)))
 
@@ -84,3 +117,10 @@
           (setf (browser-tabs-current-index browser)
                 new-index)))))
 
+(defun tab-remove (browser tab)
+  "Remove a tab"
+  (unless (member tab (browser-tabs browser))
+    (error "tab is not in browser-tabs"))
+  (let ((notebook (widgets-notebook (browser-gtk browser)))
+        (index (position tab (browser-tabs browser))))
+    (gtk-notebook-remove-page notebook index)))

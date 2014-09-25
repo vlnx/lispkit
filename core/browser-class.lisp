@@ -82,6 +82,9 @@
    (tabs-current-index :accessor browser-tabs-current-index
                        :initform 0
                        :documentation "Current tab index")
+   (always-one-tab :accessor browser-always-one-tab
+                   :initform t
+                   :documentation "If a new tab should be created after the last one is closed")
    (gtk :accessor browser-gtk
         :initform (make-instance 'gtk-widgets)
         :documentation "widgets used in the window")
