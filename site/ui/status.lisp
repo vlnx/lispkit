@@ -26,7 +26,7 @@
   (ui-update (current-browser) :scroll-indicator t)
   (ui-update (current-browser) :progress t)
   (ui-update (current-browser) :history t)
-  (ui-update (current-browser) :tabs-switched-page t))
+  (ui-update (current-browser) :current-tab t))
 
 (defscript
     :exact-uri (ui-symbol-to-uri 'status)

@@ -91,7 +91,7 @@
             (ui-update browser :add-tab tab))
           (browser-tabs browser)))
 
-(defmethod ui-update (browser (sym (eql :tabs-switched-page)) val)
+(defmethod ui-update (browser (sym (eql :current-tab)) val)
   (let ((index (browser-tabs-current-index browser))
         (zerobased-length (1- (length (browser-tabs browser)))))
     (js-tabs browser (format nil "tabbar.collection.moveCurrentTo(~a);"

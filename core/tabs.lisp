@@ -26,7 +26,7 @@
     (ui-update browser :history t)
     (ui-update browser :progress t)
     (ui-update browser :scroll-indicator t)
-    (ui-update browser :tabs-switched-page t)
+    (ui-update browser :current-tab t)
     (ui-update browser :uri t)))
 
 (defun connect-gtk-notebook-signals (notebook)
