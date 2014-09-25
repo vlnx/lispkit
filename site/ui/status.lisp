@@ -1,15 +1,12 @@
 (in-package :lispkit)
 
-(defexport load-uri (maybe-uri)
-  (print "Hello from javascript in lisp")
-  (print maybe-uri)
-  (finish-output)
-  (webkit-web-view-load-uri (tab-view (current-tab)) maybe-uri))
 
-(defexport status-bar-new-tab (maybe-uri)
-  (tab-new (current-browser)
-           maybe-uri
-           :background nil))
+(defexport load-uri (uri)
+  (webkit-web-view-load-uri (tab-view (current-tab))
+                            (parse-uri uri)))
+
+(defexport status-bar-new-tab (uri)
+  (tab-new (current-browser) uri :background nil))
 
 (defexport statusbar-request-height (height) ;; Number
   (setf height (parse-integer height))

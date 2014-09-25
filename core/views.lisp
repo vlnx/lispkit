@@ -210,5 +210,13 @@ don't connect signals that update the status bar"
   (when signals
     (connect-webview-signals view
                              :ui-only-view (ui-scheme-p uri)))
-  (when uri
-    (webkit-web-view-load-uri view uri)))
+  ;; Even though a view can start without a uri, that point can't be
+  ;; reached again, so start by loading some thing that can be reached again
+  (webkit-web-view-load-uri view (parse-uri uri)))
+
+(defun parse-uri (maybe-uri)
+  "Return a uri that can be loaded by webkit"
+  ;; If nil or just doesn't contain :// go to a blank page
+  (if (ppcre:scan-to-strings "://" maybe-uri)
+      maybe-uri
+      (ui-symbol-to-uri 'blank)))

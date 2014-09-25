@@ -5,9 +5,6 @@
   (js-eval-webview (tab-view (ui-status (browser-ui b))) str))
 (defun js-tabs (b str)
   (js-eval-webview (tab-view (ui-tabs (browser-ui b))) str))
-(defun uri-fallback (property-value)
-  (or property-value "about:blank"))
-
 (defun tab-title (tab)
   (or (property (tab-view tab) :title)
       (property (tab-view tab) :uri)))
@@ -38,7 +35,7 @@
   (setf view (tab-view (current-tab browser)))
   (js-status browser
              (format nil "bar.status.uri.model.set('uri','~a');"
-                     (uri-fallback (property view :uri)))))
+                     (property view :uri))))
 
 (defmethod ui-update (browser (sym (eql :link-hover)) uri)
   (js-status browser
