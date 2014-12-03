@@ -2,19 +2,18 @@
 
 ;; Notebook Signals
 (defcallback notebook-page-added :void
-  ((notebook pobject)
-   (child-widget :pointer)
-   (page-num :int))
+    ((notebook pobject)
+     (child-widget :pointer)
+     (page-num :int))
   (declare (ignore notebook child-widget page-num))
-  (print "page-added")
-  (finish-output))
+  (dmesg "page-added"))
 
 (defcallback notebook-page-removed :void
-  ((notebook pobject)
-   (child-widget pobject)
-   (page-num :int))
+    ((notebook pobject)
+     (child-widget pobject)
+     (page-num :int))
   (declare (ignore page-num))
-  (print "page-removed") (finish-output)
+  (dmesg "page-removed")
   (let ((browser (or (browser-find-instance notebook
                                             :of 'browser
                                             :from 'notebook)
@@ -31,7 +30,7 @@
     ;; If it was the last tab, Open a new blank tab
     (when (and (browser-always-one-tab browser)
                (= 0 (length (browser-tabs browser))))
-      (print "last-tab") (finish-output)
+      (dmesg "last-tab")
       (tab-new browser nil))
     ;; Update display
     (ui-update browser :tabs-reset-list t)
@@ -41,9 +40,9 @@
     (ui-update browser :current-tab t)))
 
 (defcallback notebook-switch-page :void
-  ((notebook pobject)
-   (child-widget pobject)
-   (page-num :int))
+    ((notebook pobject)
+     (child-widget pobject)
+     (page-num :int))
   (let ((browser (or (browser-find-instance notebook
                                             :of 'browser
                                             :from 'notebook)
@@ -72,15 +71,10 @@
 (defun notebook-add-tab (notebook widget &optional index)
   (let ((i (if index
                (error "fixme to check if in range")
-               -1))) ;; append
+               -1))) ; append
     (gtk-notebook-insert-page notebook
                               widget nil i)))
-;; won't need this much since the browser slot should be in sync from setting it calling swich-page
-;; (defun notebook-current-tab-index (notebook)
-;;   (let ((ret (gtk-notebook-get-current-page notebook)))
-;;     (if (= ret -1)
-;;         (error "Notebook has no pages, can't get current index")
-;;         ret)))
+
 (defun (setf browser-tabs-current-index) (new-index browser)
   (gtk-notebook-set-current-page
    (widgets-notebook (browser-gtk browser))

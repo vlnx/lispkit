@@ -8,7 +8,7 @@
 (defexport status-bar-new-tab (uri)
   (tab-new (current-browser) uri :background nil))
 
-(defexport statusbar-request-height (height) ;; Number
+(defexport statusbar-request-height (height)
   (setf height (parse-integer height))
   (setf (size-request
          (tab-scroll (ui-status (browser-ui (current-browser)))))

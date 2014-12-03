@@ -52,11 +52,11 @@ in order to hide scrollbars; thus in WebKit1, allow any height in a shrink nil v
     ;; Connect signals to notebook
     (connect-gtk-notebook-signals notebook)
 
-    (let ((inital-uris (browser-tabs browser))) ;; :initial-tabs uri list
+    (let ((inital-uris (browser-tabs browser))) ; :initial-tabs uri list
       (setf (browser-tabs browser) nil)
       (mapcar (lambda (uri)
                 (tab-new browser uri
-                         :background nil)) ;; Switch to each new tab as created
+                         :background nil)) ; Switch to each new tab as created
               inital-uris))
 
     (show gtk-win :all t)

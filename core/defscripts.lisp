@@ -7,7 +7,7 @@
 (defstruct uri-scripts/scripts
   exports scripts styles
   ui-base-html
-  enabled) ;; TODO: Make an interface to enable/disable scripts, also use this
+  enabled) ; TODO: Make an interface to enable/disable scripts, also use this
 ;; property to filter scripts to invoke
 ;; Maybe add load-time for page load status per script
 (defstruct uri-scripts/binding
@@ -42,7 +42,7 @@
                                         :test 'equalp)))
     (setf (uri-scripts-bindings *uri-scripts*)
           (append
-           (if found-existing-binding ;; Replace if found
+           (if found-existing-binding ; Replace if found
                (delete found-existing-binding
                        (uri-scripts-bindings *uri-scripts*))
                (uri-scripts-bindings *uri-scripts*))
@@ -74,7 +74,7 @@
 (setf *transcompilers*
       '(:coffee "/usr/local/bin/coffee --stdio --print --bare"
         :coffee-closure "/usr/local/bin/coffee --stdio --print"
-        :browserify-coffee "/usr/local/bin/browserify --transform coffeeify --debug" ;;needs file
+        :browserify-coffee "/usr/local/bin/browserify --transform coffeeify --debug" ; needs file
         :jade "/usr/local/bin/jade --pretty"
         :stylus "/usr/local/bin/stylus --compress"))
 
@@ -101,7 +101,7 @@
   (let ((template
          (resource-content 'util-templates/apply-css 'coffee))
         (css-one-line
-         (ppcre:regex-replace-all "\\n" css " "))) ;; NOTE: also escape \'
+         (ppcre:regex-replace-all "\\n" css " "))) ; NOTE: also escape \'
     (ppcre:regex-replace-all "{{{snip}}}" template css-one-line)))
 
 ;; somehow per page load connected to a view, have status of applyed scripts
@@ -134,7 +134,7 @@
                                                  :file entry-file
                                                  :use-stdin nil
                                                  :cache-invalidation-files deps)
-                                   :source ;; for source maps to be realized
+                                   :source ; for source maps to be realized
                                    entry-file)))
               (getf js :browserify))
       (mapcar (lambda (entry)

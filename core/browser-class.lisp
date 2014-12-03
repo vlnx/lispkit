@@ -104,11 +104,11 @@
   (nth (browser-tabs-current-index browser)
        (browser-tabs browser)))
 
+;; (with-current-browser (b)
 (defun current-browser ()
-  "Use focus callbacks to index the current"
-  (nth
-   *browser-current-index*
-   *browsers*))
+  "Use the index set by focus callbacks"
+  (nth *browser-current-index*
+       *browsers*))
 
 (defun browser-all-tabs (b)
   "Return all tab instances including user interface views"
@@ -120,7 +120,7 @@
 
 (defun browsers-all-tabs ()
   "Give the tabs of all browsers in a flat list"
-  (apply #'concatenate 'list ;; Flatten a list with a depth of '(()()())
+  (apply #'concatenate 'list ; Flatten a list with a depth of '(()()())
          (mapcar #'browser-all-tabs *browsers*)))
 
 (defun browser-find-instance-get-source (requested-instance-type)
@@ -207,9 +207,9 @@ Examples:
     (browser-find-instance widget
                            :of 'tab
                            :from 'scrolled-window)"
-  (let ((source ;; List of items to filter
+  (let ((source ; List of items to filter
          (browser-find-instance-get-source of))
-        (this-test ;; Given each source item, will return the first true
+        (this-test ; Given each source item, will return the first true
          (browser-find-instance-get-test :given-instance widget
                                          :given-type from
                                          :requested-instance-type of))

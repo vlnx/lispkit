@@ -12,6 +12,6 @@
   (func :pointer))
 
 (defcenum :gdk-filter-return
-    :gdk-filter-continue ; Event not handled, continue processesing
+  :gdk-filter-continue ; Event not handled, continue processesing
   :gdk-filter-translate ; Native event translated into a GDK event and stored in the "event" structure that was passed in
   :gdk-filter-remove) ; Terminate processing, removing event

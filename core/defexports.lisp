@@ -21,20 +21,20 @@
 
 (defmacro js-callback (name args &body body)
   `(defcallback ,name :pointer
-     ((context :pointer)
-      (function :pointer)
-      (this-object :pointer)
-      (argument-count :int)
-      (arguments :pointer)
-      (execption :pointer))
+       ((context :pointer)
+        (function :pointer)
+        (this-object :pointer)
+        (argument-count :int)
+        (arguments :pointer)
+        (execption :pointer))
      (declare (ignore function this-object execption))
      (defexport-return-value-pointer context
          (if (= argument-count (length ',args))
-             (defexport-var-binding ;; HACK: dynamic let binding
+             (defexport-var-binding ; HACK: dynamic let binding
                  (mapcar
-                  (lambda (symbol) ;; Map across args
-                    (list symbol ;; returning a list containg the argument
-                          (js-result-to-string ;; and it's found value
+                  (lambda (symbol) ; Map across args
+                    (list symbol ; returning a list containg the argument
+                          (js-result-to-string ; and it's found value
                            context
                            (mem-ref arguments :pointer
                                     (position symbol ',args)))))

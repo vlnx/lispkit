@@ -96,7 +96,8 @@ Adds a function to be called whenever there are no higher priority events pendin
   (notify :pointer))
 
 ;; cl-gtk2/gtk/gtk.misc.lisp
-(defcallback stable-pointer-free-destroy-notify-callback :void ((data :pointer))
+(defcallback stable-pointer-free-destroy-notify-callback :void
+    ((data :pointer))
   (free-stable-pointer data))
 
 (defcallback call-from-main-loop-callback :boolean

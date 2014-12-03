@@ -1,6 +1,6 @@
 (in-package :lispkit)
 
-(defexport tabbar-request-height (height) ;; Number
+(defexport tabbar-request-height (height)
   (setf height (parse-integer height))
   ;; If height is 0 it still shows 1 px handle? XXX: if so maybe call hide
   (let ((widget (tab-scroll (ui-tabs (browser-ui (current-browser))))))
@@ -12,8 +12,8 @@
                 `(-1 ,height))))))
 
 (defexport tabs-init ()
-   (ui-update (current-browser) :tabs-reset-list t)
-   (ui-update (current-browser) :current-tab t))
+  (ui-update (current-browser) :tabs-reset-list t)
+  (ui-update (current-browser) :current-tab t))
 
 (defscript
     :exact-uri (ui-symbol-to-uri 'tabs)

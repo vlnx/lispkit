@@ -1,7 +1,7 @@
 (in-package :lispkit)
 
 (defcallback notify-load-status :void
-  ((view pobject))
+    ((view pobject))
   (let ((status (webkit-web-view-get-load-status view)))
     (cond
       ((eq status :webkit-load-first-visually-non-empty-layout)
@@ -26,35 +26,35 @@
 
 ;; Used to load content for ui schemes
 (defcallback navigation-request :boolean
-  ((source-view pobject)
-   (source-frame pobject)
-   (request :pointer)
-   (action :pointer)
-   (policy :pointer))
+    ((source-view pobject)
+     (source-frame pobject)
+     (request :pointer)
+     (action :pointer)
+     (policy :pointer))
   (declare (ignore action policy source-view))
-  (let ((uri (property
-              (make-instance 'g-object :pointer request)
-              :uri)))
-    (if (ui-scheme-p uri)
+  (let ((uri (property (make-instance 'g-object :pointer request)
+                       :uri)))
+    (when (ui-scheme-p uri)
+      (let ((result (first (lookup-scripts uri))))
+        (unless result
+          (dmesg "ui uri info not found, loading blank instead")
+          (setf uri (ui-symbol-to-uri 'blank))
+          (setf result (first (lookup-scripts uri))))
         (webkit-web-frame-load-alternate-string
          source-frame
-         (let ((result (first (lookup-scripts uri))))
-           (if result
-               (resource-content
-                (uri-scripts/scripts-ui-base-html
-                 (uri-scripts/binding-scripts result))
-                'jade)
-               (error "ui uri info not found")))
-         uri uri)))
+         (resource-content (uri-scripts/scripts-ui-base-html
+                            (uri-scripts/binding-scripts result))
+                           'jade)
+         uri uri))))
   nil)
 
 ;; Filter common automatic console messages
 (defcallback console-message :boolean
-  ;; return true to stop propagation
-  ((source-view :pointer)
-   (message c-string)
-   (line :int)
-   (source-id c-string))
+    ;; return true to stop propagation
+    ((source-view :pointer)
+     (message c-string)
+     (line :int)
+     (source-id c-string))
   (declare (ignore source-view line source-id))
   ;; (print message)
   ;; if match is true then stop propagation else nil and print like normal
@@ -63,7 +63,7 @@
 
 ;; Inspector Signals
 (defcallback inspector-close :void
-  ((window pobject))
+    ((window pobject))
   (let ((tab (browser-find-instance window
                                     :of 'tab
                                     :from 'inspector-window)))
@@ -75,8 +75,8 @@
       (setf (tab-inspector tab) nil))))
 
 (defcallback inspector-start :pointer
-  ((inspector-obj pobject)
-   (view pobject)) ;; view to be inspected
+    ((inspector-obj pobject)
+     (view pobject)) ; view to be inspected
   (let ((tab (browser-find-instance view
                                     :of 'tab :from 'view)))
     (setf (tab-inspector tab)
@@ -87,7 +87,7 @@
     (pointer (inspector-view (tab-inspector tab)))))
 
 (defcallback inspector-show :boolean
-  ((inspector-obj pobject))
+    ((inspector-obj pobject))
   (let ((inspector (browser-find-instance inspector-obj
                                           :of 'inspector
                                           :from 'inspector-pointer)))
@@ -102,9 +102,9 @@
       t)))
 
 (defcallback notify-title :void
-  ((view pobject)
-   (source-frame :pointer)
-   (title :pointer))
+    ((view pobject)
+     (source-frame :pointer)
+     (title :pointer))
   (declare (ignore source-frame title))
   ;; TODO: On notify-title, if the connected tab has an inspector
   ;; append new title to the inspector window
@@ -118,19 +118,19 @@
 ;; Connected to "scroll-event" for mouse wheel scrolling
 ;; Also connected to "draw", called on re-rendering of the view
 (defcallback scroll-event :boolean
-  ((view pobject)
-   (event :pointer))
+    ((view pobject)
+     (event :pointer))
   (declare (ignore event))
   (let ((b (browser-find-instance view
-                         :of 'browser
-                         :from 'view)))
+                                  :of 'browser
+                                  :from 'view)))
     (if (eq (tab-view (current-tab b))
             view)
-          (ui-update b :scroll-indicator t)))
+        (ui-update b :scroll-indicator t)))
   nil) ; continue
 
 (defcallback notify-progress :void
-  ((source-view pobject))
+    ((source-view pobject))
   (declare (ignore source-view))
   ;; First called before browser is set
   (when (and (current-browser)
@@ -138,9 +138,9 @@
     (ui-update (current-browser) :progress t)))
 
 (defcallback hovering-over-link :void
-  ((view pobject)
-   (title c-string)
-   (uri c-string))
+    ((view pobject)
+     (title c-string)
+     (uri c-string))
   (declare (ignore view title))
   (ui-update (current-browser)
              :link-hover (if uri

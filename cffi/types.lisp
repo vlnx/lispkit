@@ -11,9 +11,9 @@
 (defmethod translate-to-foreign (string (type cffi-string))
   (foreign-string-alloc string :encoding (string-type-encoding type)))
 (defmethod translate-from-foreign (pointer (type cffi-string))
-    (foreign-string-to-lisp pointer :encoding (string-type-encoding type)))
+  (foreign-string-to-lisp pointer :encoding (string-type-encoding type)))
 (defmethod free-translated-object (pointer (type cffi-string) param)
-    (declare (ignore param))
-    (foreign-string-free pointer))
+  (declare (ignore param))
+  (foreign-string-free pointer))
 
 (export 'c-string)

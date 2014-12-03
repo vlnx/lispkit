@@ -1,7 +1,7 @@
 (in-package :x11-binding)
 
 (define-foreign-library x11
-  (:unix "libX11.so"))
+    (:unix "libX11.so"))
 (use-foreign-library x11)
 
 (export '(x-filter-event
@@ -21,14 +21,14 @@
 (defcfun ("XFilterEvent" x-filter-event) :boolean
   (event :pointer)
   (zero-to-use-event-window :int))
-  ;; (window :pointer)) ;; if nil will reley on window slot of xanyevent
+;; (window :pointer)) ; if nil will reley on window slot of xanyevent
 
 
 
 (defcunion xevent
   (type :int)
   (pad :long :count 24))
-  ;; (any :pointer))
+;; (any :pointer))
 (defcstruct x-any-event
   (type :int)
   (serial :unsigned-long)
@@ -86,7 +86,7 @@
 ;; 0x0008 | 0x0400 => 1032 in decimal
 (defcfun ("XCreateIC" x-create-ic) :pointer
   (xim :pointer)
-  (input-style c-string) (styles :int) ;; (input-style c-string) (styles xim-styles)
+  (input-style c-string) (styles :int) ; (input-style c-string) (styles xim-styles)
   (client c-string) (win-ref-1 :pointer)
   ;; (focus c-string) (win-ref-2 :pointer)
   (terminate :pointer))
@@ -100,4 +100,3 @@
   (if focus
       (x-ic-set-focus xic)
       (x-ic-unset-focus xic)))
-      

@@ -47,3 +47,8 @@
 (defvar *script-list* nil
   "A list of symbols to turn to strings and load lisp files
 from when appended to *site-dir*")
+
+(defun dmesg (str)
+  "debug message"
+  (print str)
+  (finish-output))

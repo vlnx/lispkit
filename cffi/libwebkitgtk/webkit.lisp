@@ -8,14 +8,14 @@
 (in-package :webkit-binding)
 
 (define-foreign-library libwebkit
-  (:unix "libwebkitgtk-3.0.so"))
-(use-foreign-library libwebkit)  
+    (:unix "libwebkitgtk-3.0.so"))
+(use-foreign-library libwebkit)
 
 ;; WebKitWebView
 (defclass webkit-webview (widget) ())
 (defcfun "webkit_web_view_new" :pointer)
 (defmethod gconstructor ((webkit-webview webkit-webview) &key &allow-other-keys)
-    (webkit-web-view-new))
+  (webkit-web-view-new))
 
 (defcfun "webkit_web_view_load_uri" :void
   (view pobject)
@@ -42,7 +42,7 @@
 (defcfun "webkit_web_view_get_settings" :pointer
   (view pobject))
 (defmethod gconstructor ((webkit-settings webkit-settings) &key view)
-    (webkit-web-view-get-settings view))
+  (webkit-web-view-get-settings view))
 (defcfun "webkit_web_view_set_settings" :void
   (view pobject)
   (settings pobject))

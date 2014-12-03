@@ -1,10 +1,10 @@
 (in-package :lispkit)
 
 (defun scroll-to (scrolled-window &key
-                                    x ;; t or num
-                                    y ;; t or num
+                                    x ; t or num
+                                    y ; t or num
                                     rel
-                                    page ;; if rel to page
+                                    page ; if rel to page
                                     percent)
   "Examples:
     (scroll-to (tab-scroll (current-tab)) :y t :rel 20)

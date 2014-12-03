@@ -39,23 +39,23 @@ output => list of kmaps"
          (key (process-gdk-event->key
                gdk-event
                (widgets-x11-xic (browser-gtk browser)))))
-    (when key ;; XIM may have filtered the event
-      (print key) (finish-output)
+    (when key ; XIM may have filtered the event
+      (dmesg key)
       ;; Find actions to invoke, give pasthrough priority
       (keys-actions-invoke (if (passthrough-state kstate)
-                               '(:passthrough) ;; Only catch key to turn it off
+                               '(:passthrough) ; Only catch key to turn it off
                                (append
-                                '(:passthrough) ;; First check if to turn it on
+                                '(:passthrough) ; First check if to turn it on
                                 (active-maps kstate)))
                            key browser))
-    (null (passthrough-state kstate)))) ;; returning true stops propagation of the event
+    (null (passthrough-state kstate)))) ; returning true stops propagation of the event
 
 (defcallback on-key-release :boolean
     ((win pobject)
      (event :pointer))
   (declare (ignore event))
   ;; Define this only to not let keys escape to the webviews
-  (null ;; returning true stops propagation of the event
+  (null ; returning true stops propagation of the event
    (passthrough-state
     (browser-key-state
      (browser-find-instance win
@@ -73,14 +73,14 @@ output => list of kmaps"
             (browser-tabs b))
     (destroy window)
     (setf *browsers* (remove b *browsers*))))
-    ;; If last instance and not in slime (leave-gtk-main))
+;; If last instance and not in slime (leave-gtk-main))
 
 ;; Reset IC as well?
 (defcallback on-focus-in :boolean
     ((widget pobject)
      (event :pointer))
   (declare (ignore event))
-  ;; (x11-binding::xic-focus ;;  (widgets-x11-xic ;;   (browser-gtk ;;  t)
+  ;; (x11-binding::xic-focus (widgets-x11-xic (browser-gtk
   (let ((b (browser-find-instance widget
                                   :of 'browser
                                   :from 'window)))

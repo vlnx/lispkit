@@ -92,22 +92,22 @@ kbd-parse if the key failed to parse."
 If the key binding exists, replace it.
 If command is nil remove any existing binding."
   (declare (type kmap map)
-           (type (or key (eql t)) key)) ;; Accept a key structure or t
+           (type (or key (eql t)) key)) ; Accept a key structure or t
   ;; Search through the bindings of the map for the given key
   ;; use binding-key to get the elements to test with key-equalp
   (let ((binding (find key
                        (kmap-bindings map)
                        :key 'binding-key
                        :test 'key-equalp)))
-    (unless command ;; If there is no command
-      (setf (kmap-bindings map) ;; remove the found binding
+    (unless command ; If there is no command
+      (setf (kmap-bindings map) ; remove the found binding
             (delete binding (kmap-bindings map))))
-    (if command ;; If there is a (new) command
+    (if command ; If there is a (new) command
         (setf (kmap-bindings map)
-              (append (if binding ;; If the binding exists, remove it
+              (append (if binding ; If the binding exists, remove it
                           (delete binding (kmap-bindings map))
                           (kmap-bindings map))
-                      (list ;; Add the new binding
+                      (list ; Add the new binding
                        (make-binding :key key
                                      :command command)))))))
 
@@ -214,9 +214,9 @@ If command is nil remove any existing binding."
 
 (defun char-state->key (char state)
   (let ((shift (keywordp (find :shift state))))
-    (if (upper-case-p char) ;; if char is already upshifted, remove shift mod
+    (if (upper-case-p char) ; if char is already upshifted, remove shift mod
         (setf shift nil))
-    (if shift ;; If shift, upshift char, may have to revise for mods
+    (if shift ; If shift, upshift char, may have to revise for mods
         (setf char (char-upcase char)
               shift nil))
     (make-key :char char
@@ -225,11 +225,11 @@ If command is nil remove any existing binding."
               :meta (keywordp (find :mod1 state)))))
 
 (defvar *keysym-to-char*
-  '(#xff08 #\Backspace ;; BackSpace
-    #xff09 #\Tab       ;; Tab
-    #xff0d #\Newline   ;; Return
-    #xff1b #\Esc       ;; Escape
-    #xffff #\Rubout)   ;; Delete
+  '(#xff08 #\Backspace ; BackSpace
+    #xff09 #\Tab       ; Tab
+    #xff0d #\Newline   ; Return
+    #xff1b #\Esc       ; Escape
+    #xffff #\Rubout)   ; Delete
   "Transform keysyms to their character if they have one, if not... work that out")
 
 (defun keysym-or-string->char (sym code)
