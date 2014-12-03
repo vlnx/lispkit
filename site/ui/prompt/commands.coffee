@@ -3,8 +3,7 @@ searchEngines =
 
 openInterpret = (arg) ->
     # Check blanks
-    if S(arg).isEmpty() then return 'about:blank'
-    if arg is 'about:blank' then return arg
+    if S(arg).isEmpty() then return ''
     # Split off first word
     args = arg.split ' '
     searchArg = S(arg).replaceAll(args[0],'').s

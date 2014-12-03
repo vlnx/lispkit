@@ -1,7 +1,8 @@
 fg = #C6A57B
 bg =  #151515
 current-fg = #C6A57B
-current-bg = #607B8B
+current-bg = #7b4df0
+// 607B8B
 num-fg = #C6A57B
 num-bg = bg
 
@@ -12,7 +13,7 @@ body
     width 100%
     // height 100%
 
-    background-color current-bg
+    background-color bg
 
     font-family profont
     font-size 12px
@@ -53,7 +54,7 @@ pre
     width 0
     height 0
     border-top 8px solid transparent
-    border-right 11px solid current-bg
+    border-right 8px solid current-bg
     border-bottom 8px solid transparent
 .triangle-right
     width 0
