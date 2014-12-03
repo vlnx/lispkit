@@ -45,21 +45,20 @@ class TabView extends Backbone.View
 class TabBar extends Backbone.View
     el: $('#tablist')[0]
     collection: new Tabs
-    hideBar: -> # When collection is empty
-        # Exported.tabbarRequestHeight 0
+    hideBar: ->
+        Exported.tabbarRequestHeight 0
     showBar: ->
-        # Exported.tabbarRequestHeight 16
+        Exported.tabbarRequestHeight 16
     initialize: =>
-        @hideBar() # Started off empty right?
+        @hideBar() # Start off empty
         @listenTo @collection, 'add', (model) =>
-            if @collection.models.length is 1
-                @showBar # Added first so show bar
-            console.log @collection.indexOf model
             $(@el).append (new TabView model: model).render().el
+            # Added more than one so show bar
+            @showBar() if @collection.models.length is 2
         @listenTo @collection, 'remove', (model, collection, options) =>
             model.destroy()
-            if @collection.models.length is 0
-                @showBar # Removed last so hide
+            # last one left
+            @hideBar() if @collection.models.length is 1
 
     #     @collection.on 'sort', =>
     #         @render
