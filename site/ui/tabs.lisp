@@ -3,9 +3,13 @@
 (defexport tabbar-request-height (height) ;; Number
   (setf height (parse-integer height))
   ;; If height is 0 it still shows 1 px handle? XXX: if so maybe call hide
-  (setf (size-request
-         (tab-scroll (ui-tabs (browser-ui (current-browser))))
-         `(-1 ,height))))
+  (let ((widget (tab-scroll (ui-tabs (browser-ui (current-browser))))))
+    (if (= 0 height)
+        (hide widget)
+        (progn
+          (show widget)
+          (setf (size-request widget)
+                `(-1 ,height))))))
 
 (defexport tabs-init ()
    (ui-update (current-browser) :tabs-reset-list t)
