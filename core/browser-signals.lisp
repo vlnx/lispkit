@@ -32,9 +32,7 @@ output => list of kmaps"
 (defcallback on-key-press :boolean
     ((win pobject)
      (gdk-event :pointer))
-  (let* ((browser (browser-find-instance win
-                                         :of 'browser
-                                         :from 'window))
+  (let* ((browser (find-instance 'of-browser 'from-window win))
          (kstate (browser-key-state browser))
          (key (process-gdk-event->key
                gdk-event
@@ -58,15 +56,11 @@ output => list of kmaps"
   (null ; returning true stops propagation of the event
    (passthrough-state
     (browser-key-state
-     (browser-find-instance win
-                            :of 'browser
-                            :from 'window)))))
+     (find-instance 'of-browser 'from-window win)))))
 
 (defcallback exit :void
     ((window pobject))
-  (let ((b (browser-find-instance window
-                                  :of 'browser
-                                  :from 'window)))
+  (let ((b (find-instance 'of-browser 'from-window window)))
     ;; Don't spawn a new tab if closing
     (setf (browser-always-one-tab b) nil)
     (mapcar #'(lambda (tab) (tab-remove b tab))
@@ -81,9 +75,7 @@ output => list of kmaps"
      (event :pointer))
   (declare (ignore event))
   ;; (x11-binding::xic-focus (widgets-x11-xic (browser-gtk
-  (let ((b (browser-find-instance widget
-                                  :of 'browser
-                                  :from 'window)))
+  (let ((b (find-instance 'of-browser 'from-window widget)))
     (setf *browser-current-index* (position b *browsers*)))
   nil)
 

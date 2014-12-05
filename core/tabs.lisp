@@ -14,13 +14,10 @@
      (page-num :int))
   (declare (ignore page-num))
   (dmesg "page-removed")
-  (let ((browser (or (browser-find-instance notebook
-                                            :of 'browser
-                                            :from 'notebook)
+  (let ((browser (or (find-instance 'of-browser 'from-notebook notebook)
                      (current-browser)))
-        (removed-tab (browser-find-instance child-widget
-                                            :of 'tab
-                                            :from 'scrolled-window)))
+        (removed-tab (find-instance 'of-tab 'from-scrolled-window
+                                            child-widget)))
     ;; Destroy content, guess the content was already free'd
     ;; (destroy (tab-view removed-tab))
     ;; (destroy (tab-scroll removed-tab))
@@ -43,13 +40,10 @@
     ((notebook pobject)
      (child-widget pobject)
      (page-num :int))
-  (let ((browser (or (browser-find-instance notebook
-                                            :of 'browser
-                                            :from 'notebook)
+  (let ((browser (or (find-instance 'of-browser 'from-notebook notebook)
                      (current-browser)))
-        (switched-to-tab (browser-find-instance child-widget
-                                                :of 'tab
-                                                :from 'scrolled-window)))
+        (switched-to-tab (find-instance 'of-tab 'from-scrolled-window
+                                                child-widget)))
     ;; Update the browser current tab slot
     (setf (slot-value browser 'tabs-current-index)
           page-num)

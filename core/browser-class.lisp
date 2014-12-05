@@ -123,98 +123,90 @@
   (apply #'concatenate 'list ; Flatten a list with a depth of '(()()())
          (mapcar #'browser-all-tabs *browsers*)))
 
-(defun browser-find-instance-get-source (requested-instance-type)
-  (case requested-instance-type
-    (browser *browsers*)
-    (inspector (mapcar #'tab-inspector (browsers-all-tabs)))
-    (tab (browsers-all-tabs))
-    (otherwise (error "Unknown requested type, the 'of' key"))))
 
-(defun browser-find-instance-get-test (&key given-instance given-type
-                                         requested-instance-type)
-  "Based on given-instance and given-type
-return a test that will be given an instance of requested-instance-type
-the test will return a requested-instance-type instance that matches the given-instance"
-  (macrolet ((req-is (need &body body)
-               `(case requested-instance-type
-                  (,need ,@body)
-                  (otherwise (error
-                              "The requested-instance-type is incompatable with the given-type"))))
-             (ret (instance-name test)
-               `(lambda (,instance-name)
-                  (when ,test
-                    ,instance-name))))
-    (case given-type
-      (notebook
-       (req-is 'browser
-               (ret browser
-                    (eq (widgets-notebook
-                         (browser-gtk browser))
-                        given-instance))))
-      (window
-       (req-is 'browser
-               (ret browser
-                    (eq (widgets-window
-                         (browser-gtk browser))
-                        given-instance))))
-      (inspector-pointer
-       (req-is 'inspector
-               (ret inspector
-                    (and inspector
-                         (pointer-eq (if (pointerp given-instance)
-                                         given-instance
-                                         (pointer given-instance))
-                                     (inspector-pointer
-                                      inspector))))))
-      (inspector-window
-       (req-is 'tab
-               (ret tab
-                    (and (tab-inspector tab)
-                         (eq given-instance
-                             (inspector-window
-                              (tab-inspector tab)))))))
-      (view
-       (case requested-instance-type
-         (tab
-          (ret tab
-               (eq given-instance
-                   (tab-view tab))))
-         (browser
-          (ret browser
-               (member given-instance
-                       (mapcar #'tab-view
-                               (browsers-all-tabs)))))
-         (otherwise (error "The given type 'view' is incompatable with the requested type"))))
-      (scrolled-window
-       (req-is 'tab
-               (ret tab
-                    (eq given-instance
-                        (tab-scroll tab)))))
-      (otherwise (error "Unknown given-type, the 'from' key")))))
+;; Maybe macro this down but it's manageable enough for now
+(defgeneric find-instance (of from widget))
 
-(defun browser-find-instance (widget &key of from)
-  "
-   'of' is the type of widget given
-   'from' is the requested instance found that is related to the given instance
+(defun find-instance-matchit (&key source test)
+  (let ((ret (first (delete-if #'null (mapcar test source)))))
+    (if ret
+        ret
+        (error "Unattached widget"))))
 
-Created for the following use case:
-'when a view or other widget is passed in a callback argument, find it's browser instance.'
+;; (defun closure-return-input-if (test)
+;;   "Return a function that gives back it's input if the test is true"
+;;   (lambda (input)
+;;     (when test
+;;       input)))
 
-Examples:
-    (browser-find-instance widget
-                           :of 'browser
-                           :from 'view)
-    (browser-find-instance widget
-                           :of 'tab
-                           :from 'scrolled-window)"
-  (let ((source ; List of items to filter
-         (browser-find-instance-get-source of))
-        (this-test ; Given each source item, will return the first true
-         (browser-find-instance-get-test :given-instance widget
-                                         :given-type from
-                                         :requested-instance-type of))
-        ret)
-    (setf ret
-          (first (delete-if #'null (mapcar this-test source))))
-    (unless ret (error "Unattached widget"))
-    ret))
+(defmethod find-instance ((of (eql 'of-browser))
+                          (from (eql 'from-notebook)) widget)
+    (find-instance-matchit
+     :source *browsers*
+     :test (lambda (browser)
+             (when (eq (widgets-notebook
+                        (browser-gtk browser))
+                       widget)
+               browser))))
+
+(defmethod find-instance ((of (eql 'of-browser))
+                          (from (eql 'from-window)) widget)
+  (find-instance-matchit
+   :source *browsers*
+   :test (lambda (browser)
+           (when (eq (widgets-window
+                      (browser-gtk browser))
+                     widget)
+             browser))))
+
+(defmethod find-instance ((of (eql 'of-inspector))
+                          (from (eql 'from-inspector-pointer)) widget)
+  (find-instance-matchit
+   :source (mapcar #'tab-inspector (browsers-all-tabs))
+   :test (lambda (inspector)
+           (when (and inspector
+                      (pointer-eq (if (pointerp widget)
+                                      widget
+                                      (pointer widget))
+                                  (inspector-pointer
+                                   inspector)))
+             inspector))))
+
+(defmethod find-instance ((of (eql 'of-tab))
+                          (from (eql 'from-inspector-window)) widget)
+  (find-instance-matchit
+   :source (browsers-all-tabs)
+   :test (lambda (tab)
+           (when (and (tab-inspector tab)
+                      (eq widget
+                          (inspector-window
+                           (tab-inspector tab))))
+             tab))))
+
+(defmethod find-instance ((of (eql 'of-browser))
+                          (from (eql 'from-view)) widget)
+  (find-instance-matchit
+   :source *browsers*
+   :test (lambda (browser)
+           (when (member widget
+                         (mapcar #'tab-view
+                                 (browsers-all-tabs)))
+             browser))))
+
+(defmethod find-instance ((of (eql 'of-tab))
+                          (from (eql 'from-view)) widget)
+  (find-instance-matchit
+   :source (browsers-all-tabs)
+   :test (lambda (tab)
+           (when (eq widget
+                     (tab-view tab))
+             tab))))
+
+(defmethod find-instance ((of (eql 'of-tab))
+                          (from (eql 'from-scrolled-window)) widget)
+  (find-instance-matchit
+   :source (browsers-all-tabs)
+   :test (lambda (tab)
+           (when (eq widget
+                     (tab-scroll tab))
+             tab))))

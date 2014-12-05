@@ -17,9 +17,7 @@
        (unless (or (string= "ui://tabs" (property view :uri))
                    (string= "ui://status" (property view :uri)))
          (let ((b
-                (browser-find-instance view
-                                       :of 'browser
-                                       :from 'view)))
+                (find-instance 'of-browser 'from-view view)))
            (when b
              (ui-update b :uri t)
              (ui-update b :history t))))))))
@@ -64,9 +62,7 @@
 ;; Inspector Signals
 (defcallback inspector-close :void
     ((window pobject))
-  (let ((tab (browser-find-instance window
-                                    :of 'tab
-                                    :from 'inspector-window)))
+  (let ((tab (find-instance 'of-tab 'from-inspector-window window)))
     (when tab
       ;; Also destroy the view attached?
       (webkit-web-inspector-close
@@ -77,8 +73,7 @@
 (defcallback inspector-start :pointer
     ((inspector-obj pobject)
      (view pobject)) ; view to be inspected
-  (let ((tab (browser-find-instance view
-                                    :of 'tab :from 'view)))
+  (let ((tab (find-instance 'of-tab 'from-view view)))
     (setf (tab-inspector tab)
           (make-instance 'inspector
                          :pointer inspector-obj
@@ -88,9 +83,8 @@
 
 (defcallback inspector-show :boolean
     ((inspector-obj pobject))
-  (let ((inspector (browser-find-instance inspector-obj
-                                          :of 'inspector
-                                          :from 'inspector-pointer)))
+  (let ((inspector (find-instance 'of-inspector 'from-inspector-pointer
+                                          inspector-obj)))
     (when (and inspector
                (null (inspector-shown inspector)))
       (setf (gsignal (inspector-window inspector) "destroy")
@@ -108,12 +102,8 @@
   (declare (ignore source-frame title))
   ;; TODO: On notify-title, if the connected tab has an inspector
   ;; append new title to the inspector window
-  (ui-update (browser-find-instance view
-                                    :of 'browser
-                                    :from 'view)
-             :tabs-update-title (browser-find-instance view
-                                                       :of 'tab
-                                                       :from 'view)))
+  (ui-update (find-instance 'of-browser 'from-view view)
+             :tabs-update-title (find-instance 'of-tab 'from-view view)))
 
 ;; Connected to "scroll-event" for mouse wheel scrolling
 ;; Also connected to "draw", called on re-rendering of the view
@@ -121,9 +111,7 @@
     ((view pobject)
      (event :pointer))
   (declare (ignore event))
-  (let ((b (browser-find-instance view
-                                  :of 'browser
-                                  :from 'view)))
+  (let ((b (find-instance 'of-browser 'from-view view)))
     (if (eq (tab-view (current-tab b))
             view)
         (ui-update b :scroll-indicator t)))
