@@ -1,7 +1,4 @@
 (in-package :lispkit)
-;; keys -> invoke javascript -> if needed js invokes
-;; exported lisp func that returns information/action
-;;    backend -> ui -> backend actions if needed
 
 (defun key-action (src-browser key &key command default-command)
   "If there is an command linked to a keypress handle the call here.
@@ -16,30 +13,22 @@ Can decide to give them the source key, or to time the function"
 
 (setf (getf *hooks* :key-action) (list #'key-action))
 
-
-(defun defkey-auto-kbd (kmap key-arg action-fn)
-  "If this were in the macro as a `let`, sbcl can't serialize the kbd structure
-for the fasl file, so do this at run time instead"
-  (define-key kmap (cond ((eq key-arg t) t)
-                         ((stringp key-arg) (kbd key-arg))
-                         (t (error "invailid key-arg to defkey-auto-kbd")))
-    action-fn))
-
 (defmacro defkey (map key args &body body)
-  "Easy key definition
-First argument, map, specifies the property name of the keymap
-Next argument, key, is a string for kbd or t for default
-Next can be #'func a function name or an implcit lambda"
-  (let ((func (if body
-                  `(lambda ,args
-                     ,@body)
-                  args)))
-    `(defkey-auto-kbd (getf *maps* ,map) ,key
-       ,func)))
-;; (macroexpand '(defkey :top t #'top-default))
-;; (DEFKEY-AUTO-KBD (GETF *MAPS* :TOP) T #'TOP-DEFAULT)
-;; (macroexpand '(defkey :top t (a) a))
-;; (DEFKEY-AUTO-KBD (GETF *MAPS* :TOP) T (LAMBDA (A) A))
+  "Define a key with an implcit lambda"
+  `(define-key (getf *maps* ,map) (if (stringp ,key)
+                                      (kbd ,key)
+                                      ,key)
+     (lambda ,args
+        ,@body)))
+
+;;; Work that
+;; (defmacro take-function (func)
+;;   (print func)
+;;   `(,func 1 1))
+;; (take-function #'+)
+;; ((functionp func-or-args) func-or-args)
+;; ((listp func-or-args)
+
 
 ;; Create/Empty keymaps
 (setf (getf *maps* :top) (make-kmap)
@@ -63,9 +52,9 @@ or just like in pure stumpwm one key selects a different map , or both")
 ;;   (setf *keypress-buffer* '())
 ;;   (ui-update (browser-ui browser)
 ;;              'buffer-empty))
-;;   (push key *keypress-buffer*)
-;;   (ui-update (browser-ui browser)
-;;              'buffer-keystroke (print-key key)))
+;; (push key *keypress-buffer*)
+;; (ui-update (browser-ui browser)
+;;            'buffer-keystroke (print-key key)))
 ;; (defkey :top "ESC" #'keypress-buffer-empty)
 ;; (kbd "multiple") => '(#S<KEY> #S<KEY>)
 
@@ -156,13 +145,6 @@ or just like in pure stumpwm one key selects a different map , or both")
 
 (defkey :prompt t (b key)
   (ui-update b :prompt-send-key (print-key key)))
-
-;; Give keys the, browser they were invoked on
-;;       Define macros for maps, for javascript action calls
-;; list of modes, plists of of *maps*
-;; (action-map *prompt-mode*
-;;             (t "prompt.insert('#{key}')") ; Catch all
-;;             ("C-t" "prompt.toggleTabOpen()"))
 
 ;; Tab Comamnds
 (defkey :top "n" (b) ; gt
