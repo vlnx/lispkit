@@ -50,7 +50,8 @@
    #:as-symbol
    #:symbol-to-string
    #:circular-index-next
-   #:circular-index-prev))
+   #:circular-index-prev
+   #:split-string))
 
 (defpackage :lispkit/transcompile
   (:use #:cl
@@ -65,7 +66,8 @@
   (:use #:cl
         #:cffi
         #:cffi-objects
-        #:x11-binding)
+        #:x11-binding
+        #:lispkit/utils)
   (:export
    #:kbd
    #:define-key
