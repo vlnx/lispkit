@@ -66,6 +66,9 @@
   ((active-maps :accessor active-maps
                 :initform '(:top)
                 :documentation "Active kmaps for the browser")
+   (buffer :accessor key-buffer
+           :initform nil
+           :documentation "cache of unmatched keys")
    (passthrough-state :accessor passthrough-state
                       :initform nil
                       :documentation "Current passthrough state")))

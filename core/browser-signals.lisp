@@ -12,21 +12,17 @@ output => list of kmaps"
           names))
 
 (defun keys-actions-invoke (kmap-names key browser)
-  "Check for default events, extracted from main func; refactor?"
+  "Run commands for the key"
   (let* ((kmaps (active-map-names-to-kmaps kmap-names))
-         (command (handle-keymap kmaps key))
-         default-command)
+         (command (lookup-key kmaps key
+                              (key-buffer
+                               (browser-key-state browser)))))
     (if command
-        (run-hook :key-action
-                  browser key
-                  :command command)
-        (progn
-          (setf default-command (handle-keymap kmaps key t))
-          (if default-command
-              (run-hook :key-action
-                        browser key
-                        :default-command default-command))))))
-;; (print "Key pressed in a map with no default mapping")
+        (run-hook :key-non-default-action browser)
+        (setf command (default-action-in-kmap kmaps)))
+    (if command
+        (funcall command browser key)
+        (dmesg "Key pressed in a map with no default mapping"))))
 
 ;; Window Events
 (defcallback on-key-press :boolean

@@ -1,25 +1,13 @@
 (in-package :lispkit)
 
-(defun key-action (src-browser key &key command default-command)
-  "If there is an command linked to a keypress handle the call here.
-Can decide to give them the source key, or to time the function"
-  (if (not (or command default-command))
-      (error "No command given"))
-  ;; NOTE: Can check the number the command wants:
-  ;; (sb-introspect:function-lambda-list #'(lambda (one two three)))
-  (if command
-      (funcall command src-browser)
-      (funcall default-command src-browser key)))
-
-(setf (getf *hooks* :key-action) (list #'key-action))
-
 (defmacro defkey (map key args &body body)
   "Define a key with an implcit lambda"
   `(define-key (getf *maps* ,map) (if (stringp ,key)
                                       (kbd ,key)
                                       ,key)
-     (lambda ,args
-        ,@body)))
+     (lambda ,(append args '(&rest rest))
+       (declare (ignore rest))
+       ,@body)))
 
 ;;; Work that
 ;; (defmacro take-function (func)
@@ -44,19 +32,23 @@ Can decide to give them the source key, or to time the function"
           (null (passthrough-state kstate)))
     (ui-update browser :passthrough t)))
 
+(setf (getf *hooks* :key-non-default-action)
+      (list #'(lambda (b)
+                (setf (key-buffer (browser-key-state b))
+                      nil)
+                (ui-update b :buffer-set ""))))
+
 (defkey :top t (b key)
-  "Could buffer keys here
-or just like in pure stumpwm one key selects a different map , or both")
-;; FIXME: Make keys more buffer centric
-;; (defun keypress-buffer-empty (browser)
-;;   (setf *keypress-buffer* '())
-;;   (ui-update (browser-ui browser)
-;;              'buffer-empty))
-;; (push key *keypress-buffer*)
-;; (ui-update (browser-ui browser)
-;;            'buffer-keystroke (print-key key)))
-;; (defkey :top "ESC" #'keypress-buffer-empty)
-;; (kbd "multiple") => '(#S<KEY> #S<KEY>)
+  "Buffer keys from here"
+  (let ((kstate (browser-key-state b)))
+    (setf (key-buffer kstate)
+          (if (key-equalp key (first (kbd "ESC")))
+              nil
+              (append (key-buffer kstate) (list key))))
+    (ui-update b :buffer-set
+               (apply #'concatenate 'string
+                      (mapcar #'print-key (key-buffer kstate))))))
+
 
 (defkey :top "a" (b)
   (webkit-web-view-load-uri
