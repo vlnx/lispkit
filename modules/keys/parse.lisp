@@ -12,16 +12,41 @@
   char
   ;; symbol-string
   shift control meta alt hyper super)
+(defstruct binding
+  keys ; A list of key structures
+  command)
 (defstruct kmap
   bindings)
-(defstruct binding
-  key command)
 
-(defun key-equalp (key1 key2)
+(defun key-equalp (x y)
   "Compare key structures using char= when needed"
-  (if (equalp key1 key2)
-      (char= (key-char key1) (key-char key2))
-      nil))
+  (and (equalp x y)
+       (char= (key-char x) (key-char y))))
+
+(defun keys-equalp (x y)
+  "Compare lists of key structures"
+  ;; (print x) (print y)
+  (cond
+    ;; ((eq x y) t)
+    ((consp x)
+     (and (consp y)
+          (keys-equalp (car x) (car y))
+          (keys-equalp (cdr x) (cdr y))))
+    ((and
+      (typep x 'key)
+      (typep y 'key))
+     (key-equalp x y))
+    (t (eql x y))))
+
+(defun binding-find-keys (map keys)
+  "Given a list of key structres
+Return a 'binding' structure that matches"
+  (declare (type kmap map))
+  (find keys
+        (kmap-bindings map)
+        :key #'binding-keys
+        :test #'keys-equalp))
+
 
 (defun parse-mods (mods end)
   "MODS is a sequence of <MOD CHAR> #\- pairs. Return a list suitable
@@ -50,29 +75,19 @@ kbd-parse if the key failed to parse."
         (apply 'make-key :char char mods)
         (signal 'kbd-parse-error :string string))))
 
-;; Maybe parse into multipe keys keys to buffer with?
-;; (defun parse-key-seq (keys)
-;;   "KEYS is a key sequence. Parse it and return the list of keys."
-;;   (mapcar 'parse-key (split-string keys)))
-;; XXX: define-key needs to be fixed to handle a list of keys
-;; (first (parse-key-seq keys)))
-
 (defun kbd (key)
-  "Create a key structure from a string"
-  (parse-key key))
+  "Give a list of the keys that make up the string"
+  (mapcar #'parse-key (split-string key " ")))
 
-(defun define-key (map key command)
-  "Given a key structure, and a kmap and a command.
+;;; Define and lookup through the structrue
+(defun define-key (map keys command)
+  "Given a list of key structures, and a kmap and a command.
 If the key binding exists, replace it.
 If command is nil remove any existing binding."
-  (declare (type kmap map)
-           (type (or key (eql t)) key)) ; Accept a key structure or t
+  (declare (type kmap map))
   ;; Search through the bindings of the map for the given key
   ;; use binding-key to get the elements to test with key-equalp
-  (let ((binding (find key
-                       (kmap-bindings map)
-                       :key 'binding-key
-                       :test 'key-equalp)))
+  (let ((binding (binding-find-keys map keys)))
     (unless command ; If there is no command
       (setf (kmap-bindings map) ; remove the found binding
             (delete binding (kmap-bindings map))))
@@ -82,58 +97,31 @@ If command is nil remove any existing binding."
                           (delete binding (kmap-bindings map))
                           (kmap-bindings map))
                       (list ; Add the new binding
-                       (make-binding :key key
+                       (make-binding :keys keys
                                      :command command)))))))
 
-(defun lookup-key (keymap key &optional accept-default)
-  (labels ((retcmd (key)
-             (when key (binding-command key))))
-    (or (retcmd (find key
-                      (kmap-bindings keymap)
-                      :key 'binding-key
-                      :test 'key-equalp))
-        (and accept-default
-             (retcmd (find t
-                           (kmap-bindings keymap)
-                           :key 'binding-key))))))
-
-;; (defun kmap-symbol-p (x)
-;;   (and (symbolp x)
-;;        (boundp x)
-;;        (kmap-p (symbol-value x))))
-;; (defun kmap-or-kmap-symbol-p (x)
-;;   (or (kmap-p x)
-;;       (kmap-symbol-p x)))
-;; (defun dereference-kmaps (kmaps)
-;;   (mapcar (lambda (m)
-;;             (if (kmap-symbol-p m)
-;;                 (symbol-value m)
-;;                 m))
-;;           kmaps))
-;; (dereference-kmaps kmaps))))
-;; (defun lookup-key-sequence (kmap key-seq)
-;;   "Return the command bound to the key sequenc, KEY-SEQ, in keymap KMAP."
-;;   (when (kmap-symbol-p kmap)
-;;     (setf kmap (symbol-value kmap)))
-;;   (check-type kmap kmap)
-;;   (let* ((key (car key-seq))
-;;          (cmd (lookup-key kmap key)))
-;;     (cond ((null (cdr key-seq))
-;;            cmd)
-;;           (cmd
-;;            (if (kmap-or-kmap-symbol-p cmd)
-;;                (lookup-key-sequence cmd (cdr key-seq))
-;;                cmd))
-;;           (t nil))))
-
-(defun handle-keymap (kmaps key &optional accept-default)
+(defun lookup-key (kmaps key buffer)
   "Lookup key in all given maps, return first non nil command"
-  (find-if-not
-   'null
-   (mapcar (lambda (map)
-             (lookup-key map key accept-default))
-           kmaps)))
+  (flet ((search-for-key-in-map (map)
+           (let ((key-if-found
+                  (binding-find-keys map (append buffer
+                                                 (if (listp key)
+                                                     key
+                                                     (list key))))))
+             (if key-if-found
+                 (binding-command key-if-found)))))
+    (find-if-not 'null
+                 (mapcar #'search-for-key-in-map kmaps))))
 
+(defun default-action-in-kmap (kmaps)
+  (find-if-not 'null
+               (mapcar (lambda (map)
+                         (let ((match (binding-find-keys map t)))
+                           (if match
+                               (binding-command match))))
+                       kmaps)))
+
+;; Printing the structure
 (defun print-mods (key)
   (concatenate 'string
                (when (key-control key) "C-")

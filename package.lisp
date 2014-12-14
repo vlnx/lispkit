@@ -73,9 +73,11 @@
    #:define-key
    #:make-kmap
    #:print-key
-   #:handle-keymap
+   #:lookup-key
    #:create-xic
-   #:process-gdk-event->key))
+   #:process-gdk-event->key
+   #:default-action-in-kmap
+   #:key-equalp))
 
 (defpackage :lispkit
   (:use #:cl
