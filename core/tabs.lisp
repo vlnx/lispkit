@@ -36,6 +36,15 @@
           (gtk-notebook-get-current-page notebook))
     (ui-update browser :current-tab t)))
 
+
+(setf (getf *hooks* :switch-page)
+      (list #'(lambda (browser)
+                (ui-update browser :history t)
+                (ui-update browser :progress t)
+                (ui-update browser :scroll-indicator t)
+                (ui-update browser :current-tab t)
+                (ui-update browser :uri t))))
+
 (defcallback notebook-switch-page :void
     ((notebook pobject)
      (child-widget pobject)
@@ -47,11 +56,7 @@
     ;; Update the browser current tab slot
     (setf (slot-value browser 'tabs-current-index)
           page-num)
-    (ui-update browser :history t)
-    (ui-update browser :progress t)
-    (ui-update browser :scroll-indicator t)
-    (ui-update browser :current-tab t)
-    (ui-update browser :uri t)))
+    (run-hook :switch-page browser)))
 
 (defun connect-gtk-notebook-signals (notebook)
   "Connect the signals for the notebook widget"
