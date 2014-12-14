@@ -45,17 +45,18 @@
           (if (key-equalp key (first (kbd "ESC")))
               nil
               (append (key-buffer kstate) (list key))))
+
     (ui-update b :buffer-set
                (apply #'concatenate 'string
                       (mapcar #'print-key (key-buffer kstate))))))
 
 
-(defkey :top "a" (b)
+(defkey :top "g h" (b)
   (webkit-web-view-load-uri
-   (tab-view (current-tab b)) "http://www.example.com"))
-(defkey :top "A" (b)
-  (webkit-web-view-load-uri
-   (tab-view (current-tab b)) "http://www.duckduckgo.com"))
+   (tab-view (current-tab b)) *uri-homepage*))
+
+(defkey :top "g H" (b)
+  (tab-new b *uri-homepage*))
 
 (defvar *scroll-step* 40)
 (defkey :top "j" (b)
