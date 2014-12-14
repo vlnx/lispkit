@@ -70,7 +70,7 @@
 (defkey :top "l" (b)
   "Scroll to the right"
   (scroll-to (tab-scroll (current-tab b)) :y t :rel *scroll-step*))
-(defkey :top "0" (b)
+(defkey :top "g g" (b)
   "Scroll to the top of the page"
   (scroll-to (tab-scroll (current-tab b)) :x 0))
 (defkey :top "G" (b)
@@ -139,11 +139,11 @@
   (ui-update b :prompt-send-key (print-key key)))
 
 ;; Tab Comamnds
-(defkey :top "n" (b) ; gt
+(defkey :top "g t" (b)
   (setf (browser-tabs-current-index b)
         (circular-index-next (browser-tabs-current-index b)
                              (browser-tabs b))))
-(defkey :top "p" (b) ; gT
+(defkey :top "g T" (b)
   (setf (browser-tabs-current-index b)
         (circular-index-prev (browser-tabs-current-index b)
                              (browser-tabs b))))

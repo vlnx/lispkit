@@ -31,6 +31,9 @@
                  "bar.status.keymode.model.set('mode','Passthrough');"
                  "bar.status.keymode.model.set('mode','top');")))
 
+(defmethod ui-update (browser (sym (eql :buffer-set)) val)
+  (js-status browser (format nil "bar.status.buffer.model.set('content','~a');" val))) ;; NOTE:escape
+
 (defmethod ui-update (browser (sym (eql :uri)) view)
   (setf view (tab-view (current-tab browser)))
   (js-status browser

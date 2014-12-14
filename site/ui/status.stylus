@@ -30,7 +30,7 @@ body
 
     background-color base03
     color base0
-    
+
 #statusbar
     text-align right
     padding 2px
@@ -38,7 +38,7 @@ body
 
     .history
         margin-left 3px
-        
+
     .uri
     .progressIndicator
     .history
@@ -52,6 +52,8 @@ body
     .keymode
         background-color red
         color base03
+    .buffer
+        color red
 
 #prompt
     padding-bottom 2px
