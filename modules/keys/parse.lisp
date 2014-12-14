@@ -148,8 +148,15 @@ If command is nil remove any existing binding."
           (print-mods key)
           (char-to-string (key-char key))))
 
-(defun print-key-seq (seq)
-  (format nil "^5*~{~a~^ ~}^n" (mapcar 'print-key seq)))
+;; (defun print-key-seq (seq)
+;;   (format nil "^5*~{~a~^ ~}^n" (mapcar 'print-key seq)))
+
+(defmethod print-object ((object key) stream)
+  (format stream "#S(~a)" (print-key object)))
+
+
+
+;;; Parse
 
 ;; (defvar *keysym-name-translations* (make-hash-table))
 ;; (defvar *name-keysym-translations* (make-hash-table :test #'equal))
