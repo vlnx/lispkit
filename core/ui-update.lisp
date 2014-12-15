@@ -110,3 +110,6 @@
                         "tabbar.collection.findOrder(~a).set('title','~a');"
                         order
                         title)))))
+
+(defmethod ui-update (browser (sym (eql :notify)) str)
+  (ui-update browser :buffer-set str))
