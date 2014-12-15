@@ -42,10 +42,9 @@
   "Buffer keys from here"
   (let ((kstate (browser-key-state b)))
     (setf (key-buffer kstate)
-          (if (key-equalp key (first (kbd "ESC")))
+          (if (key-equalp key (parse-key "ESC"))
               nil
               (append (key-buffer kstate) (list key))))
-
     (ui-update b :buffer-set
                (apply #'concatenate 'string
                       (mapcar #'print-key (key-buffer kstate))))))

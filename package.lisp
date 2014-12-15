@@ -70,6 +70,7 @@
         #:lispkit/utils)
   (:export
    #:kbd
+   #:parse-key
    #:define-key
    #:make-kmap
    #:print-key
