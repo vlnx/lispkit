@@ -78,3 +78,15 @@ If there is match for SEPARATORS at the beginning of STRING, we do not
 include a null substring for that.  Likewise, if there is a match
 at the end of STRING, we don't include a null substring for that. "
   (split-seq string separators :test #'char= :default-value '("")))
+
+
+(defun x11-selection-set (&key primary clipboard)
+  "Set selection using `xsel"
+  (flet ((setit (arg str)
+           (with-input-from-string (in str)
+             (sb-ext:run-program "/usr/bin/xsel" (list arg)
+                                 :input in))))
+    (if primary
+        (setit "-pi" primary))
+    (if clipboard
+        (setit "-bi" clipboard))))
