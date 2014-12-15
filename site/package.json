@@ -5,11 +5,8 @@
     "private": true,
     "description"             : "Deps for lispkit user interface",
     "dependencies"            : {
-        "dnode"               : "*",
-        "shoe"                : "*",
         "underscore"          : "*",
         "string"              : "*",
-        "ecstatic"            : "*",
         "jade"                : "0.29.0",
         "backbone"            : "*",
         "bytes"               : "*",
@@ -20,8 +17,5 @@
         "kizzy"               : "*",
         "xregexp"             : "*",
         "coffeeify"           : "*",
-        "grunt"               : "*",
-        "grunt-shell"         : "*",
-        "grunt-contrib-watch" : "*"
     }
 }
