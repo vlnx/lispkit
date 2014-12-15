@@ -144,6 +144,10 @@
 (defkey :prompt t (b key)
   (ui-update b :prompt-send-key (print-key key)))
 
+(defkey :prompt "S-Insert" (b)
+  (ui-update b :prompt-send-key
+             (x11-selection :primary t)))
+
 ;; Tab Comamnds
 (defkey :top "g t" (b)
   (setf (browser-tabs-current-index b)

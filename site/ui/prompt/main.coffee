@@ -36,7 +36,7 @@ class Prompt extends Backbone.View
                 else
                     notify "Command '#{cmd}' does not exist, called with '#{arg}'"
             else
-                if keystr.length is 1
-                    @input.addStr keystr
+                # if keystr.length is 1
+                @input.addStr keystr
 
 module.exports = Prompt
