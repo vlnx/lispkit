@@ -33,6 +33,7 @@
                (:file "cffi/libjavascriptcoregtk/eval")
 
                (:file "modules/transcompiler")
+               (:file "modules/keys/structure")
                (:file "modules/keys/parse")
                (:file "modules/keys/from-gdk")
 
