@@ -7,6 +7,9 @@
 ;; kbd = string->key
 ;; char-state->key
 
+;; Keysyms that don't map to a control character
+;; thus use some higher range that map to random unicode characeters
+
 ;;; Key Structure, Parse
 (defstruct key
   char
@@ -146,95 +149,13 @@ If command is nil remove any existing binding."
 
 ;;; Parse
 
-;; (defvar *keysym-name-translations* (make-hash-table))
-;; (defvar *name-keysym-translations* (make-hash-table :test #'equal))
-;; (defun define-keysym (keysym name)
-;;   "Define a mapping from a keysym name to a keysym."
-;;   (setf (gethash keysym *keysym-name-translations*) name
-;;         (gethash name *name-keysym-translations*) keysym))
-;; (defun keysym-name->keysym (name)
-;;   "Return the keysym corresponding to NAME."
-;;   (gethash name *name-keysym-translations*))
-;; (defun keysym->keysym-name (keysym)
-;;   "Return the name corresponding to KEYSYM."
-;;   (gethash keysym *keysym-name-translations*))
-
-(defvar *char-to-string-name*
-  '(#\Newline   "RET"
-    #\Esc       "ESC"
-    #\Tab       "TAB"
-    #\Backspace "BS"
-    #\Rubout    "DEL"
-    #\Space     "SPC"))
-(defvar *string-name-to-char*
-  (reverse *char-to-string-name*))
-(defun char-to-string (char)
-  ""
-  (let ((n (getf *char-to-string-name* char)))
-    (if n n
-        (coerce (list char) 'string))))
-(defun string-to-char (string)
-  "length must be one"
-  ;; Works but hash would be better
-  (let ((n (member string *string-name-to-char* :test #'equal)))
-    (if n
-        (second n)
-        (coerce string 'character))))
-
-(defun char-state->key (char state)
-  (let ((shift (keywordp (find :shift state))))
-    (if (upper-case-p char) ; if char is already upshifted, remove shift mod
-        (setf shift nil))
-    (if shift ; If shift, upshift char, may have to revise for mods
-        (setf char (char-upcase char)
-              shift nil))
-    (make-key :char char
-              :control (keywordp (find :control state))
-              :shift shift
-              :meta (keywordp (find :mod1 state)))))
-
-(defvar *keysym-to-char*
-  '(#xff08 #\Backspace ; BackSpace
-    #xff09 #\Tab       ; Tab
-    #xff0d #\Newline   ; Return
-    #xff1b #\Esc       ; Escape
-    #xffff #\Rubout)   ; Delete
-  "Transform keysyms to their character if they have one, if not... work that out")
-
-(defun keysym-or-string->char (sym code)
-  "x11 keysym or unicode character code"
-  ;; (print sym)
-  ;; (print code)
-  ;; (print "")
-  (let ((n (getf *keysym-to-char* sym)))
-    (if n
-        n
-        ;; If control is pressed, the unicode code will transform it into a
-        ;; ascii control character, below code 32, space, in that case
-        ;; the sym should be low enough to be accurate
-        (if (< code 32)
-            (code-char sym)
-            (code-char code)))))
-
-;; Keysyms that don't have a character translation
-(defvar *ignore-mod-only-keysyms*
-  '(#xff20 "Multi_key"
-    #xffe1 "Shift_L"
-    #xffe2 "Shift_R"
-    #xffe3 "Control_L"
-    #xffe4 "Control_R"
-    #xffe5 "Caps_Lock"
-    #xffe6 "Shift_Lock"
-    #xffe7 "Meta_L"
-    #xffe8 "Meta_R"
-    #xffe9 "Alt_L"
-    #xffea "Alt_R"
-    #xffeb "Super_L"
-    #xffec "Super_R"
-    #xffed "Hyper_L"
-    #xffee "Hyper_R"
-
-    ;; Process these later
+(defvar *keysym-to-string*
+  '(32 "SPC"
+    #xff0d "RET"
+    #xff1b "ESC"
+    #xff09 "TAB"
+    #xff08 "BS"
+    #xffff "DEL"
     #xff63 "Insert"
     #xff13 "Pause"
     #xff50 "Home"
@@ -269,6 +190,70 @@ If command is nil remove any existing binding."
     #xffce "F17"
     #xffcf "F18"
     #xffd0 "F19"
-    #xffd1 "F20"))
+    #xffd1 "F20")
+  "Map X11 keysyms, that don't have a character, to their string representation")
+
+(defvar *string-to-keysym*
+  (reverse *keysym-to-string*))
+
+(defun char-to-string (char)
+  "Map a char back to a string"
+  (let ((n (getf *keysym-to-string* (char-code char))))
+    (if n
+        n
+        (coerce (list char) 'string))))
+
+(defun string-to-char (string)
+  "Take a string and try to map it to a char"
+  ;; getf doesn't work on strings
+  (let ((n (member string *string-to-keysym* :test #'equal)))
+    (if n
+        (code-char (second n))
+        (coerce string 'character))))
+
+
+(defun char-state->key (char state)
+  (let ((shift (keywordp (find :shift state))))
+    ;; Unless it's keysym that doesn't map to a correct character
+    (unless (member (char-code char) *keysym-to-string* :test #'equal)
+      (if (upper-case-p char) ; if char is already upshifted, remove shift mod
+          (setf shift nil))
+      (if shift ; If shift, upshift char
+          (setf char (char-upcase char)
+                shift nil)))
+    (make-key :char char
+              :control (keywordp (find :control state))
+              :shift shift
+              :meta (keywordp (find :mod1 state)))))
+
+(defun keysym-or-buffer->char (sym code)
+  "Convert and store the X11 keysym into a unicode character.
+It may map to a higher unicode character but that is handled by *keysym-to-string*"
+  ;; If control is pressed, the unicode code will transform it into a
+  ;; ascii control character, below code 32, space, in that case
+  ;; the sym should be low enough to be accurate
+  (if (< code 32)
+      (code-char sym)
+      (code-char code)))
+
+
+;; gdk handles these when it passes state
+(defvar *ignore-mod-only-keysyms*
+  '(#xff20 "Multi_key"
+    #xffe1 "Shift_L"
+    #xffe2 "Shift_R"
+    #xffe3 "Control_L"
+    #xffe4 "Control_R"
+    #xffe5 "Caps_Lock"
+    #xffe6 "Shift_Lock"
+    #xffe7 "Meta_L"
+    #xffe8 "Meta_R"
+    #xffe9 "Alt_L"
+    #xffea "Alt_R"
+    #xffeb "Super_L"
+    #xffec "Super_R"
+    #xffed "Hyper_L"
+    #xffee "Hyper_R"))
+
 (defun ignorable-keysym-p (sym)
   (getf *ignore-mod-only-keysyms* sym))

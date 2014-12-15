@@ -78,14 +78,12 @@
          sym status)
         ;; (print (mem-ref status :int))
         ;; (print (gdk-cffi::parse-event gdk-key-event :hardware-keycode))
-        ;; refactor:
-        (unless (= (mem-ref status :int) 3) ; XLookupKeySym = function key without string
-          (unless (ignorable-keysym-p (mem-ref sym :int))
-            (setf key
-                  (char-state->key
-                   (keysym-or-string->char
-                    (mem-ref sym :int)
-                    (mem-aref buffer :unsigned-int 0))
-                   (gdk-cffi::parse-event gdk-key-event :state)))))))
+        (unless (ignorable-keysym-p (mem-ref sym :int))
+          (setf key
+                (char-state->key
+                 (keysym-or-buffer->char
+                  (mem-ref sym :int)
+                  (mem-aref buffer :unsigned-int 0))
+                 (gdk-cffi::parse-event gdk-key-event :state))))))
     (foreign-free key-event)
     key))
