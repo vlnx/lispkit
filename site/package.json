@@ -16,6 +16,6 @@
         "ender-js"            : "*",
         "kizzy"               : "*",
         "xregexp"             : "*",
-        "coffeeify"           : "*",
+        "coffeeify"           : "*"
     }
 }
