@@ -52,7 +52,7 @@
    #:circular-index-next
    #:circular-index-prev
    #:split-string
-   #:x11-selection-set))
+   #:x11-selection))
 
 (defpackage :lispkit/transcompile
   (:use #:cl

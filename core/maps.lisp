@@ -130,7 +130,7 @@
 (defkey :top "y" (b)
   "Yank the current uri into the primary selection"
   (let ((uri (property (tab-view (current-tab b)) :uri)))
-    (x11-selection-set :primary uri)
+    (x11-selection :primary uri)
     (ui-update b :notify (format nil "Yanked uri: ~a" uri))))
 
 (defkey :top "t" (b)

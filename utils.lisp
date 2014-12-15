@@ -80,13 +80,22 @@ at the end of STRING, we don't include a null substring for that. "
   (split-seq string separators :test #'char= :default-value '("")))
 
 
-(defun x11-selection-set (&key primary clipboard)
-  "Set selection using `xsel"
+(defun x11-selection (&key primary clipboard)
+  "Set/get selection using `xsel"
   (flet ((setit (arg str)
            (with-input-from-string (in str)
              (sb-ext:run-program "/usr/bin/xsel" (list arg)
-                                 :input in))))
-    (if primary
-        (setit "-pi" primary))
-    (if clipboard
-        (setit "-bi" clipboard))))
+                                 :input in)))
+         (getit (arg)
+           (with-output-to-string (out)
+             (sb-ext:run-program "/usr/bin/xsel" (list arg)
+                                 :output out))))
+    (cond
+      ((stringp primary)
+       (setit "-pi" primary))
+      (primary
+       (getit "-po"))
+      ((stringp clipboard)
+       (setit "-bi" clipboard))
+      (clipboard
+       (getit "-bo")))))
