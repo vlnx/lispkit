@@ -51,60 +51,38 @@
 
 
 (defkey :top "g h" (b)
+  "Go home"
   (webkit-web-view-load-uri
    (tab-view (current-tab b)) *uri-homepage*))
 
 (defkey :top "g H" (b)
+  "Open homepage in new tab"
   (tab-new b *uri-homepage*))
 
+;; Scroll bindings
 (defvar *scroll-step* 40)
-(defkey :top "j" (b)
-  "Scroll down on the current page by the scroll-step"
-  (scroll-to (tab-scroll (current-tab b)) :x t :rel *scroll-step*))
-(defkey :top "k" (b)
-  "Scroll up on the current page by the scroll-step"
-  (scroll-to (tab-scroll (current-tab b)) :x t :rel (- *scroll-step*)))
-(defkey :top "h" (b)
-  "Scroll to the left"
-  (scroll-to (tab-scroll (current-tab b)) :y t :rel (- *scroll-step*)))
-(defkey :top "l" (b)
-  "Scroll to the right"
-  (scroll-to (tab-scroll (current-tab b)) :y t :rel *scroll-step*))
-(defkey :top "g g" (b)
-  "Scroll to the top of the page"
-  (scroll-to (tab-scroll (current-tab b)) :x 0))
-(defkey :top "G" (b)
-  "Scroll to the bottom of the page"
-  (scroll-to (tab-scroll (current-tab b)) :x -1))
-(defkey :top "SPC" (b)
-  "Scroll to down a page"
-  (scroll-to (tab-scroll (current-tab b)) :x t :rel t :page 1))
-(defkey :top "C-u" (b)
-  "Scroll to up half a page"
-  (scroll-to (tab-scroll (current-tab b)) :x t :rel t :page -0.5))
-(defkey :top "C-d" (b)
-  "Scroll to down half a page"
-  (scroll-to (tab-scroll (current-tab b)) :x t :rel t :page 0.5))
-;; TODO: let macro the scrolling keys
-;; (defkeys :top
-;;     (("j") "Scroll down on the current page by the scroll-step"
-;;      :x t :rel 20)
-;;   (("k") "Scroll up on the current page by the scroll-step"
-;;    :x t :rel -20)
-;;   (("h") "Scroll to the left"
-;;    :y t :rel -20)
-;;   (("l") "Scroll to the right"
-;;    :y t :rel 20)
-;;   (("gg") "Scroll to the top of the page"
-;;    :x 0)
-;;   (("G") "Scroll to the bottom of the page"
-;;    :x -1)
-;;   (("SPC") "Scroll to down a page"
-;;    :x t :rel t :page 1)
-;;   (("C-u") "Scroll to up half a page"
-;;    :x t :rel t :page -0.5)
-;;   (("C-d") "Scroll to down half a page"
-;;    :x t :rel t :page 0.5))
+(mapcar (lambda (binding)
+          (defkey :top (first binding) (b)
+            (second binding)
+            (apply #'scroll-to (tab-scroll (current-tab b)) (cddr binding))))
+        `(("j" "Scroll down on the current page by the scroll-step"
+               :x t :rel ,*scroll-step*)
+          ("k" "Scroll up on the current page by the scroll-step"
+               :x t :rel ,(- *scroll-step*))
+          ("h" "Scroll to the left"
+               :y t :rel ,(- *scroll-step*))
+          ("l" "Scroll to the right"
+               :y t :rel ,*scroll-step*)
+          ("g g" "Scroll to the top of the page"
+                 :x 0)
+          ("G" "Scroll to the bottom of the page"
+               :x -1)
+          ("SPC" "Scroll to down a page"
+                 :x t :rel t :page 1)
+          ("C-u" "Scroll to up half a page"
+                 :x t :rel t :page -0.5)
+          ("C-d" "Scroll to down half a page"
+                 :x t :rel t :page 0.5)))
 
 (defun open-prompt-with (b starting-input)
   (setf (active-maps (browser-key-state b))
