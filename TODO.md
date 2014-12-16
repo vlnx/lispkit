@@ -1,88 +1,67 @@
-# Todo:
+# TODO
 
-## WebKit
-privoxy proxy
+Take out key handling from `site/ui/prompt/main.coffee:sendkey`
+put it back in to the :prompt map
+just move the ui-update js to the key func
 
-soup session
+## libsoup
 https://developer.gnome.org/gobject/unstable/gobject-Signals.html#g-signal-new
 https://developer.gnome.org/libsoup/stable/SoupSession.html
 https://developer.gnome.org/libsoup/stable/SoupURI.html#soup-uri-new
-cookie handling, whitelist, ask when try to set
-json cookie storing
+###  cookies
+whitelist
+notify when attempted to set
+store 'jar' as json rather than sql
+### proxy
+set http proxy for soup session
 
-NoScript, ask javascript, whitelist
+## invocation
+as a binary / dynamic sbcl core dump like current wm
+Manage the env var 'MOZ_PLUGIN_PATH' where webkit last looks for plugins
 
+## History
 Log history, in json format, on disk
+unclose tab
 
+# Addon replacement
+Javascript enable/disable, whitelist, noscript
 requestpolicy, whitelist each requested domain
 
-# Ease of use
+Don't let webkit attempt to load schemas it can't handle,
+ex: js:, javascript:, ftp:, mailto:, magnet:, git:,
 
-## Content keys
-Navigation functions to be invoked for a website, (reddit, 4chan) comments posts
-Save image,page as, sort by directory in ido like mode
-CSS,JS per uri, type,domain
+Prompt
+syntax highlighting for uri and command and search engine
+bindings to change/insert search engine name
 
-## Smart Following
-Click but don't follow javascript schemas
-Magnet schema handling like my luakit plugin
+Status - uri display
+color uri segments
 
-## Smart Prompt
-Syntax highlighting
-Search engines, highlight keyword, keys to change keyword
-
-URI mode, break it apart, (e.x: long queries, display in a vertical list with
+Uri-editing mode in the prompt
+break it apart, (e.x: long queries, display in a vertical list with
 value being editable)
-try cl-uri
 
-Quicklinks, type site keyword to go to
+Save file dialog, to replace the gtk one
+* should start in a base directory per filetype
+* also find a binding to 'save image as'
+also a file upload handler
 
-## Web Apps
-Node.js based SPAs, with global functions called by lisp side keys, pass key string
-Node.js SPA server, could be automaticaly spawned as a child process of the daemon
-;; navigation handler, for hosted files too, load them
+key maps for sites, to invoke functions on the page
 
-;; evaluate a function given a string, exposed from loaded string
-;; backbone+ browserifyed libraryes
+For my hiatus'ed, node.js webapps/singlepageapplications, interfaces to mpd and rtorrent
+instead of them handling the keystrokes through ***REMOVED*** javascript
+use this gdk/lisp system's key maps to invoke the proper javascript action on the page
 
-<!--  -->
+Enable/disable *uri-scripts*, tune from interface
+ex: for switching between a light and dark theme for a site
 
-
-# Major milepoints:
-* Key events & ComposeKey
-* GTK3 minimum vpane height
-
-# Not yet
-* Distracted, by impemnteding colored uri segments
-
-# Impentation condiderations
-* Buffer Keys
-  have differnt key maps way to invoke/change current keymaps
-
-# Next
-Tabs
-    need to hook up signals to ui actions
-    make keymap first, then ui backbone, then signals
-    free views
-Done: Scrolling
-    scroll keys, j/k to current view, scroll window ajustments
-    look through luakit's scrolling funcs
-    visually update status of scroll
-    move relatively x or y
-
-Use a testing framework
-http://www.cliki.net/test%20framework
-
-Tabs
-    add remove, ui-updates for models
-    status bar commands
-    buffer keys
-
-Ui-views
-    initialize race conditions
-
-Status-bar commands
-    :open allow search engines
-
-# *uri-scripts*, Enable/Disable
-* can tuned from the interface
+Tab ideas
+* favicons then
+* side tabs option
+    change gtk layout to use vbox instead of hbox for tabs
+        ||@@@@@@@@@@@@@@@@@@
+        ||@@@@@@@@@@@@@@@@@@
+        ||@@@@@@@@@@@@@@@@@@
+        ||@@@@@@@@@@@@@@@@@@
+        ||@@@@@@@@@@@@@@@@@@
+        --------------------
