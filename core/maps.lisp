@@ -137,3 +137,21 @@
                              (browser-tabs b))))
 (defkey :top "d" (b)
   (tab-remove b (current-tab b)))
+
+
+(defkey :top "g u" (b)
+  "Go up in the uri structure"
+  (webkit-web-view-load-uri
+   (tab-view (current-tab b))
+   (parse-uri
+    (let ((uri (property (tab-view (current-tab b)) :uri)))
+      (cond ; if there, cut it out
+        ;; remove a query
+        ((ppcre:scan "\\?.*$" uri)
+         (ppcre:regex-replace "\\?.*$" uri ""))
+        ;; remove the last slash segment
+        ;; todo: should stop at domain
+        ((ppcre:scan "[^/]*?/?$" uri)
+         (ppcre:regex-replace "[^/]*?/?$" uri ""))
+        ;; Haven't implemented subdomain removal
+        (t uri))))))
