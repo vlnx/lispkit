@@ -139,6 +139,32 @@
   (tab-remove b (current-tab b)))
 
 
+(defun modify-last-number-in-string (func str)
+  "Apply a function to the last number detected in a string"
+  (ppcre:regex-replace
+   "([0-9]+)([^0-9]*)$" str
+   (lambda (match number trail)
+     (declare (ignore match))
+     (format nil "~a~a"
+                  (funcall func (parse-integer number))
+                  (or trail "")))
+   :simple-calls t))
+
+(defkey :top "C-a" (b)
+  "Increment last number in the current uri"
+  (webkit-web-view-load-uri
+   (tab-view (current-tab b))
+   (modify-last-number-in-string #'1+
+                                 (property (tab-view (current-tab b)) :uri))))
+
+(defkey :top "C-x" (b)
+  "Decrement last number in the current uri"
+  (webkit-web-view-load-uri
+   (tab-view (current-tab b))
+   (modify-last-number-in-string #'1-
+                                 (property (tab-view (current-tab b)) :uri))))
+
+
 (defkey :top "g u" (b)
   "Go up in the uri structure"
   (webkit-web-view-load-uri
