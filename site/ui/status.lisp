@@ -1,6 +1,9 @@
 (in-package :lispkit)
 
 
+(defexport notify (str)
+  (ui-update (current-browser) :notify str))
+
 (defexport load-uri (uri)
   (webkit-web-view-load-uri (tab-view (current-tab))
                             (parse-uri uri)))
@@ -31,7 +34,8 @@
              status-bar-new-tab
              load-uri
              prompt-close
-             statusbar-request-height)
+             statusbar-request-height
+             notify)
   :scripts '(:browserify ((ui/deps ())
                           (ui/status (ui/bar/main
                                       ui/bar/history

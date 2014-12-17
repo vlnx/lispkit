@@ -20,5 +20,7 @@ Commands =
     tabopen: (arg) ->
         console.log arg
         Exported.statusBarNewTab openInterpret arg
+    notify: (str) ->
+        Exported.notify "#{if str then str else 'empty notify call'}"
 
 module.exports = Commands
