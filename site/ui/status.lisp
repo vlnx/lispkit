@@ -1,32 +1,32 @@
 (in-package :lispkit)
 
 
-(defexport notify (str)
-  (ui-update (current-browser) :notify str))
+(defexport notify (b str)
+  (ui-update b :notify str))
 
-(defexport load-uri (uri)
-  (webkit-web-view-load-uri (tab-view (current-tab))
+(defexport load-uri (b uri)
+  (webkit-web-view-load-uri (tab-view (current-tab b))
                             (parse-uri uri)))
 
-(defexport status-bar-new-tab (uri)
-  (tab-new (current-browser) uri :background nil))
+(defexport status-bar-new-tab (b uri)
+  (tab-new b uri :background nil))
 
-(defexport statusbar-request-height (height)
+(defexport statusbar-request-height (b height)
   (setf height (parse-integer height))
   (setf (size-request
-         (tab-scroll (ui-status (browser-ui (current-browser)))))
+         (tab-scroll (ui-status (browser-ui b))))
         `(-1 ,height)))
 
-(defexport prompt-close ()
-  (setf (active-maps (browser-key-state (current-browser)))
+(defexport prompt-close (b)
+  (setf (active-maps (browser-key-state b))
         '(:top)))
 
-(defexport statusbar-init ()
-  (ui-update (current-browser) :uri t)
-  (ui-update (current-browser) :scroll-indicator t)
-  (ui-update (current-browser) :progress t)
-  (ui-update (current-browser) :history t)
-  (ui-update (current-browser) :current-tab t))
+(defexport statusbar-init (b)
+  (ui-update b :uri t)
+  (ui-update b :scroll-indicator t)
+  (ui-update b :progress t)
+  (ui-update b :history t)
+  (ui-update b :current-tab t))
 
 (defscript
   :exact-uri (ui-symbol-to-uri 'status)

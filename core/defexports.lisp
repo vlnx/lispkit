@@ -1,74 +1,66 @@
 (in-package :lispkit)
 ;; Define macro to define lisp functions able to export to javascript
 
-;; NOTE: are defcallback's redefineable, if not, give defun invoke that can change
-
-(defun defexport-var-binding (let-binding body-func)
-  (eval `(let ,let-binding ,body-func)))
-
-(defun defexport-return-value-pointer (jsc-context lisp-val)
-  "If the body evals to a string return that to the jsc"
-  (if (stringp lisp-val)
-      (progn
-        (let ((str-ref (js-create-string
-                        (convert-to-foreign lisp-val :string)))
-              js-value)
-          (setf js-value
-                (js-value-make-string jsc-context str-ref))
-          (js-free-string str-ref)
-          js-value))
-      (js-value-make-undefined jsc-context)))
-
-(defmacro js-callback (name args &body body)
-  `(defcallback ,name :pointer
-       ((context :pointer)
-        (function :pointer)
-        (this-object :pointer)
-        (argument-count :int)
-        (arguments :pointer)
-        (execption :pointer))
-     (declare (ignore function this-object execption))
-     (defexport-return-value-pointer context
-         (if (= argument-count (length ',args))
-             (defexport-var-binding ; HACK: dynamic let binding
-                 (mapcar
-                  (lambda (symbol) ; Map across args
-                    (list symbol ; returning a list containg the argument
-                          (js-result-to-string ; and it's found value
-                           context
-                           (mem-ref arguments :pointer
-                                    (position symbol ',args)))))
-                  ',args)
-                 '(progn ,@body))
-             (error
-              (concatenate
-               'string (symbol-name ',name)
-               " was called with invalid number of javascript arguments"))))))
-
 (defun js-exports-symbol-to-callback (symbol)
   "Retrive a callback function to give to js-export-function"
   (getf *js-exports* (as-keyword symbol)))
 
 (defun js-exports-symbol-to-name (symbol)
   "Used to give js-export-function's name"
-  (json:lisp-to-camel-case
-   (symbol-to-string symbol)))
+  (json:lisp-to-camel-case (symbol-to-string symbol)))
 
-;; (defun js-prefix-callback (sym)
-;;   "Get the callback name"
-;;   (as-symbol (concatenate
-;;               'string
-;;               "lisp-from-js/" (symbol-to-string sym))))
+(defun defexport-return-value-pointer (jsc-context lisp-val)
+  "If the body evals to a string return that to the jsc"
+  (if (stringp lisp-val)
+      (let ((str-ref (js-create-string
+                      (convert-to-foreign lisp-val :string)))
+            js-value)
+        (setf js-value
+              (js-value-make-string jsc-context str-ref))
+        (js-free-string str-ref)
+        js-value)
+      (js-value-make-undefined jsc-context)))
 
 (defmacro defexport (symbol args &body body)
-  ;; XXX: this in it's own function fails
-  ;; (let ((cb-name (js-prefix-callback symbol))
-  (let ((cb-name
-         (as-symbol (concatenate
-                     'string
-                     "lisp-from-js/" (symbol-to-string symbol))))
+  "Define a function to that can be exported into the javascript context"
+  (let ((cb-name (as-symbol (concatenate 'string
+                                         "lisp-from-js/"
+                                         (symbol-to-string symbol))))
         (key (as-keyword symbol)))
     `(progn
-       (js-callback ,cb-name ,args ,@body)
+
+       ;; Define the function
+       (defun ,cb-name ,(append args '(&rest rest))
+         (declare (ignore rest))
+         ;; (dmesg rest)
+         ,@body)
+
+       ;; Define the callback that calls the lisp function with given arguments
+       (defcallback ,cb-name :pointer
+           ((context :pointer)
+            (func :pointer)
+            (this-object :pointer)
+            (argument-count :int)
+            (arguments :pointer)
+            (execption :pointer))
+         (declare (ignore func this-object execption))
+
+         (let* ((argument-pointers
+                 (loop
+                    for i
+                    from 0 to (1- argument-count)
+                    collect
+                      (mem-ref arguments :pointer i)))
+                (arguments-in-strings
+                 (mapcar (lambda (p)
+                           (js-result-to-string context p))
+                         argument-pointers))
+                (val (apply #',cb-name
+                            ;; This may not be the source, could store a reference to the jsc in the tab class, and search for that?
+                            (current-browser)
+                            arguments-in-strings)))
+           (defexport-return-value-pointer context val)))
+
+       ;; Store the callback reference
        (setf (getf *js-exports* ,key)
              (callback ,cb-name)))))
