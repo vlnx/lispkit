@@ -42,9 +42,9 @@
   "Buffer keys from here"
   (let ((kstate (browser-key-state b)))
     (setf (key-buffer kstate)
-          (if (key-equalp key (parse-key "ESC"))
-              nil
-              (append (key-buffer kstate) (list key))))
+          (if (key-character-p key)
+              (append (key-buffer kstate) (list key))
+              nil))
     (ui-update b :buffer-set
                (apply #'concatenate 'string
                       (mapcar #'print-key (key-buffer kstate))))))
@@ -121,7 +121,8 @@
 
 ;;; Prompt map
 (defkey :prompt t (b key)
-  (ui-update b :prompt-append (print-key key)))
+  (if (key-character-p key)
+      (ui-update b :prompt-append (print-key key))))
 
 (defkey :prompt "S-Insert" (b)
   (ui-update b :prompt-append

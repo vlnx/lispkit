@@ -79,7 +79,8 @@
    #:create-xic
    #:process-gdk-event->key
    #:default-action-in-kmap
-   #:key-equalp))
+   #:key-equalp
+   #:key-character-p))
 
 (defpackage :lispkit
   (:use #:cl

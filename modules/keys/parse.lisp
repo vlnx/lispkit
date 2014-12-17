@@ -63,11 +63,20 @@
         (code-char (second n))
         (coerce string 'character))))
 
+(defun key-char-real-p (char)
+  "Test if the char is valid or if is in the keysym to char list"
+  (null (member (char-code char)
+                *keysym-to-string* :test #'equal)))
+
+(defun key-character-p (key)
+  "If the key has a character
+all key structures have a 'char' but here test if it is valid"
+  (key-char-real-p (key-char key)))
 
 (defun char-state->key (char state)
   (let ((shift (keywordp (find :shift state))))
-    ;; Unless it's keysym that doesn't map to a correct character
-    (unless (member (char-code char) *keysym-to-string* :test #'equal)
+    ;; only if the char is valid character
+    (when (key-char-real-p char)
       (if (upper-case-p char) ; if char is already upshifted, remove shift mod
           (setf shift nil))
       (if shift ; If shift, upshift char
