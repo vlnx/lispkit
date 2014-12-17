@@ -144,13 +144,13 @@
 
 (defmethod find-instance ((of (eql 'of-browser))
                           (from (eql 'from-notebook)) widget)
-    (find-instance-matchit
-     :source *browsers*
-     :test (lambda (browser)
-             (when (eq (widgets-notebook
-                        (browser-gtk browser))
-                       widget)
-               browser))))
+  (find-instance-matchit
+   :source *browsers*
+   :test (lambda (browser)
+           (when (eq (widgets-notebook
+                      (browser-gtk browser))
+                     widget)
+             browser))))
 
 (defmethod find-instance ((of (eql 'of-browser))
                           (from (eql 'from-window)) widget)

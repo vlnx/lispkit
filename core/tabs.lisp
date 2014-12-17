@@ -17,7 +17,7 @@
   (let ((browser (or (find-instance 'of-browser 'from-notebook notebook)
                      (current-browser)))
         (removed-tab (find-instance 'of-tab 'from-scrolled-window
-                                            child-widget)))
+                                    child-widget)))
     ;; Destroy content, guess the content was already free'd
     ;; (destroy (tab-view removed-tab))
     ;; (destroy (tab-scroll removed-tab))
@@ -52,7 +52,7 @@
   (let ((browser (or (find-instance 'of-browser 'from-notebook notebook)
                      (current-browser)))
         (switched-to-tab (find-instance 'of-tab 'from-scrolled-window
-                                                child-widget)))
+                                        child-widget)))
     ;; Update the browser current tab slot
     (setf (slot-value browser 'tabs-current-index)
           page-num)

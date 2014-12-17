@@ -29,7 +29,7 @@
   (ui-update (current-browser) :current-tab t))
 
 (defscript
-    :exact-uri (ui-symbol-to-uri 'status)
+  :exact-uri (ui-symbol-to-uri 'status)
   :exports '(statusbar-init
              status-bar-new-tab
              load-uri

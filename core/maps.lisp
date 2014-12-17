@@ -176,8 +176,8 @@
    (lambda (match number trail)
      (declare (ignore match))
      (format nil "~a~a"
-                  (funcall func (parse-integer number))
-                  (or trail "")))
+             (funcall func (parse-integer number))
+             (or trail "")))
    :simple-calls t))
 
 (defkey :top "C-a" (b)

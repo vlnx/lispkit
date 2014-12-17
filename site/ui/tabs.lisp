@@ -16,7 +16,7 @@
   (ui-update (current-browser) :current-tab t))
 
 (defscript
-    :exact-uri (ui-symbol-to-uri 'tabs)
+  :exact-uri (ui-symbol-to-uri 'tabs)
   :exports '(tabbar-request-height
              tabs-init)
   :scripts '(:browserify ((ui/deps ()))

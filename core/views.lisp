@@ -84,7 +84,7 @@
 (defcallback inspector-show :boolean
     ((inspector-obj pobject))
   (let ((inspector (find-instance 'of-inspector 'from-inspector-pointer
-                                          inspector-obj)))
+                                  inspector-obj)))
     (when (and inspector
                (null (inspector-shown inspector)))
       (setf (gsignal (inspector-window inspector) "destroy")
