@@ -1,9 +1,5 @@
 # TODO
 
-Take out key handling from `site/ui/prompt/main.coffee:sendkey`
-put it back in to the :prompt map
-just move the ui-update js to the key func
-
 ## libsoup
 https://developer.gnome.org/gobject/unstable/gobject-Signals.html#g-signal-new
 https://developer.gnome.org/libsoup/stable/SoupSession.html

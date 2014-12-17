@@ -11,11 +11,10 @@
 
 (defgeneric ui-update (browser symbol value))
 
-
 ;; Prompt
-(defmethod ui-update (browser (sym (eql :prompt-send-key)) str)
+(defmethod ui-update (browser (sym (eql :prompt-append)) str)
   (js-status browser
-             (format nil "bar.prompt.sendKey('~a');" str)))
+             (format nil "bar.prompt.input.addStr('~a');" str)))
 
 (defmethod ui-update (browser (sym (eql :prompt-enter)) str)
   (js-status browser

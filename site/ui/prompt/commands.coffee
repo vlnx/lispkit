@@ -13,6 +13,7 @@ openInterpret = (arg) ->
         return S(searchEngines[args[0]]).replaceAll('%s',encodeURIComponent(searchArg)).s
     return arg
 
+
 Commands =
     open: (arg) ->
         console.log arg

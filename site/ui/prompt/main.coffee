@@ -16,27 +16,19 @@ class Prompt extends Backbone.View
         @listenTo @input, 'shouldClosePrompt', @close
         $(@el).append @input.el
         $(@el).hide()
-    sendKey: (keystr) =>
-        console.log "Prompt Key: #{keystr}"
-        switch keystr
-            when 'SPC' then @input.addStr ' '
-            when 'Left', 'Right', 'Up', 'Down'
-                @input.moveCursor keystr
-            when 'BS', 'C-h' then @input.backspace()
-            when 'RET'
-                regex = /^:(\w+)\s?(.*)$/
-                matches = regex.exec @input.model.get 'content'
-                cmd = matches[1]; arg = matches[2]
-                # TODO:close prompt,  put in to history, localStorage or text file
-    # latest
-    # JSON.parse('{"123":":opene","456":":tabopen n"}')[_.max(_.keys(JSON.parse('{"123":":opene","456":":tabopen n"}')))]
-                if Commands[cmd]?
-                    Commands[cmd] arg, (err) ->
-                        if err then throw err
-                else
-                    notify "Command '#{cmd}' does not exist, called with '#{arg}'"
-            else
-                # if keystr.length is 1
-                @input.addStr keystr
+    evaluateContent: =>
+        matches = /^:(\w+)\s?(.*)$/.exec @input.model.get 'content'
+        if Commands[matches[1]]?
+            cmd = matches[1]
+            arg = matches[2]
+        else
+            cmd = 'notify'
+            arg = 'command not registered'
+        console.log "evaluate prompt content: #{cmd} and #{arg}"
+        Commands[cmd] arg
 
 module.exports = Prompt
+
+# TODO:close prompt,  put in to history, localStorage or text file
+# latest
+# JSON.parse('{"123":":opene","456":":tabopen n"}')[_.max(_.keys(JSON.parse('{"123":":opene","456":":tabopen n"}')))]

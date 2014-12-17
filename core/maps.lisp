@@ -119,25 +119,54 @@
    b (format nil "tabopen ~a"
              (property (tab-view (current-tab b)) :uri))))
 
+;;; Prompt map
 (defkey :prompt t (b key)
-  (ui-update b :prompt-send-key (print-key key)))
+  (ui-update b :prompt-append (print-key key)))
 
 (defkey :prompt "S-Insert" (b)
-  (ui-update b :prompt-send-key
+  (ui-update b :prompt-append
              (x11-selection :primary t)))
 
-;; Tab Comamnds
+(defkey :prompt "SPC" (b)
+  (ui-update b :prompt-append " "))
+
+(defkey :prompt "RET" (b)
+  (js-status b "bar.prompt.evaluateContent();"))
+
+(defkey :prompt "BS" (b)
+  (js-status b "bar.prompt.input.backspace();"))
+(defkey :prompt "C-h" (b)
+  (js-status b "bar.prompt.input.backspace();"))
+
+(defkey :prompt "Left" (b)
+  (js-status b "bar.prompt.input.moveCursor('Left');"))
+(defkey :prompt "Right" (b)
+  (js-status b "bar.prompt.input.moveCursor('Right');"))
+(defkey :prompt "Up" (b)
+  (js-status b "bar.prompt.input.moveCursor('Up');"))
+(defkey :prompt "Down" (b)
+  (js-status b "bar.prompt.input.moveCursor('Down');"))
+
+;;; Tab keys
+
 (defkey :top "g t" (b)
+  "Next tab"
   (setf (browser-tabs-current-index b)
         (circular-index-next (browser-tabs-current-index b)
                              (browser-tabs b))))
+
 (defkey :top "g T" (b)
+  "Previous tab"
   (setf (browser-tabs-current-index b)
         (circular-index-prev (browser-tabs-current-index b)
                              (browser-tabs b))))
+
 (defkey :top "d" (b)
+  "Delete tab"
   (tab-remove b (current-tab b)))
 
+
+;;; Current uri manipulation
 
 (defun modify-last-number-in-string (func str)
   "Apply a function to the last number detected in a string"
@@ -163,7 +192,6 @@
    (tab-view (current-tab b))
    (modify-last-number-in-string #'1-
                                  (property (tab-view (current-tab b)) :uri))))
-
 
 (defkey :top "g u" (b)
   "Go up in the uri structure"
