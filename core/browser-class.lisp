@@ -4,9 +4,9 @@
   ((view  :accessor inspector-view
           :initarg :view
           :documentation "the view for the inspector")
-   (inspector-pointer :accessor inspector-pointer
-                      :initarg :pointer
-                      :documentation "the object for the inspector")
+   (gobject :accessor inspector-gobject
+            :initarg :gobject
+            :documentation "the object for the inspector")
    (shown :accessor inspector-shown
           :initform nil
           :documentation "If the view is already added to the toplevel window and shown toplevel")
@@ -163,16 +163,13 @@
              browser))))
 
 (defmethod find-instance ((of (eql 'of-inspector))
-                          (from (eql 'from-inspector-pointer)) widget)
+                          (from (eql 'from-inspector-pointer)) inspector-pointer)
   (find-instance-matchit
    :source (mapcar #'tab-inspector (browsers-all-tabs))
    :test (lambda (inspector)
            (when (and inspector
-                      (pointer-eq (if (pointerp widget)
-                                      widget
-                                      (pointer widget))
-                                  (inspector-pointer
-                                   inspector)))
+                      (pointer-eq inspector-pointer
+                                  (pointer (inspector-gobject inspector))))
              inspector))))
 
 (defmethod find-instance ((of (eql 'of-tab))

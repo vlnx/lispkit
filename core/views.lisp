@@ -64,23 +64,24 @@
     (when tab
       ;; Also destroy the view attached?
       (webkit-web-inspector-close
-       (inspector-pointer (tab-inspector tab)))
+       (pointer (inspector-gobject (tab-inspector tab))))
       (destroy window)
       (setf (tab-inspector tab) nil))))
 
 (defcallback inspector-start :pointer
-    ((inspector-obj pobject)
+    ((inspector-obj :pointer)
      (view pobject)) ; view to be inspected
   (let ((tab (find-instance 'of-tab 'from-view view)))
     (setf (tab-inspector tab)
           (make-instance 'inspector
-                         :pointer inspector-obj
-                         :view (make-instance 'webkit-webview :signals nil)))
+                         ;; Create a new view
+                         :view (make-instance 'webkit-webview :signals nil)
+                         :gobject (make-instance 'webview-inspector :view (tab-view tab))))
     ;; return new webview to place inspector in
     (pointer (inspector-view (tab-inspector tab)))))
 
 (defcallback inspector-show :boolean
-    ((inspector-obj pobject))
+    ((inspector-obj :pointer))
   (let ((inspector (find-instance 'of-inspector 'from-inspector-pointer
                                   inspector-obj)))
     (when (and inspector
@@ -167,9 +168,8 @@ don't connect signals that update the status bar"
    (gsignal view "console-message")
    (callback console-message))
 
-  (let ((inspector (make-instance 'g-object
-                                  :pointer
-                                  (webkit-web-view-get-inspector view))))
+  ;; Set Inspector signals
+  (let ((inspector (make-instance 'webview-inspector :view view)))
     (setf (gsignal inspector "inspect-web-view")
           (callback inspector-start))
     (setf (gsignal inspector "show-window")

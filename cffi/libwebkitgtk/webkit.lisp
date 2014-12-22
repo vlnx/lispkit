@@ -112,8 +112,14 @@ complex logic deep inside webkit regarding visible content sizes"
         (cffi:callback true))
   (setf (policy scrolled-win) '(:never :never)))
 
-(defcfun "webkit_web_view_get_inspector" pobject
+(defcfun "webkit_web_view_get_inspector" :pointer
   (view pobject))
+
+(defclass webview-inspector (g-object) ())
+
+(defmethod gconstructor ((webview-inspector webview-inspector) &key view)
+  (webkit-web-view-get-inspector view))
+
 (defcfun "webkit_web_inspector_close" :void
   (inspector-obj pobject))
 
