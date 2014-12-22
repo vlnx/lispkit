@@ -4,20 +4,20 @@
     ((view pobject))
   (let ((status (webkit-web-view-get-load-status view)))
     (cond
+      ;; Invoke scripts
       ((eq status :webkit-load-first-visually-non-empty-layout)
        (let ((uri (property view :uri)))
          (mapcar (lambda (result)
                    (invoke-scripts view
                                    (uri-scripts/binding-scripts result)))
                  (lookup-scripts uri))))
+      ;; Update ui
       ((or (eq status :webkit-load-committed)
            (eq status :webkit-load-finished))
-       ;; This may be called too much for the same uri
        ;; Because these are not loaded in the main tab, don't update for them
        (unless (or (string= "ui://tabs" (property view :uri))
                    (string= "ui://status" (property view :uri)))
-         (let ((b
-                (find-instance 'of-browser 'from-view view)))
+         (let ((b (find-instance 'of-browser 'from-view view)))
            (when b
              (ui-update b :uri t)
              (ui-update b :history t))))))))
@@ -47,14 +47,12 @@
   nil)
 
 ;; Filter common automatic console messages
-(defcallback console-message :boolean
-    ;; return true to stop propagation
+(defcallback console-message :boolean ; return true to stop propagation
     ((source-view :pointer)
      (message c-string)
      (line :int)
      (source-id c-string))
   (declare (ignore source-view line source-id))
-  ;; (print message)
   ;; if match is true then stop propagation else nil and print like normal
   (ppcre:scan "^Blocked a frame with origin" message))
 
@@ -131,27 +129,17 @@
      (uri c-string))
   (declare (ignore view title))
   (ui-update (current-browser)
-             :link-hover (if uri
-                             uri
-                             "")))
-
-;; TODO: Settings
-;; '((:enable-plugins nil)
-;;   (:enable-scripts nil)
-;;   (:user-agent "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:21.0) Gecko/20100101 Firefox/21.0")))
-;; TODO: Proxy
-;; (setf (property (webkit-get-default-session) :proxy-uri)
-;;       (soup-uri-new "http://127.0.0.1:8123/"))
+             :link-hover (or uri "")))
 
 (defun reload-view (view)
-  (webkit-web-view-load-uri
-   view
-   (property view :uri)))
+  (webkit-web-view-load-uri view
+                            (property view :uri)))
 
 (defun connect-webview-signals (view &key ui-only-view)
   "Connect signals to new webviews, if the view is intended for ui only,
 don't connect signals that update the status bar"
 
+  ;; Don't set these for ui views
   (unless ui-only-view
     (setf
      (gsignal view "scroll-event")
@@ -195,6 +183,9 @@ don't connect signals that update the status bar"
   (when settings
     (webview-change-settings view
                              '((:enable-developer-extras t))))
+  ;; '((:enable-plugins nil)
+  ;;   (:enable-scripts nil)
+  ;;   (:user-agent "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:21.0) Gecko/20100101 Firefox/21.0")))
   (when signals
     (connect-webview-signals view
                              :ui-only-view (ui-scheme-p uri)))

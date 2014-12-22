@@ -65,4 +65,9 @@ in order to hide scrollbars; thus in WebKit1, allow any height in a shrink nil v
     (setf (widgets-x11-xic (browser-gtk browser))
           (create-xic (gtk-widget-get-window gtk-win)))
 
+    ;; TODO: fix this from erring
+    ;; This, by webkit, happens to be instance wide, not per view
+    ;; (setf (property (webkit-get-default-session) :proxy-uri)
+    ;;       (soup-uri-new "http://127.0.0.1:8123/"))
+
     (connect-gtk-window-signals gtk-win)))

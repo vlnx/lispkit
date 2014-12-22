@@ -45,7 +45,7 @@
 
 (defmethod gconstructor ((notebook notebook)
                          &rest rest &key (show-tabs t) (show-border t))
-  "redefine to accept opts"
+  ""
   (declare (ignore rest))
   (let ((n (gtk-notebook-new)))
     (gtk-notebook-set-show-tabs n show-tabs)
