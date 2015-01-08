@@ -73,6 +73,16 @@
                :y t :rel ,(- *scroll-step*))
           ("l" "Scroll to the right"
                :y t :rel ,*scroll-step*)
+
+          ("Down" "Scroll down on the current page by the scroll-step"
+               :x t :rel ,*scroll-step*)
+          ("Up" "Scroll up on the current page by the scroll-step"
+               :x t :rel ,(- *scroll-step*))
+          ("Left" "Scroll to the left"
+               :y t :rel ,(- *scroll-step*))
+          ("Right" "Scroll to the right"
+               :y t :rel ,*scroll-step*)
+
           ("g g" "Scroll to the top of the page"
                  :x 0)
           ("G" "Scroll to the bottom of the page"
