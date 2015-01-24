@@ -1,2 +1,4 @@
 site/node_modules/
-_untracked/
+.untracked/
+lispkit
+lispkit.static
