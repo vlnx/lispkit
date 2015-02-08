@@ -73,6 +73,7 @@ output => list of kmaps"
   ;; (x11-binding::xic-focus (widgets-x11-xic (browser-gtk
   (let ((b (find-instance 'of-browser 'from-window widget)))
     (setf *browser-current-index* (position b *browsers*)))
+  (dmesg *browser-current-index*)
   nil)
 
 ;; (defcallback on-focus-out :boolean
