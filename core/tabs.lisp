@@ -42,6 +42,9 @@
                 (ui-update browser :history t)
                 (ui-update browser :progress t)
                 (ui-update browser :scroll-indicator t)
+                (ui-update browser :link-hover "")
+                (ui-update browser :tabs-update-title
+                           (current-tab browser))
                 (ui-update browser :current-tab t)
                 (ui-update browser :uri t))))
 
