@@ -61,3 +61,15 @@ Tab ideas
         ||@@@@@@@@@@@@@@@@@@
         ||@@@@@@@@@@@@@@@@@@
         --------------------
+
+Make `*browser-current-index*` be set properly when needed
+
+Attempt optimization, experiment will optimization/speed/safety/debug declaim
+Also use declare type all over
+
+-Right click menu- open in new 'window', connect to that hook for a new tab
+
+http://webkitgtk.org/reference/webkitgtk/stable/webkitgtk-webkitwebview.html#WebKitWebView-create-web-view
+http://webkitgtk.org/reference/webkitgtk/stable/webkitgtk-webkitwebview.html#WebKitWebView-new-window-policy-decision-requested
+
+http://webkitgtk.org/reference/webkitgtk/stable/webkitgtk-webkitwebview.html#WebKitWebView-mime-type-policy-decision-requested
