@@ -220,3 +220,25 @@
          (ppcre:regex-replace "[^/]*?/?$" uri ""))
         ;; Haven't implemented subdomain removal
         (t uri))))))
+
+;;; todo features
+
+(defkey :top "f" (b)
+  "Start follow 'mode'"
+  (ui-update b :notify "Implement follow mode"))
+;; go to a :follow keymap where the default action, buffer and reads the keys for the hints
+
+(defkey :top "u" (b)
+  "'unclose' tab"
+  (ui-update b :notify "Implement unclose tab"))
+;; when a tab is deleted, take it's uri and save that in a list?
+;; don't really want to save the webview or it's commplete history
+
+
+;; todo toggle
+(defkey :top "F1" (b)
+  "Hide status bar"
+  (hide (tab-scroll (ui-status (browser-ui b)))))
+(defkey :top "F2" (b)
+  "show status bar"
+  (show (tab-scroll (ui-status (browser-ui b)))))
