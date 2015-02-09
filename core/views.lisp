@@ -128,9 +128,10 @@
     ((view pobject)
      (title c-string)
      (uri c-string))
-  (declare (ignore view title))
-  (ui-update (current-browser)
-             :link-hover (or uri "")))
+  (declare (ignore title))
+  (ui-update
+   (find-instance 'of-browser 'from-view view)
+   :link-hover (or uri "")))
 
 (defun reload-view (view)
   (webkit-web-view-load-uri view
