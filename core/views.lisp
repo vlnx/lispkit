@@ -133,6 +133,16 @@
    (find-instance 'of-browser 'from-view view)
    :link-hover (or uri "")))
 
+(defcallback create-web-view :pointer
+    ((src-view pobject)
+     (src-frame pobject))
+  (declare (ignore src-frame))
+  ;; Create a new tab and return the view that the new content will use
+  (pointer (tab-view
+            (tab-new (find-instance 'of-browser 'from-view src-view)
+                     (parse-uri nil)
+                     :background nil))))
+
 (defun reload-view (view)
   (webkit-web-view-load-uri view
                             (property view :uri)))
@@ -157,7 +167,10 @@ don't connect signals that update the status bar"
      (callback hovering-over-link)
 
      (gsignal view "notify::progress")
-     (callback notify-progress)))
+     (callback notify-progress)
+
+     (gsignal view "create-web-view")
+     (callback create-web-view)))
 
   (setf
    (gsignal view "navigation-policy-decision-requested")
