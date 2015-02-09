@@ -90,28 +90,29 @@
 
 (defun tab-new (browser uri &key background)
   "Add a new tab to the notebook"
-  (if (current-tab-is-blank-p browser) ; Use the blank tab if it exists
-      (webkit-web-view-load-uri (tab-view (current-tab browser)) uri)
-      ;; Other wise create a new tab
-      (let ((notebook (widgets-notebook (browser-gtk browser)))
-            (tab (make-instance 'tab :inital-uri uri))
-            new-index)
-        ;; Append new tab to browser's tablist slot
-        (setf (browser-tabs browser)
-              (append (browser-tabs browser)
-                      (list tab)))
-        ;; Show tab container, in order to be added to the notebook
-        (show (tab-scroll tab))
-        ;; Hide native scrollbars now the scroll indicator is working
-        (webview-hide-scrollbars (tab-view tab) (tab-scroll tab))
-        ;; Add tab to notebook
-        (setf new-index (notebook-add-tab notebook
-                                          (tab-scroll tab)))
-        (ui-update browser :add-tab tab)
-        ;; Maybe switch to the new tab
-        (unless background
-          (setf (browser-tabs-current-index browser)
-                new-index)))))
+  (let (tab new-index)
+    (cond ((current-tab-is-blank-p browser) ; Use the blank tab if it exists
+           (setf tab (current-tab browser))
+           (webkit-web-view-load-uri (tab-view tab) uri))
+          (t ; Otherwise create a new tab
+           (setf tab (make-instance 'tab :inital-uri uri))
+           ;; Append new tab to browser's tablist slot
+           (setf (browser-tabs browser)
+                 (append (browser-tabs browser)
+                         (list tab)))
+           ;; Show tab container, in order to be added to the notebook
+           (show (tab-scroll tab))
+           ;; Hide native scrollbars
+           (webview-hide-scrollbars (tab-view tab) (tab-scroll tab))
+           ;; Add tab to notebook
+           (setf new-index (notebook-add-tab
+                            (widgets-notebook (browser-gtk browser))
+                            (tab-scroll tab)))
+           (ui-update browser :add-tab tab)
+           (unless background ; Maybe switch to the new tab
+             (setf (browser-tabs-current-index browser)
+                   new-index))))
+    tab)) ; return used tab
 
 (defun tab-remove (browser tab)
   "Remove a tab"
