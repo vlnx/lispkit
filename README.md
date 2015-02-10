@@ -55,3 +55,7 @@ default group, like subtle for uris, uri host matching, e.x. youtube for default
 Socket to pipe to to find current instances, not dbus
 Show current tabs, json written to /tmp ?
 
+
+For my hiatus'ed, node.js webapps/singlepageapplications, interfaces to mpd and rtorrent
+instead of them handling the keystrokes through ***REMOVED*** javascript
+use this gdk/lisp system's key maps to invoke the proper javascript action on the page
