@@ -13,7 +13,7 @@
   (notebook pobject)
   (child pobject)
   (inital-label pobject)
-  (positon :int))
+  (position :int))
 
 (defcfun gtk-notebook-set-show-tabs :void
   (notebook pobject)

@@ -104,7 +104,7 @@
          (ppcre:regex-replace-all "\\n" css " "))) ; NOTE: also escape \'
     (ppcre:regex-replace-all "{{{snip}}}" template css-one-line)))
 
-;; somehow per page load connected to a view, have status of applyed scripts
+;; somehow per page load connected to a view, have status of applied scripts
 (defun invoke-scripts (view scripts)
   (let ((exports (uri-scripts/scripts-exports
                   scripts))

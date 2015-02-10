@@ -63,7 +63,7 @@
   (js-status browser (format nil "bar.status.progressIndicator.model.set('progress', '~a');"
                              (let ((p (property view :progress)))
                                (floor (* 100 (or
-                                              (if (= p 0.0d0) ; if not during inital load, the value is 0
+                                              (if (= p 0.0d0) ; if not during initial load, the value is 0
                                                   1.0d0
                                                   p)
                                               777)))))))

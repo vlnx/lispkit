@@ -1,10 +1,10 @@
 (in-package :lispkit/transcompile)
-;; Package for cached compilation for various web language transcompliers
+;; Package for cached compilation for various web language transcompilers
 
 (defvar *transcompiler-cache-dir* "/tmp/"
   "Default cache, setf this for your application")
 (defvar *transcompilers* '()
-  "plist to fill in with transcompliers")
+  "plist to fill in with transcompilers")
 
 (defun exec (cmd &key stdin file stdout)
   (let ((l (ppcre:split "\\s+" cmd)))
@@ -53,7 +53,7 @@ otherwise nil."
         (close in)))))
 
 (defun compile-cached (cmd source use-stdin)
-  "Take a souce file and the type of the lang
+  "Take a source file and the type of the lang
 Make a cache file for next time
 Return the complied string"
   ;; this output needs to be the same as file-content-to-string
@@ -79,7 +79,7 @@ Return the complied string"
 
 (defun transcompile (&key file string type cmd (use-stdin t) cache-invalidation-files)
   "Infer from optional arguments, pass on to transcompiler
-Expamples:
+Examples:
     (transcompile :type 'coffee :string \"command arg\")
     (transcompile :file \"pathname.jade\")
     (transcompile :type 'browserify-coffee :file \"pathname\" :use-stdin nil)"

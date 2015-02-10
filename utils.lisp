@@ -55,7 +55,7 @@ if the next index is out of the list, go back to the first index.
 
 ;; From stumpwm
 (defun split-seq (seq separators &key test default-value)
-  "split a sequence into sub sequences given the list of seperators."
+  "split a sequence into sub sequences given the list of separators."
   (let ((seps separators))
     (labels ((sep (c)
                (find c seps :test test)))
@@ -70,13 +70,13 @@ if the next index is out of the list, go back to the first index.
           default-value))))
 (defun split-string (string &optional (separators "
 "))
-  "Splits STRING into substrings where there are matches for SEPARATORS.
+  "Splits STRING into sub-strings where there are matches for SEPARATORS.
 Each match for SEPARATORS is a splitting point.
-The substrings between the splitting points are made into a list
+The sub-strings between the splitting points are made into a list
 which is returned.
 If there is match for SEPARATORS at the beginning of STRING, we do not
-include a null substring for that.  Likewise, if there is a match
-at the end of STRING, we don't include a null substring for that. "
+include a null sub-string for that.  Likewise, if there is a match
+at the end of STRING, we don't include a null sub-string for that. "
   (split-seq string separators :test #'char= :default-value '("")))
 
 

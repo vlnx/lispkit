@@ -10,17 +10,17 @@
 (defvar *site-dir* (concatenate 'string
                                 (sb-ext:posix-getenv "DEV_HOME")
                                 "/lispkit/site/")
-  "Path where all page modifcation data is located")
+  "Path where all page modification data is located")
 
 (defvar *uri-homepage* "http://vlnx.lan/startpage/"
   "The homepage uri to load by default")
 
 (defvar *maps* '()
-  "A plist of map names to a kmap structrue")
+  "A plist of map names to a kmap structure")
 
 (defvar *browser-current-index* 0)
 (defvar *browsers* nil
-  "The list for the open browser instances, that contain toplevel windows")
+  "The list for the open browser instances, that contain top-level windows")
 
 (defun ui-scheme-p (uri)
   (ppcre:scan-to-strings "^ui://" uri))

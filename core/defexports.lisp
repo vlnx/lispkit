@@ -2,7 +2,7 @@
 ;; Define macro to define lisp functions able to export to javascript
 
 (defun js-exports-symbol-to-callback (symbol)
-  "Retrive a callback function to give to js-export-function"
+  "Retrieve a callback function to give to js-export-function"
   (getf *js-exports* (as-keyword symbol)))
 
 (defun js-exports-symbol-to-name (symbol)
@@ -42,8 +42,8 @@
             (this-object :pointer)
             (argument-count :int)
             (arguments :pointer)
-            (execption :pointer))
-         (declare (ignore func this-object execption))
+            (exception :pointer))
+         (declare (ignore func this-object exception))
 
          (let* ((argument-pointers
                  (loop

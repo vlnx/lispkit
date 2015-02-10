@@ -41,7 +41,7 @@
     (t (eql x y))))
 
 (defun binding-find-keys (map keys)
-  "Given a list of key structres
+  "Given a list of key structures
 Return a 'binding' structure that matches"
   (declare (type kmap map))
   (find keys
@@ -81,7 +81,7 @@ kbd-parse if the key failed to parse."
   "Give a list of the keys that make up the string"
   (mapcar #'parse-key (split-string key " ")))
 
-;;; Define and lookup through the structrue
+;;; Define and lookup through the structure
 (defun define-key (map keys command)
   "Given a list of key structures, and a kmap and a command.
 If the key binding exists, replace it.

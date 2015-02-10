@@ -9,19 +9,19 @@
             :documentation "the object for the inspector")
    (shown :accessor inspector-shown
           :initform nil
-          :documentation "If the view is already added to the toplevel window and shown toplevel")
+          :documentation "If the view is already added to the top-level window and shown top-level")
    (window :accessor inspector-window
            :initform (make-instance 'window
                                     :width 800 :height 600
                                     :title "LispKit - Inspector"
                                     :has-resize-grip nil)
-           :documentation "the toplevel window"))
+           :documentation "the top-level window"))
   (:documentation "Contain an inspector's refs"))
 
 (defclass tab ()
   ((view  :accessor tab-view
-          :initarg :inital-uri
-          :documentation "initialy a uri, translated to a new webview")
+          :initarg :initial-uri
+          :documentation "initially a uri, translated to a new webview")
    (scroll :accessor tab-scroll
            :initform (make-instance 'scrolled-window)
            :documentation "it's scrolled window container")
@@ -33,11 +33,11 @@
 (defclass ui-views ()
   ((tabs
     :accessor ui-tabs
-    :initform (make-instance 'tab :inital-uri (ui-symbol-to-uri 'tabs))
+    :initform (make-instance 'tab :initial-uri (ui-symbol-to-uri 'tabs))
     :documentation "Tabs view")
    (status
     :accessor ui-status
-    :initform (make-instance 'tab :inital-uri (ui-symbol-to-uri 'status))
+    :initform (make-instance 'tab :initial-uri (ui-symbol-to-uri 'status))
     :documentation "Status bar view")))
 
 (defclass gtk-widgets ()
@@ -46,7 +46,7 @@
                                     :width 800 :height 600
                                     :title "LispKit"
                                     :has-resize-grip nil)
-           :documentation "Toplevel window")
+           :documentation "Top-level window")
    (pane1 :accessor widgets-pane1
           :initform (make-instance 'v-paned)
           :documentation "Top pane containing the tabs and the other pane")
@@ -78,7 +78,7 @@
        :initform (make-instance 'ui-views)
        :documentation "The class for the view instances used in the interface")
    (tabs :accessor browser-tabs
-         :initarg :inital-tabs
+         :initarg :initial-tabs
          :initform (list *uri-homepage*)
          :documentation "Give initial tabs, then will be replaced with
                          the list of active tab instances")
@@ -94,7 +94,7 @@
    (key-state :accessor browser-key-state
               :initform (make-instance 'key-state-class)
               :documentation "The state of current keymap for the window"))
-  (:documentation "Starts an instance of the browser in a toplevel x11 window"))
+  (:documentation "Starts an instance of the browser in a top-level x11 window"))
 
 (defun browser-views (b)
   "access tab views"

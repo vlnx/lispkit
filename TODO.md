@@ -5,7 +5,7 @@ https://developer.gnome.org/gobject/unstable/gobject-Signals.html#g-signal-new
 https://developer.gnome.org/libsoup/stable/SoupSession.html
 https://developer.gnome.org/libsoup/stable/SoupURI.html#soup-uri-new
 ###  cookies
-whitelist
+white-list
 notify when attempted to set
 store 'jar' as json rather than sql
 ### proxy
@@ -16,8 +16,8 @@ Log history, in json format, on disk
 unclose tab
 
 # Addon implementation
-Javascript enable/disable, whitelist, noscript
-requestpolicy, whitelist each requested domain
+Javascript enable/disable, white-list, noscript
+requestpolicy, white-list each requested domain
 
 Don't let webkit attempt to load schemas it can't handle,
 ex: js:, javascript:, ftp:, mailto:, magnet:, git:,
@@ -51,7 +51,7 @@ change gtk layout to use vbox instead of hbox for tabs
     ||@@@@@@@@@@@@@@@@@@
     --------------------
 
-The window focus callback isn't invoked properly enough to set `*browser-current-index*` consistiently
+The window focus callback isn't invoked properly enough to set `*browser-current-index*` consistently
 
 # Optimization
 * use declare forms

@@ -2,7 +2,7 @@
 ;; Connect gtk class slots
 
 (defmethod initialize-instance :after ((tab tab) &key)
-  "Transform view slot's initarg ':inital-uri' to a view
+  "Transform view slot's initarg ':initial-uri' to a view
 Also connect view slot to scroll slot"
   (setf (tab-view tab)
         (make-instance 'webkit-webview :uri (tab-view tab)))
@@ -52,12 +52,12 @@ in order to hide scrollbars; thus in WebKit1, allow any height in a shrink nil v
     ;; Connect signals to notebook
     (connect-gtk-notebook-signals notebook)
 
-    (let ((inital-uris (browser-tabs browser))) ; :initial-tabs uri list
+    (let ((initial-uris (browser-tabs browser))) ; :initial-tabs uri list
       (setf (browser-tabs browser) nil)
       (mapcar (lambda (uri)
                 (tab-new browser uri
                          :background nil)) ; Switch to each new tab as created
-              inital-uris))
+              initial-uris))
 
     (show gtk-win :all t)
 

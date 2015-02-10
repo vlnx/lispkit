@@ -5,7 +5,7 @@
 
 (use-foreign-library js-core)
 
-;; Foreign string utilites
+;; Foreign string utilities
 (defcfun ("JSStringCreateWithUTF8CString" js-create-string) :pointer
   (script :pointer))
 
@@ -28,9 +28,9 @@
 (defcfun ("JSEvaluateScript" %js-eval-script) :pointer
   (context :pointer)
   (script :pointer)
-  (thisObject :pointer)
+  (this-object :pointer)
   (source :pointer)
-  (startingLineNumber :int)
+  (starting-line-number :int)
   (exception :pointer))
 
 (defun js-eval-script (&key context
@@ -55,8 +55,8 @@
     (mapcar #'js-free-string (list ref-script ref-source))
     ref-result))
 
-;; NOTE: Look at luakit/widgets/webview/js.c's uasge of determining result type
-;; That may want to be implemnted later
+;; NOTE: Look at luakit/widgets/webview/js.c's usage of determining result type
+;; That may want to be implemented later
 (defun js-result-to-string (context result)
   (let* ((js-str-ref (js-value-to-string context result (null-pointer)))
          (js-str-length (js-string-length js-str-ref))
@@ -95,7 +95,7 @@
   (property-name :pointer)
   (value :pointer)
   (attributes :int)
-  (execption :pointer))
+  (exception :pointer))
 
 (defcfun ("JSObjectHasProperty" js-object-has-property) :boolean
   (context :pointer)
@@ -106,7 +106,7 @@
   (context :pointer)
   (object :pointer)
   (property-name :pointer)
-  (execption :pointer))
+  (exception :pointer))
 
 (defcfun ("JSObjectMakeFunctionWithCallback" js-object-make-from-function) :pointer
   (context :pointer)

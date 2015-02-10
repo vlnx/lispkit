@@ -1,4 +1,4 @@
-// Solarized Colourscheme
+// Solarized colorscheme
 base03  = #002b36
 base02  = #073642
 base01  = #586e75
@@ -17,7 +17,7 @@ cyan    = #2aa198
 green   = #859900
 
 
-// Idea, if displayed width is less than 300-? only display the domain part of the statusbar
+// Idea, if displayed width is less than 300-? only display the domain part of the status bar
 
 html
 body

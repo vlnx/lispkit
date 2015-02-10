@@ -6,7 +6,7 @@
       (error "c-set-locale has failed"))
   (if (null-pointer-p (x-set-locale-modifiers ""))
       (error "x-set-locale-modifiers has failed"))
-  ;; Window must be shown to retrive x11 reference this way
+  ;; Window must be shown to retrieve x11 reference this way
   (let* ((xwin (gdk-cffi:gdk-x11-window-get-xid gdk-window))
          (dis (gdk-cffi:gdk-x11-get-default-xdisplay))
          (xim (x-open-im dis (null-pointer) (null-pointer) (null-pointer)))

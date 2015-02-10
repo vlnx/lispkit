@@ -95,7 +95,7 @@
            (setf tab (current-tab browser))
            (webkit-web-view-load-uri (tab-view tab) uri))
           (t ; Otherwise create a new tab
-           (setf tab (make-instance 'tab :inital-uri uri))
+           (setf tab (make-instance 'tab :initial-uri uri))
            ;; Append new tab to browser's tablist slot
            (setf (browser-tabs browser)
                  (append (browser-tabs browser)

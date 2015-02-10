@@ -1,7 +1,7 @@
 (in-package :lispkit)
 
 (defmacro defkey (map key args &body body)
-  "Define a key with an implcit lambda"
+  "Define a key with an implicit lambda"
   `(define-key (getf *maps* ,map) (if (stringp ,key)
                                       (kbd ,key)
                                       ,key)
@@ -76,13 +76,13 @@
                :y t :rel ,*scroll-step*)
 
           ("Down" "Scroll down on the current page by the scroll-step"
-               :x t :rel ,*scroll-step*)
+                  :x t :rel ,*scroll-step*)
           ("Up" "Scroll up on the current page by the scroll-step"
-               :x t :rel ,(- *scroll-step*))
+                :x t :rel ,(- *scroll-step*))
           ("Left" "Scroll to the left"
-               :y t :rel ,(- *scroll-step*))
+                  :y t :rel ,(- *scroll-step*))
           ("Right" "Scroll to the right"
-               :y t :rel ,*scroll-step*)
+                   :y t :rel ,*scroll-step*)
 
           ("g g" "Scroll to the top of the page"
                  :x 0)
@@ -233,7 +233,7 @@
   "'unclose' tab"
   (ui-update b :notify "Implement unclose tab"))
 ;; when a tab is deleted, take it's uri and save that in a list?
-;; don't really want to save the webview or it's commplete history
+;; don't really want to save the webview or it's complete history
 
 
 ;; todo toggle

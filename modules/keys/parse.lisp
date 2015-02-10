@@ -77,9 +77,9 @@ all key structures have a 'char' but here test if it is valid"
   (let ((shift (keywordp (find :shift state))))
     ;; only if the char is valid character
     (when (key-char-real-p char)
-      (if (upper-case-p char) ; if char is already upshifted, remove shift mod
+      (if (upper-case-p char) ; if char is already up-shifted, remove shift mod
           (setf shift nil))
-      (if shift ; If shift, upshift char
+      (if shift ; If shift, up-shift char
           (setf char (char-upcase char)
                 shift nil)))
     (make-key :char char

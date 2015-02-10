@@ -96,7 +96,7 @@
         #:lispkit/utils
         #:lispkit/transcompile
         #:lispkit/keys)
-  ;; Import everything exepct
+  ;; Import everything except
   (:shadowing-import-from #:gtk-cffi
                           #:window
                           #:image)

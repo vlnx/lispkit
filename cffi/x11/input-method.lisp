@@ -21,7 +21,7 @@
 (defcfun ("XFilterEvent" x-filter-event) :boolean
   (event :pointer)
   (zero-to-use-event-window :int))
-;; (window :pointer)) ; if nil will reley on window slot of xanyevent
+;; (window :pointer)) ; if nil will rely on window slot of xanyevent
 
 
 
@@ -62,12 +62,12 @@
 
 
 (defcfun ("XSetLocaleModifiers" x-set-locale-modifiers) :pointer
-  (modifer-str c-string))
+  (modifier-str c-string))
 
 ;; http://stackoverflow.com/questions/6256179/how-can-i-find-the-value-of-lc-xxx-locale-integr-constants-so-that-i-can-use-the
 (defcfun ("setlocale" c-set-locale) :pointer
   (con :int)
-  (modifer-str c-string))
+  (modifier-str c-string))
 
 (defcfun ("XOpenDisplay" x-open-display) :pointer
   (something :pointer))

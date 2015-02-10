@@ -1,6 +1,6 @@
 (in-package :lispkit)
 
-;; Manage keyevents
+;; Manage key events
 (defun active-map-names-to-kmaps (names)
   "input from (active-maps kstate) => '(:top :other)
 output => list of kmaps"
@@ -35,7 +35,7 @@ output => list of kmaps"
                (widgets-x11-xic (browser-gtk browser)))))
     (when key ; XIM may have filtered the event
       (dmesg key)
-      ;; Find actions to invoke, give pasthrough priority
+      ;; Find actions to invoke, give passthrough priority
       (keys-actions-invoke (if (passthrough-state kstate)
                                '(:passthrough) ; Only catch key to turn it off
                                (append
