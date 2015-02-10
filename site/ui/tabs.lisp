@@ -22,15 +22,3 @@
              :coffee ((ui/tabs (:closure nil))))
   :ui-base-html 'ui/tabs
   :styles 'ui/tabs)
-
-;; fixme: still
-;; (defmacro once-browser-exists (&body body)
-;;   `(if (current-browser)
-;;        (progn ,@body)
-;;        (loop while (null (current-browser)) do
-;;             (progn ,@body))))
-;; (defexport uitabs-tabs-exist-p ()
-;;   (if (and (current-browser)
-;;            (first (browser-tabs (current-browser))))
-;;       "true"
-;;       "false"))
