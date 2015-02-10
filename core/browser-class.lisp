@@ -64,7 +64,7 @@
 
 (defclass key-state-class ()
   ((active-maps :accessor active-maps
-                :initform '(:top)
+                :initform '(:scroll :top)
                 :documentation "Active kmaps for the browser")
    (buffer :accessor key-buffer
            :initform nil

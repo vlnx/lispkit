@@ -19,7 +19,7 @@
 
 (defexport prompt-close (b)
   (setf (active-maps (browser-key-state b))
-        '(:top)))
+        '(:scroll :top)))
 
 (defexport statusbar-init (b)
   (ui-update b :uri t)

@@ -20,6 +20,7 @@
 
 ;; Create/Empty keymaps
 (setf (getf *maps* :top) (make-kmap)
+      (getf *maps* :scroll) (make-kmap)
       (getf *maps* :prompt) (make-kmap)
       (getf *maps* :group-slash-tabs) (make-kmap)
       (getf *maps* :passthrough) (make-kmap))
@@ -62,7 +63,7 @@
 ;; Scroll bindings
 (defvar *scroll-step* 40)
 (mapcar (lambda (binding)
-          (defkey :top (first binding) (b)
+          (defkey :scroll (first binding) (b)
             (second binding)
             (apply #'scroll-to (tab-scroll (current-tab b)) (cddr binding))))
         `(("j" "Scroll down on the current page by the scroll-step"
@@ -104,7 +105,7 @@
 
 (defkey :prompt "ESC" (b)
   (setf (active-maps (browser-key-state b))
-        '(:top))
+        '(:scroll :top))
   (ui-update b :prompt-leave t))
 
 (defkey :top "o" (b)
