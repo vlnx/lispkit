@@ -72,11 +72,11 @@
 ;; Setup transcompiler package
 (setf *transcompiler-cache-dir* *lispkit-cache-dir*)
 (setf *transcompilers*
-      '(:coffee "/usr/local/bin/coffee --stdio --print --bare"
-        :coffee-closure "/usr/local/bin/coffee --stdio --print"
-        :browserify-coffee "/usr/local/bin/browserify --transform coffeeify --debug" ; needs file
-        :jade "/usr/local/bin/jade --pretty"
-        :stylus "/usr/local/bin/stylus --compress"))
+      '(:coffee "/usr/bin/coffee --stdio --print --bare"
+        :coffee-closure "/usr/bin/coffee --stdio --print"
+        :browserify-coffee "/usr/bin/browserify --transform coffeeify --debug" ; needs file
+        :jade "/usr/bin/jade --pretty"
+        :stylus "/usr/bin/stylus --compress"))
 
 (defun resource-location (symbol-path type)
   "Get the path of a resource from a relative symbol-path and file type"
