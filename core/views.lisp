@@ -18,11 +18,10 @@
        (unless (or (string= "ui://tabs" (property view :uri))
                    (string= "ui://status" (property view :uri)))
          (let ((b (find-instance 'of-browser 'from-view view)))
-           (when b
-             (ui-update b :tabs-update-title
-                        (find-instance 'of-tab 'from-view view))
-             (ui-update b :uri t)
-             (ui-update b :history t))))))))
+           (ui-update b :tabs-update-title
+                      (find-instance 'of-tab 'from-view view))
+           (ui-update b :uri t)
+           (ui-update b :history t)))))))
 
 ;; Used to load content for ui schemes
 (defcallback navigation-request :boolean
