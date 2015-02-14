@@ -243,3 +243,7 @@
 (defkey :top "F2" (b)
   "show status bar"
   (show (tab-scroll (ui-status (browser-ui b)))))
+
+(defkey :top "r" (b)
+  "Reload tab"
+  (reload-view (tab-view (current-tab b))))
