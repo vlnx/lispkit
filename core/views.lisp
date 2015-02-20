@@ -197,10 +197,10 @@ don't connect signals that update the status bar"
   "Load settings and provided uri for the new webview"
   (when settings
     (webview-change-settings view
-                             '((:enable-developer-extras t))))
-  ;; '((:enable-plugins nil)
-  ;;   (:enable-scripts nil)
-  ;;   (:user-agent "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:21.0) Gecko/20100101 Firefox/21.0")))
+                             '((:enable-developer-extras t)
+                               (:user-agent "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:31.0) Gecko/20100101 Firefox/31.0"))))
+  ;; (:enable-plugins nil)
+  ;; (:enable-scripts nil)
   (when signals
     (connect-webview-signals view
                              :ui-only-view (ui-scheme-p uri)))
