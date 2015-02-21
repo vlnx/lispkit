@@ -4,13 +4,13 @@ class Prompt extends Backbone.View
     id: 'prompt'
     input: new (require './input.coffee')
     open: (startingInput) =>
-        @input.model.set 'content', ":#{startingInput or ''}"
+        @input.insert ":#{startingInput or ''}"
         $(@el).show()
         Exported.statusbarRequestHeight 32
     close: =>
         Exported.promptClose()
         Exported.statusbarRequestHeight 16
-        @input.model.set 'content', ''
+        @input.clearLine()
         $(@el).hide()
     initialize: =>
         @listenTo @input, 'shouldClosePrompt', @close

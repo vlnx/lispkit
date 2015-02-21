@@ -151,13 +151,14 @@
   (js-status b "bar.prompt.input.backspace();"))
 
 (defkey :prompt "Left" (b)
-  (js-status b "bar.prompt.input.moveCursor('Left');"))
+  (js-status b "bar.prompt.input.moveCursor(-1);"))
 (defkey :prompt "Right" (b)
-  (js-status b "bar.prompt.input.moveCursor('Right');"))
+  (js-status b "bar.prompt.input.moveCursor(1);"))
+
 (defkey :prompt "Up" (b)
-  (js-status b "bar.prompt.input.moveCursor('Up');"))
+  (js-status b "bar.prompt.input.history('Up');"))
 (defkey :prompt "Down" (b)
-  (js-status b "bar.prompt.input.moveCursor('Down');"))
+  (js-status b "bar.prompt.input.history('Down');"))
 
 ;;; Tab keys
 

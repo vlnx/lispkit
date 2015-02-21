@@ -64,5 +64,6 @@ body
     white-space pre
     // white-space-collapse preserve
     #cursor
+        color base03
         background-color violet
 

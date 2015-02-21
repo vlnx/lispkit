@@ -14,7 +14,7 @@
 ;; Prompt
 (defmethod ui-update (browser (sym (eql :prompt-append)) str)
   (js-status browser
-             (format nil "bar.prompt.input.addStr('~a');" str)))
+             (format nil "bar.prompt.input.insert('~a');" str)))
 
 (defmethod ui-update (browser (sym (eql :prompt-enter)) str)
   (js-status browser
