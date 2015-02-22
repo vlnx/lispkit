@@ -63,6 +63,8 @@ body
     background-color base02
     white-space pre
     // white-space-collapse preserve
+    #promptChar
+        color base00
     #cursor
         color base03
         background-color violet

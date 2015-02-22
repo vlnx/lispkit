@@ -4,7 +4,7 @@ class Prompt extends Backbone.View
     id: 'prompt'
     input: new (require './input.coffee')
     open: (startingInput) =>
-        @input.insert ":#{startingInput or ''}"
+        @input.insert "#{startingInput or ''}"
         $(@el).show()
         Exported.statusbarRequestHeight 32
     close: =>
@@ -17,7 +17,7 @@ class Prompt extends Backbone.View
         $(@el).append @input.el
         $(@el).hide()
     evaluateContent: =>
-        matches = /^:(\w+)\s?(.*)$/.exec @input.model.get 'content'
+        matches = /^(\w+)\s?(.*)$/.exec @input.model.get 'content'
         if Commands[matches[1]]?
             cmd = matches[1]
             arg = matches[2]

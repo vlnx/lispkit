@@ -37,6 +37,7 @@ class InputView extends Backbone.View
     model: new Input
 
     template: jade.compile '''
+    span#promptChar :
     span #{before}
     span#cursor #{over}
     span #{rest}
@@ -70,7 +71,7 @@ class InputView extends Backbone.View
         pos = @model.get 'position'
         content = @model.get 'content'
 
-        @trigger 'shouldClosePrompt' if content.length is 1
+        @trigger 'shouldClosePrompt' if content.length is 0
 
         @model.set 'content', "#{@model.before (pos-1)}#{@model.afterInclusive()}"
         @model.set 'position', "#{@model.before (pos-1)}".length
