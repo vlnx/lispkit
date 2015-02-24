@@ -3,16 +3,13 @@ class Input extends Backbone.Model
         content: ''
         position: 0
 
-    setPosition: (value) =>
+    limits: (value) =>
         value = Number value
-
         min = 0
         max = (@get 'content').length
-
         if value < min then value = min
         if value > max then value = max
-
-        @set 'position', value
+        return value
 
     # Retrieve segments of `content`, relative to `position`
     before: (position) =>
@@ -64,7 +61,8 @@ class InputView extends Backbone.View
         @model.set 'position', "#{@model.before()}#{str}".length
 
     moveCursor: (distance) ->
-        @model.setPosition ((@model.get 'position') + (Number distance))
+        @model.set 'position',
+            @model.limits ((@model.get 'position') + (Number distance))
 
     # Backspace from `position`
     backspace: =>
