@@ -68,12 +68,11 @@ class InputView extends Backbone.View
 
     # Backspace from `position`
     backspace: =>
-        pos = @model.get 'position'
-        content = @model.get 'content'
-
-        @trigger 'shouldClosePrompt' if content.length is 0
-
-        @model.set 'content', "#{@model.before (pos-1)}#{@model.afterInclusive()}"
-        @model.set 'position', "#{@model.before (pos-1)}".length
+        if (@model.get 'content').length is 0
+            @trigger 'shouldClosePrompt'
+        else
+            pos = @model.get 'position'
+            @model.set 'content', "#{@model.before (pos-1)}#{@model.afterInclusive()}"
+            @model.set 'position', "#{@model.before (pos-1)}".length
 
 module.exports = InputView
