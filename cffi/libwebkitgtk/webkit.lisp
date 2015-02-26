@@ -133,6 +133,15 @@ complex logic deep inside webkit regarding visible content sizes"
 (defcfun "webkit_web_view_can_go_forward" :boolean
   (view pobject))
 
+
+;; WebKitWebPolicyDecision
+(defcfun "webkit_web_policy_decision_download" :void
+  (decision :pointer))
+(defcfun "webkit_web_policy_decision_ignore" :void
+  (decision :pointer))
+(defcfun "webkit_web_policy_decision_use" :void
+  (decision :pointer))
+
 ;; Export all functions
 (let ((pack (find-package :webkit-binding)))
   (do-all-symbols (sym pack) (when (eql (symbol-package sym) pack) (export sym))))

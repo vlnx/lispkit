@@ -30,22 +30,32 @@
      (request :pointer)
      (action :pointer)
      (policy :pointer))
-  (declare (ignore action policy source-view))
-  (let ((uri (property (make-instance 'g-object :pointer request)
-                       :uri)))
-    (when (ui-scheme-p uri)
-      (let ((result (first (lookup-scripts uri))))
-        (unless result
-          (dmesg "ui uri info not found, loading blank instead")
-          (setf uri (ui-symbol-to-uri 'blank))
-          (setf result (first (lookup-scripts uri))))
-        (webkit-web-frame-load-alternate-string
-         source-frame
-         (resource-content (uri-scripts/scripts-ui-base-html
-                            (uri-scripts/binding-scripts result))
-                           'jade)
-         uri uri))))
-  nil)
+  (declare (ignore action source-view))
+  (let ((uri (property (make-instance 'g-object :pointer request) :uri)))
+    (cond
+      ((or (ppcre:scan-to-strings "^mailto:" uri)
+           (ppcre:scan-to-strings ".webm$" uri))
+       ;; Refuse to attempt to display content, best handled not by webkit
+       (ui-update (current-browser) :notify uri)
+       (webkit-web-policy-decision-ignore policy))
+      ;; Load ui schema
+      ((ui-scheme-p uri)
+       (let ((result (first (lookup-scripts uri))))
+         (unless result
+           (dmesg "ui uri info not found, loading blank instead")
+           (setf uri (ui-symbol-to-uri 'blank))
+           (setf result (first (lookup-scripts uri))))
+         (webkit-web-frame-load-alternate-string
+          source-frame
+          (resource-content (uri-scripts/scripts-ui-base-html
+                             (uri-scripts/binding-scripts result))
+                            'jade)
+          uri uri))
+       (webkit-web-policy-decision-use policy))
+      ;; Default, allow request
+      (t (webkit-web-policy-decision-use policy))))
+  t) ; handled the policy decision
+
 
 ;; Filter common automatic console messages
 (defcallback console-message :boolean ; return true to stop propagation
