@@ -52,3 +52,13 @@ from when appended to *site-dir*")
   "debug message"
   (print str)
   (finish-output))
+
+(defvar *download-queue* nil
+  "List of lists with the uri and intial suggested filename")
+
+(defun download-queue-add (&key uri suggested)
+  "Add to the download queue"
+  (declare (type string uri suggested))
+  (setf *download-queue* (append *download-queue*
+                                 (list (list uri suggested))))
+  (dmesg *download-queue*))

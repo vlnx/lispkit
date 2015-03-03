@@ -56,10 +56,24 @@
                             'jade)
           uri uri))
        (webkit-web-policy-decision-use policy))
+
+      ;; expclit request download
+      ((ppcre:scan-to-strings ".js$" uri)
+       (ui-update (current-browser) :notify uri)
+       (webkit-web-policy-decision-download policy))
+
       ;; Default, allow request
       (t (webkit-web-policy-decision-use policy))))
   t) ; handled the policy decision
 
+(defcallback download-request :boolean
+    ((source-view pobject)
+     (webkit-download :pointer))
+  ;; Take info from given download (synchronous), and add to *download-queue*
+  ;; so it can prompt for controlled download (asynchronously)
+  (download-queue-add :uri (webkit-download-get-uri webkit-download)
+                      :suggested (webkit-download-get-suggested-filename webkit-download))
+  nil) ; cancel the given download
 
 ;; Filter common automatic console messages
 (defcallback console-message :boolean ; return true to stop propagation
@@ -190,6 +204,9 @@ don't connect signals that update the status bar"
   (setf
    (gsignal view "navigation-policy-decision-requested")
    (callback navigation-request)
+
+   (gsignal view "download-requested")
+   (callback download-request)
 
    (gsignal view "notify::load-status")
    (callback notify-load-status)

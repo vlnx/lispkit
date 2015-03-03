@@ -248,3 +248,7 @@
 (defkey :top "r" (b)
   "Reload tab"
   (reload-view (tab-view (current-tab b))))
+
+(defkey :top "g d" (b)
+  "Act on the *download-queue*"
+  (ui-update b :notify "todo create prompt mode for download management"))

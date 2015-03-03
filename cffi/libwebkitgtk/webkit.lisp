@@ -142,6 +142,21 @@ complex logic deep inside webkit regarding visible content sizes"
 (defcfun "webkit_web_policy_decision_use" :void
   (decision :pointer))
 
+;; Download
+(defcfun "webkit_download_get_uri" c-string
+  (download-obj :pointer))
+(defcfun webkit-download-get-suggested-filename c-string
+  (download-obj :pointer))
+(defcfun webkit-download-new :pointer
+  (network-obj :pointer))
+(defcfun webkit-network-request-new :pointer
+  (uri c-string))
+(defcfun webkit-download-start :void
+  (download-obj :pointer))
+(defcfun webkit-download-set-destination-uri :void
+  (download-obj :pointer)
+  (uri c-string))
+
 ;; Export all functions
 (let ((pack (find-package :webkit-binding)))
   (do-all-symbols (sym pack) (when (eql (symbol-package sym) pack) (export sym))))
