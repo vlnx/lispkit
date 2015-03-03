@@ -40,7 +40,7 @@
                  (:file "core/primitives")
                  (:file "core/browser-class")
                  (:file "core/tabs")
-                 (:file "core/webkitgtk-utils/scroll")
+                 (:file "core/webkitgtk-utils")
                  (:file "core/maps")
                  (:file "core/browser-signals")
                  (:file "core/browser-init")
