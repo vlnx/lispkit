@@ -33,9 +33,13 @@
   (declare (ignore action source-view))
   (let ((uri (property (make-instance 'g-object :pointer request) :uri)))
     (cond
+      ;; Don't let webkit attempt to load schemas it can't handle,
       ((or (ppcre:scan-to-strings "^mailto:" uri)
+           (ppcre:scan-to-strings "^git:" uri)
+           (ppcre:scan-to-strings "^javascript:" uri)
+           (ppcre:scan-to-strings "^magnet:" uri)
            (ppcre:scan-to-strings ".webm$" uri))
-       ;; Refuse to attempt to display content, best handled not by webkit
+       ;; TODO: offer to yank uri, or open with blank
        (ui-update (current-browser) :notify uri)
        (webkit-web-policy-decision-ignore policy))
       ;; Load ui schema
