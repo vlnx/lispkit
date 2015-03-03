@@ -1,0 +1,79 @@
+* Prompt modes
+** Downloads [CURRENT]
+*** Implementation Discussion
+**** properly add to queue
+manually with command :download
+or with automatically with webkit-policy-download
+**** act on the queue
+command to invoke download mode
+show queue in a list
+navigate to item in the list
+key to start download, while in progress poll for status
+start mode to find where to save the file
+after a download, log it, source dest size time
+
+*** Initial Goals
+Save file dialog, to replace the gtk one
+should start in a base directory per filetype/domain
+find a binding for 'save image as'
+also a file upload handler
+
+** input additions
+History
+syntax highlighting for uri and command and search engine
+bindings to change/insert search engine name
+
+** Uri-editing mode
+break it apart
+long queries, displayed in a vertical list with values being editable
+
+
+* libsoup
+** gtk-cffi bug
+Normalized g-type so SoupSession is a valid GBoxed, but is still only read only
+- set http proxy for soup session
+**  cookies
+ white-list
+ notify when attempted to set
+
+
+* Persistent data storage as json files
+Used for:
+- cookie jar
+- history
+implement history
+decide on how to unclose a tab
+
+
+* More =*uri-scripts*= features
+- keymaps per sites via `*uri-scripts*`
+- Enable/disable `*uri-scripts*`, tune from interface
+    ex: for switching between a light and dark theme for a site
+
+
+* Tab Options
+** Favicons
+retrieve data of image and transport to ui
+or embed image with source constructed with root domain of tab uri and favicon.ico
+
+** side tabs
+change gtk layout to use vbox instead of hbox for tabs
+    ||@@@@@@@@@@@@@@@@@@
+    ||@@@@@@@@@@@@@@@@@@
+    ||@@@@@@@@@@@@@@@@@@
+    ||@@@@@@@@@@@@@@@@@@
+    ||@@@@@@@@@@@@@@@@@@
+    --------------------
+
+
+* Known Bugs
+The window focus callback isn't invoked properly enough to set =*browser-current-index*= consistently
+
+
+* Later
+** Optimization
+- use declare forms
+- experiment with optimization/speed/safety/debug declaim
+** Addon implementation
+Javascript enable/disable, white-list, noscript
+requestpolicy, white-list each requested domain
