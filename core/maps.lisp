@@ -133,14 +133,14 @@
 ;;; Prompt map
 (defkey :prompt t (b key)
   (if (key-character-p key)
-      (ui-update b :prompt-append (print-key key))))
+      (ui-update b :prompt-insert (print-key key))))
 
 (defkey :prompt "S-Insert" (b)
-  (ui-update b :prompt-append
+  (ui-update b :prompt-insert
              (x11-selection :primary t)))
 
 (defkey :prompt "SPC" (b)
-  (ui-update b :prompt-append " "))
+  (ui-update b :prompt-insert " "))
 
 (defkey :prompt "RET" (b)
   (js-status b "bar.prompt.evaluateContent();"))

@@ -12,9 +12,9 @@
 (defgeneric ui-update (browser symbol value))
 
 ;; Prompt
-(defmethod ui-update (browser (sym (eql :prompt-append)) str)
+(defmethod ui-update (browser (sym (eql :prompt-insert)) str)
   (js-status browser
-             (format nil "bar.prompt.input.insert('~a');" str)))
+             (format nil "bar.prompt.input.insert('~a');" str))) ; XXX: escape
 
 (defmethod ui-update (browser (sym (eql :prompt-enter)) str)
   (js-status browser
