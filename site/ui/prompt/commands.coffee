@@ -13,7 +13,6 @@ openInterpret = (arg) ->
         return S(searchEngines[args[0]]).replaceAll('%s',encodeURIComponent(searchArg)).s
     return arg
 
-
 Commands =
     open: (arg) ->
         console.log arg
@@ -23,5 +22,9 @@ Commands =
         Exported.statusBarNewTab openInterpret arg
     notify: (str) ->
         Exported.notify "#{if str then str else 'empty notify call'}"
+    download: (str) ->
+        # TODO: verify as a uri
+        Exported.download str
+        Commands.notify "Added to the download queue: #{str}"
 
 module.exports = Commands

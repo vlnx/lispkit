@@ -1,5 +1,7 @@
 (in-package :lispkit)
 
+(defexport download (b str)
+  (download-queue-add :uri str :suggested ""))
 
 (defexport notify (b str)
   (ui-update b :notify str))
@@ -35,7 +37,8 @@
              load-uri
              prompt-close
              statusbar-request-height
-             notify)
+             notify
+             download)
   :scripts '(:browserify ((ui/deps ())
                           (ui/status (ui/bar/main
                                       ui/bar/history
