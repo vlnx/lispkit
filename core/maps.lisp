@@ -156,9 +156,9 @@
   (js-status b "bar.prompt.input.moveCursor(1);"))
 
 (defkey :prompt "Up" (b)
-  (js-status b "bar.prompt.input.history('Up');"))
+  (js-status b "bar.prompt.history.prev();"))
 (defkey :prompt "Down" (b)
-  (js-status b "bar.prompt.input.history('Down');"))
+  (js-status b "bar.prompt.history.next();"))
 
 ;;; Tab keys
 

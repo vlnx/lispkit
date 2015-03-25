@@ -7,9 +7,5 @@ class AppView extends Backbone.View
         $(@el).append @prompt.el
 
 window.bar = new AppView()
+
 Exported.statusbarInit()
-
-# TODO: request information to initialize
-
-# notify = (str) -> bar.prompt.input.model.set 'content', str
-# promptHistory = $.cache('promptHistory').set('156645',':open last.fm')

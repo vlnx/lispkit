@@ -49,7 +49,6 @@ class InputView extends Backbone.View
     initialize: =>
         @listenTo @model, 'change', @render
         @listenTo @model, 'destroy', @remove
-    history: (direction) -> alert direction
 
     clearLine: =>
         @model.set 'content', ''
