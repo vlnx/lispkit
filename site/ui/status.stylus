@@ -56,9 +56,8 @@ body
         color red
 
 #prompt
-    padding-bottom 2px
+    line-height 16px
     height 16px
-    max-height 16px
 
     background-color base02
     white-space pre

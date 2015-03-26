@@ -7,12 +7,12 @@ class Prompt extends Backbone.View
     open: (startingInput) =>
         @input.insert "#{startingInput or ''}"
         $(@el).show()
-        Exported.statusbarRequestHeight 32
+        @trigger 'adjustHeight'
     close: =>
         Exported.promptClose()
-        Exported.statusbarRequestHeight 16
         @input.clearLine()
         $(@el).hide()
+        @trigger 'adjustHeight'
     initialize: =>
         @listenTo @input, 'shouldClosePrompt', @close
         $(@el).append @input.el
