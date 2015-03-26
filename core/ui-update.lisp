@@ -11,14 +11,18 @@
 
 (defgeneric ui-update (browser symbol value))
 
+(defun escape-single-quote (str)
+  (ppcre:regex-replace-all "'" str "\\\\'"))
+
 ;; Prompt
 (defmethod ui-update (browser (sym (eql :prompt-insert)) str)
   (js-status browser
-             (format nil "bar.prompt.input.insert('~a');" str))) ; XXX: escape
+             (format nil "bar.prompt.input.insert('~a');"
+                     (escape-single-quote str))))
 
 (defmethod ui-update (browser (sym (eql :prompt-enter)) str)
   (js-status browser
-             (format nil "bar.prompt.open('~a');" str)))
+             (format nil "bar.prompt.open('~a');" (escape-single-quote str))))
 
 (defmethod ui-update (browser (sym (eql :prompt-leave)) val)
   (js-status browser "bar.prompt.close();"))
@@ -31,18 +35,22 @@
                  "bar.status.keymode.model.set('mode','top');")))
 
 (defmethod ui-update (browser (sym (eql :buffer-set)) val)
-  (js-status browser (format nil "bar.status.buffer.model.set('content','~a');" val))) ;; NOTE:escape
+  (js-status browser (format nil
+                             "bar.status.buffer.model.set('content','~a');"
+                             (escape-single-quote val))))
 
 (defmethod ui-update (browser (sym (eql :uri)) view)
   (setf view (tab-view (current-tab browser)))
   (js-status browser
              (format nil "bar.status.uri.model.set('uri','~a');"
-                     (property view :uri))))
+                     (escape-single-quote
+                      (property view :uri)))))
 
 (defmethod ui-update (browser (sym (eql :link-hover)) uri)
   (js-status browser
              (format nil
-                     "bar.status.uri.model.set('hover','~a');" uri)))
+                     "bar.status.uri.model.set('hover','~a');"
+                     (escape-single-quote uri))))
 
 (defmethod ui-update (browser (sym (eql :scroll-indicator)) scrolled)
   (setf scrolled (tab-scroll (current-tab browser)))
@@ -83,7 +91,7 @@
     (js-tabs browser (format
                       nil
                       "tabbar.collection.add({order:~a,title:'~a'});"
-                      order title))))
+                      order (escape-single-quote title)))))
 
 (defmethod ui-update (browser (sym (eql :tabs-reset-list)) val)
   (js-tabs browser "tabbar.collection.remove(tabbar.collection.models);")
@@ -108,7 +116,7 @@
                         nil
                         "tabbar.collection.findOrder(~a).set('title','~a');"
                         order
-                        title)))))
+                        (escape-single-quote title))))))
 
 (defmethod ui-update (browser (sym (eql :notify)) str)
   (ui-update browser :buffer-set str))
