@@ -79,4 +79,15 @@ class InputView extends Backbone.View
     endOfLine: =>
         @model.set 'position', (@model.get 'content').length
 
+    openTabToggle: =>
+        line = @model.get 'content'
+        pos = @model.get 'position'
+        if S(line).startsWith 'open'
+            line = "tab#{line}"
+        else if S(line).startsWith 'tabopen'
+            line = line.replace /^tabopen/, 'open'
+        pos = (pos + (line.length - (@model.get 'content').length))
+        @model.set 'content', line
+        @model.set 'position', pos
+
 module.exports = InputView

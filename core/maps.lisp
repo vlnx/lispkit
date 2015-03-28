@@ -163,6 +163,9 @@
 (defkey :prompt "Down" (b)
   (js-status b "bar.prompt.history.next();"))
 
+(defkey :prompt "M-t" (b)
+  (js-status b "bar.prompt.input.openTabToggle();"))
+
 ;;; Tab keys
 
 (defkey :top "g t" (b)
