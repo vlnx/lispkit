@@ -3,6 +3,7 @@ searchEngines =
 
 openInterpret = (arg) ->
     # Check blanks
+    arg = S(arg).trim().s
     if S(arg).isEmpty() then return ''
     # Split off first word
     args = arg.split ' '
@@ -11,7 +12,9 @@ openInterpret = (arg) ->
     if searchEngines[args[0]]?
         # Replace the %s with the rest of the commands's argument
         return S(searchEngines[args[0]]).replaceAll('%s',encodeURIComponent(searchArg)).s
-    return arg
+    else if not S(args[0]).startsWith('http://')
+        return "http://#{args[0]}"
+    return arg # must be uri
 
 Commands =
     open: (arg) ->
