@@ -31,7 +31,7 @@
   (let ((kstate (browser-key-state browser)))
     (setf (passthrough-state kstate)
           (null (passthrough-state kstate)))
-    (ui-update browser :passthrough t)))
+    (ui-update browser :keymode t)))
 
 (setf (getf *hooks* :key-non-default-action)
       (list #'(lambda (b)
@@ -96,16 +96,14 @@
                  :x t :rel t :page 0.5)))
 
 (defun open-prompt-with (b starting-input)
-  (setf (active-maps (browser-key-state b))
-        '(:prompt))
+  (set-active-maps b '(:prompt))
   (ui-update b :prompt-enter starting-input))
 
 (defkey :top ";" (b)
   (open-prompt-with b ""))
 
 (defkey :prompt "ESC" (b)
-  (setf (active-maps (browser-key-state b))
-        '(:scroll :top))
+  (set-active-maps b '(:scroll :top))
   (ui-update b :prompt-leave t))
 
 (defkey :top "o" (b)

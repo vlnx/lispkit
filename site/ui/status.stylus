@@ -50,8 +50,8 @@ body
     //     .path
 
     .keymode
-        background-color red
-        color base03
+        color magenta
+        font-weight bold
     .buffer
         color red
 

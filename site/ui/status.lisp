@@ -20,14 +20,14 @@
         `(-1 ,height)))
 
 (defexport prompt-close (b)
-  (setf (active-maps (browser-key-state b))
-        '(:scroll :top)))
+  (set-active-maps b '(:scroll :top)))
 
 (defexport statusbar-init (b)
   (ui-update b :uri t)
   (ui-update b :scroll-indicator t)
   (ui-update b :progress t)
   (ui-update b :history t)
+  (ui-update b :keymode t)
   (ui-update b :current-tab t))
 
 (defscript

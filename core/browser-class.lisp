@@ -73,6 +73,12 @@
                       :initform nil
                       :documentation "Current passthrough state")))
 
+(defun set-active-maps (browser maps)
+  ;; Couldn't define this as setf method, since the browser instance is needed
+  (setf (active-maps (browser-key-state browser))
+        maps)
+  (ui-update browser :keymode t))
+
 (defclass browser ()
   ((ui :accessor browser-ui
        :initform (make-instance 'ui-views)

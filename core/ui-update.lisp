@@ -28,11 +28,15 @@
   (js-status browser "bar.prompt.close();"))
 
 ;; Status Display
-(defmethod ui-update (browser (sym (eql :passthrough)) val)
-  (js-status browser
-             (if (passthrough-state (browser-key-state browser))
-                 "bar.status.keymode.model.set('mode','Passthrough');"
-                 "bar.status.keymode.model.set('mode','top');")))
+(defmethod ui-update (browser (sym (eql :keymode)) val)
+  (let ((modes (format nil "~{~a~^, ~}"
+                       (mapcar #'symbol-to-string
+                               (active-maps (browser-key-state browser))))))
+    (if (passthrough-state (browser-key-state browser))
+        (setf modes "passthrough"))
+    (js-status browser (format nil
+                               "bar.status.keymode.model.set('mode','~a');"
+                               (escape-single-quote modes)))))
 
 (defmethod ui-update (browser (sym (eql :buffer-set)) val)
   (js-status browser (format nil
