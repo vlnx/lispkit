@@ -147,6 +147,8 @@
   (js-status b "bar.prompt.input.backspace();"))
 (defkey :prompt "C-h" (b)
   (js-status b "bar.prompt.input.backspace();"))
+(defkey :prompt "DEL" (b)
+  (js-status b "bar.prompt.input.delete();"))
 
 (defkey :prompt "Left" (b)
   (js-status b "bar.prompt.input.moveCursor(-1);"))

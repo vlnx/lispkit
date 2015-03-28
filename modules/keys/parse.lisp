@@ -3,11 +3,11 @@
 
 (defvar *keysym-to-string*
   '(32 "SPC"
+    127 "DEL"
     #xff0d "RET"
     #xff1b "ESC"
     #xff09 "TAB"
     #xff08 "BS"
-    #xffff "DEL"
     #xff63 "Insert"
     #xff13 "Pause"
     #xff50 "Home"

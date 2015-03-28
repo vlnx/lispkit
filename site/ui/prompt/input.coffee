@@ -73,6 +73,9 @@ class InputView extends Backbone.View
             @model.set 'content', "#{@model.before (pos-1)}#{@model.afterInclusive()}"
             @model.set 'position', "#{@model.before (pos-1)}".length
 
+    delete: =>
+        @model.set 'content', "#{@model.before()}#{@model.after()}"
+
     startOfLine: =>
         @model.set 'position', 0
 
