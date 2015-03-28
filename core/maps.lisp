@@ -153,6 +153,11 @@
 (defkey :prompt "Right" (b)
   (js-status b "bar.prompt.input.moveCursor(1);"))
 
+(defkey :prompt "C-a" (b)
+  (js-status b "bar.prompt.input.startOfLine();"))
+(defkey :prompt "C-e" (b)
+  (js-status b "bar.prompt.input.endOfLine();"))
+
 (defkey :prompt "Up" (b)
   (js-status b "bar.prompt.history.prev();"))
 (defkey :prompt "Down" (b)

@@ -47,6 +47,7 @@ class InputView extends Backbone.View
         return this
 
     initialize: =>
+        @render()
         @listenTo @model, 'change', @render
         @listenTo @model, 'destroy', @remove
 
@@ -71,5 +72,11 @@ class InputView extends Backbone.View
             pos = @model.get 'position'
             @model.set 'content', "#{@model.before (pos-1)}#{@model.afterInclusive()}"
             @model.set 'position', "#{@model.before (pos-1)}".length
+
+    startOfLine: =>
+        @model.set 'position', 0
+
+    endOfLine: =>
+        @model.set 'position', (@model.get 'content').length
 
 module.exports = InputView
