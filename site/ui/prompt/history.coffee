@@ -13,7 +13,6 @@ class PromptHistory extends Backbone.Collection
             @currentLine.set 'position', line.length
         @currentLine.set 'content', line
     lineInCollection: (line) -> @findWhere value: line
-    lineRelativeTo: (model, n) -> @at ((@indexOf model) + n)
     prev: -> @setCurrentLine @changeLine -1
     next: -> @setCurrentLine @changeLine 1
     # Fun history logic, probably won't scale to persistent duplicate entries
@@ -25,7 +24,7 @@ class PromptHistory extends Backbone.Collection
         ret = @currentLine.get 'content'
         historyEntry = @lineInCollection ret
         if historyEntry
-            relativeExists = @lineRelativeTo historyEntry, movementInList
+            relativeExists = @modelRelativeTo historyEntry, movementInList
             if relativeExists
                 ret = relativeExists.get 'value'
             else

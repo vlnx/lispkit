@@ -31,3 +31,5 @@ $.ender cache: require 'kizzy'
 
 window.Deps = {}
 window.Deps.url = require 'url'
+
+Backbone.Collection::modelRelativeTo = (model, n) -> @at ((@indexOf model) + n)
