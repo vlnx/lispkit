@@ -67,7 +67,7 @@ class InputView extends Backbone.View
     # Backspace from `position`
     backspace: =>
         if (@model.get 'content').length is 0
-            @trigger 'shouldClosePrompt'
+            @trigger 'close'
         else
             pos = @model.get 'position'
             @model.set 'content', "#{@model.before (pos-1)}#{@model.afterInclusive()}"

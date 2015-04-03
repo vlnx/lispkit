@@ -14,7 +14,7 @@ class Prompt extends Backbone.View
         $(@el).hide()
         @trigger 'adjustHeight'
     initialize: =>
-        @listenTo @input, 'shouldClosePrompt', @close
+        @listenTo @input, 'close', @close
         $(@el).append @input.el
         $(@el).hide()
         @history.currentLine = @input.model
