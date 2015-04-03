@@ -34,6 +34,11 @@ class Input extends Backbone.Model
     afterFirstWord: => (@split().slice 1).join ' '
     length: => (@get 'content').length
 
+    # may have only inserted '', the same as default
+    changeIntended: =>
+        if @length() is 0
+            @trigger 'change:content'
+
 class InputView extends Backbone.View
     tagName: 'span'
     id: 'input'
@@ -58,13 +63,18 @@ class InputView extends Backbone.View
         @listenTo @model, 'destroy', @remove
 
     clearLine: =>
+        @model.changeIntended()
         @model.set 'content', ''
         @model.set 'position', 0
 
     # Insert `str` at `position`, set position to after inserted string
     insert: (str) =>
-        @model.set 'content', "#{@model.before()}#{str}#{@model.afterInclusive()}"
-        @model.set 'position', "#{@model.before()}#{str}".length
+        if (str is ' ') and (@model.firstWord() is @model.get 'content')
+            @trigger 'completionSelectLine'
+        else
+            @model.set 'content', "#{@model.before()}#{str}#{@model.afterInclusive()}"
+            @model.set 'position', "#{@model.before()}#{str}".length
+        @model.changeIntended()
 
     moveCursor: (distance) ->
         @model.set 'position',

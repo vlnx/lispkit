@@ -168,6 +168,16 @@
 (defkey :prompt "M-t" (b)
   (js-status b "bar.prompt.input.openTabToggle();"))
 
+(defkey :prompt "C-n" (b)
+  (js-status b "bar.completion.collection.next();"))
+
+(defkey :prompt "C-p" (b)
+  (js-status b "bar.completion.collection.prev();"))
+
+(defkey :prompt "TAB" (b)
+  ;; NOTE: just use built in space instead, well that's if it needs an argument
+  (js-status b "bar.completion.selectLineForPrompt();"))
+
 ;;; Tab keys
 
 (defkey :top "g t" (b)

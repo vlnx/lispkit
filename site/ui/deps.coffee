@@ -33,3 +33,16 @@ window.Deps = {}
 window.Deps.url = require 'url'
 
 Backbone.Collection::modelRelativeTo = (model, n) -> @at ((@indexOf model) + n)
+
+class Backbone.CollectionNav extends Backbone.Collection
+    currentModel: null
+    moveTo: (model) ->
+        @trigger 'nav-prev', @currentModel if @currentModel
+        @currentModel = model
+        @trigger 'nav-next', model
+    prev: =>
+        unless @currentModel then @currentModel = @first()
+        @moveTo (@modelRelativeTo @currentModel, -1) or @last()
+    next: =>
+        unless @currentModel then @currentModel = @first()
+        @moveTo (@modelRelativeTo @currentModel, 1) or @first()
