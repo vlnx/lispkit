@@ -5,13 +5,13 @@ class Prompt extends Backbone.View
     input: new (require './input.coffee')
     history: new (require './history.coffee')
     open: (startingInput) =>
-        @input.insert "#{startingInput or ''}"
         $(@el).show()
+        @input.insert "#{startingInput or ''}"
         @trigger 'adjustHeight'
     close: =>
         Exported.promptClose()
-        @input.clearLine()
         $(@el).hide()
+        @input.clearLine()
         @trigger 'adjustHeight'
     initialize: =>
         @listenTo @input, 'close', @close
