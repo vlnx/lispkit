@@ -21,11 +21,10 @@ class Prompt extends Backbone.View
     evaluateContent: =>
         line = @input.model.get 'content'
         @history.add value: line, time: ((new Date).getTime())
-        matches = /^(\w+)\s?(.*)$/.exec line
-        if Commands[matches[1]]?
-            cmd = matches[1]
-            arg = matches[2]
-        else
+
+        cmd = @input.model.firstWord()
+        arg = @input.model.afterFirstWord()
+        unless Commands[cmd]?
             cmd = 'notify'
             arg = 'command not registered'
         console.log "evaluate prompt content: #{cmd} and #{arg}"

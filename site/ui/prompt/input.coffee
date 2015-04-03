@@ -28,7 +28,12 @@ class Input extends Backbone.Model
         unless (_.isNumber position) then position = @get 'position'
         (@get 'content').substr position
 
+    # utils
+    split: => (@get 'content').split ' '
+    firstWord: => (@split())[0]
+    afterFirstWord: => (@split().slice 1).join ' '
     length: => (@get 'content').length
+
 class InputView extends Backbone.View
     tagName: 'span'
     id: 'input'
