@@ -41,8 +41,8 @@ class Backbone.CollectionNav extends Backbone.Collection
         @currentModel = model
         @trigger 'nav-next', model
     prev: =>
-        unless @currentModel then @currentModel = @first()
+        @currentModel or= @first()
         @moveTo (@modelRelativeTo @currentModel, -1) or @last()
     next: =>
-        unless @currentModel then @currentModel = @first()
+        @currentModel or= @first()
         @moveTo (@modelRelativeTo @currentModel, 1) or @first()
