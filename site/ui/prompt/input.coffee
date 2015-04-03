@@ -28,6 +28,7 @@ class Input extends Backbone.Model
         unless (_.isNumber position) then position = @get 'position'
         (@get 'content').substr position
 
+    length: => (@get 'content').length
 class InputView extends Backbone.View
     tagName: 'span'
     id: 'input'
@@ -66,7 +67,7 @@ class InputView extends Backbone.View
 
     # Backspace from `position`
     backspace: =>
-        if (@model.get 'content').length is 0
+        if @model.length() is 0
             @trigger 'close'
         else
             pos = @model.get 'position'
