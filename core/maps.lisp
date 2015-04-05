@@ -1,13 +1,18 @@
 (in-package :lispkit)
 
-(defmacro defkey (map key args &body body)
+(defmacro defkey (map k args &body body)
   "Define a key with an implicit lambda"
-  `(define-key (getf *maps* ,map) (if (stringp ,key)
-                                      (kbd ,key)
-                                      ,key)
-     (lambda ,(append args '(&rest rest))
-       (declare (ignore rest))
-       ,@body)))
+  `(mapcar (lambda (key)
+             (define-key (getf *maps* ,map) key
+               (lambda ,(append args '(&rest rest))
+                 (declare (ignore rest))
+                 ,@body)))
+           (cond
+             ((listp ',k)
+              (mapcar #'kbd ',k))
+             ((stringp ',k)
+              (list (kbd ',k)))
+             (t (list ',k)))))
 
 ;;; Work that
 ;; (defmacro take-function (func)
@@ -63,27 +68,18 @@
 ;; Scroll bindings
 (defvar *scroll-step* 40)
 (mapcar (lambda (binding)
-          (defkey :scroll (first binding) (b)
-            (second binding)
-            (apply #'scroll-to (tab-scroll (current-tab b)) (cddr binding))))
-        `(("j" "Scroll down on the current page by the scroll-step"
-               :x t :rel ,*scroll-step*)
-          ("k" "Scroll up on the current page by the scroll-step"
-               :x t :rel ,(- *scroll-step*))
-          ("h" "Scroll to the left"
-               :y t :rel ,(- *scroll-step*))
-          ("l" "Scroll to the right"
-               :y t :rel ,*scroll-step*)
-
-          ("Down" "Scroll down on the current page by the scroll-step"
-                  :x t :rel ,*scroll-step*)
-          ("Up" "Scroll up on the current page by the scroll-step"
-                :x t :rel ,(- *scroll-step*))
-          ("Left" "Scroll to the left"
-                  :y t :rel ,(- *scroll-step*))
-          ("Right" "Scroll to the right"
-                   :y t :rel ,*scroll-step*)
-
+          (eval `(defkey :scroll ,(first binding) (b)
+                   ,(second binding)
+                   (apply #'scroll-to (tab-scroll (current-tab b))
+                          ',(cddr binding)))))
+        `((("j" "Down") "Scroll down on the current page by the scroll-step"
+           :x t :rel ,*scroll-step*)
+          (("k" "Up") "Scroll up on the current page by the scroll-step"
+           :x t :rel ,(- *scroll-step*))
+          (("h" "Left") "Scroll to the left"
+           :y t :rel ,(- *scroll-step*))
+          (("l" "Right") "Scroll to the right"
+           :y t :rel ,*scroll-step*)
           ("g g" "Scroll to the top of the page"
                  :x 0)
           ("G" "Scroll to the bottom of the page"
@@ -143,10 +139,9 @@
 (defkey :prompt "RET" (b)
   (js-status b "bar.prompt.evaluateContent();"))
 
-(defkey :prompt "BS" (b)
+(defkey :prompt ("BS" "C-h") (b)
   (js-status b "bar.prompt.input.backspace();"))
-(defkey :prompt "C-h" (b)
-  (js-status b "bar.prompt.input.backspace();"))
+
 (defkey :prompt "DEL" (b)
   (js-status b "bar.prompt.input.delete();"))
 
