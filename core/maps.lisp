@@ -14,20 +14,10 @@
               (list (kbd ',k)))
              (t (list ',k)))))
 
-;;; Work that
-;; (defmacro take-function (func)
-;;   (print func)
-;;   `(,func 1 1))
-;; (take-function #'+)
-;; ((functionp func-or-args) func-or-args)
-;; ((listp func-or-args)
-
-
 ;; Create/Empty keymaps
 (setf (getf *maps* :top) (make-kmap)
       (getf *maps* :scroll) (make-kmap)
       (getf *maps* :prompt) (make-kmap)
-      (getf *maps* :group-slash-tabs) (make-kmap)
       (getf *maps* :passthrough) (make-kmap))
 
 (defkey :passthrough "C-z" (browser)
