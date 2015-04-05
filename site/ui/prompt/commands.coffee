@@ -29,5 +29,6 @@ Commands =
         # TODO: verify as a uri
         Exported.download str
         Commands.notify "Added to the download queue: #{str}"
+    quit: Exported.quit
 
 module.exports = Commands

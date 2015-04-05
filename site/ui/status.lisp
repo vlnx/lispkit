@@ -30,9 +30,13 @@
   (ui-update b :keymode t)
   (ui-update b :current-tab t))
 
+(defexport quit ()
+  (sb-ext:exit :abort t))
+
 (defscript
   :exact-uri (ui-symbol-to-uri 'status)
   :exports '(statusbar-init
+             quit
              status-bar-new-tab
              load-uri
              prompt-close
