@@ -121,11 +121,10 @@
 
 (defun browser-all-tabs (b)
   "Return all tab instances including user interface views"
-  (concatenate 'list
-               (list
-                (slot-value (browser-ui b) 'tabs)
-                (slot-value (browser-ui b) 'status))
-               (browser-tabs b)))
+  (append (mapcar (lambda (name)
+                    (slot-value (browser-ui b) name))
+                  '(tabs status))
+          (browser-tabs b)))
 
 (defun browsers-all-tabs ()
   "Give the tabs of all browsers in a flat list"
