@@ -11,11 +11,11 @@ Also connect view slot to scroll slot"
 (defmethod initialize-instance :after ((ui-views ui-views) &key)
   "Directly access the tab-view and tab-scroll of all ui-view slots
 in order to hide scrollbars; thus in WebKit1, allow any height in a shrink nil vpane"
-  (mapcar (lambda (slot-name)
+  (mapcar (lambda (ui-tab)
             (webview-hide-scrollbars
-             (tab-view (slot-value ui-views slot-name))
-             (tab-scroll (slot-value ui-views slot-name))))
-          '(tabs status)))
+             (tab-view ui-tab)
+             (tab-scroll ui-tab)))
+          (get-all-slot-values ui-views)))
 
 (defmethod initialize-instance :after ((browser browser) &key)
   "Pack the widgets, created in the initforms"

@@ -52,7 +52,9 @@
    #:circular-index-next
    #:circular-index-prev
    #:split-string
-   #:x11-selection))
+   #:x11-selection
+   #:get-slot-names
+   #:get-all-slot-values))
 
 (defpackage :lispkit/transcompile
   (:use #:cl

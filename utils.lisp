@@ -99,3 +99,12 @@ at the end of STRING, we don't include a null sub-string for that. "
        (setit "-bi" clipboard))
       (clipboard
        (getit "-bo")))))
+
+(defun get-slot-names (instance)
+  "SBCL way to get a list of the slots a class contains"
+  (mapcar #'sb-pcl:slot-definition-name
+          (sb-pcl:class-slots (class-of instance))))
+(defun get-all-slot-values (instance)
+  (mapcar (lambda (name)
+            (slot-value instance name))
+          (get-slot-names instance)))

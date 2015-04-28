@@ -128,9 +128,7 @@
 
 (defun browser-all-tabs (b)
   "Return all tab instances including user interface views"
-  (append (mapcar (lambda (name)
-                    (slot-value (browser-ui b) name))
-                  '(tabs status hints))
+  (append (get-all-slot-values (browser-ui b))
           (browser-tabs b)))
 
 (defun browsers-all-tabs ()
