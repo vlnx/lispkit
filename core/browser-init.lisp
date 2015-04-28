@@ -30,12 +30,20 @@ in order to hide scrollbars; thus in WebKit1, allow any height in a shrink nil v
          (notebook (widgets-notebook gtk))
          (gtk-win (widgets-window gtk)))
 
+    ;; Overlay
+    (webkit-web-view-set-transparent (tab-view (ui-hints ui)) t)
+    (widget-set-rgba (widgets-window gtk))
+    (add (widgets-overlay gtk)
+         (widgets-notebook gtk))
+    (gtk-overlay-add-overlay (widgets-overlay gtk)
+                             (tab-scroll (ui-hints ui)))
+
     ;; Layout configuration to get static heights on top and bottom
     ;; :shrink when nil respects the child's minimal size
     ;; :resize when t will resize along with the main window
     (pack pane1 (tab-scroll (ui-tabs ui)) :resize nil :shrink nil)
     (pack pane1 pane2 :resize t :shrink t)
-    (pack pane2 notebook :resize t :shrink t)
+    (pack pane2 (widgets-overlay gtk) :resize t :shrink t)
     (pack pane2 (tab-scroll (ui-status ui)) :resize nil :shrink nil)
     (add gtk-win pane1)
 

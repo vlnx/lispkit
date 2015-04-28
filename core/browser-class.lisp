@@ -38,7 +38,11 @@
    (status
     :accessor ui-status
     :initform (make-instance 'tab :initial-uri (ui-symbol-to-uri 'status))
-    :documentation "Status bar view")))
+    :documentation "Status bar view")
+   (hints
+    :accessor ui-hints
+    :initform (make-instance 'tab :initial-uri (ui-symbol-to-uri 'hints))
+    :documentation "follow hints overlay")))
 
 (defclass gtk-widgets ()
   ((window :accessor widgets-window
@@ -60,7 +64,10 @@
              :documentation "Notebook, allows for tabs")
    (x11-xic :accessor widgets-x11-xic
             :initform nil
-            :documentation "Hold x11's XIC reference to decode input keys")))
+            :documentation "Hold x11's XIC reference to decode input keys")
+   (content-overlay :accessor widgets-overlay
+                    :initform (make-instance 'overlay)
+                    :documentation "gtk overlay, holding hints view over notebook")))
 
 (defclass key-state-class ()
   ((active-maps :accessor active-maps
@@ -123,7 +130,7 @@
   "Return all tab instances including user interface views"
   (append (mapcar (lambda (name)
                     (slot-value (browser-ui b) name))
-                  '(tabs status))
+                  '(tabs status hints))
           (browser-tabs b)))
 
 (defun browsers-all-tabs ()
