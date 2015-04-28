@@ -220,3 +220,12 @@
            (when (eq widget
                      (tab-scroll tab))
              tab))))
+
+(defmethod find-instance ((of (eql 'of-browser))
+                          (from (eql 'from-hints-view)) widget)
+  (find-instance-matchit
+   :source *browsers*
+   :test (lambda (browser)
+           (when (eq (tab-view (ui-hints (browser-ui browser)))
+                     widget)
+             browser))))

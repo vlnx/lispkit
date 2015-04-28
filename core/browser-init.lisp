@@ -17,6 +17,44 @@ in order to hide scrollbars; thus in WebKit1, allow any height in a shrink nil v
              (tab-scroll ui-tab)))
           (get-all-slot-values ui-views)))
 
+(defun proxy-overlay-mouse-events (overlay-content find-dest-widget)
+  "Re-route/proxy button events from the transparent overlay
+to what is shown underneath, determined by #'find-dest-widget"
+  (labels ((prepend-for-scope (str)
+             (as-symbol (concatenate 'string
+                                     "overlay-content/"
+                                     str)))
+           (generate-and-set-cb (event-name)
+             (eval `(progn
+                      (defcallback ,(prepend-for-scope event-name) :boolean
+                          ((widget pobject)
+                           (event :pointer))
+                        (g-object-cffi:g-signal-emit-by-name
+                         (funcall ,find-dest-widget widget)
+                         ,event-name
+                         event g-object-cffi:*g-signal-emit-ret*)
+                        t)
+                      (setf (gsignal ,overlay-content ,event-name)
+                            (callback ,(prepend-for-scope event-name)))))))
+    (mapcar #'generate-and-set-cb
+            '("button-press-event"
+              "button-release-event"
+              "scroll-event"
+              "motion-notify-event" ; cursor doesn't change icon on hover
+              "enter-notify-event"
+              "leave-notify-event"
+              "key-press-event"
+              "key-release-event"
+              "drag-begin"
+              "drag-data-delete"
+              "drag-data-got"
+              "drag-data-received"
+              "drag-drop"
+              "drag-end"
+              "drag-failed"
+              "drag-leave"
+              "drag-motion"))))
+
 (defmethod initialize-instance :after ((browser browser) &key)
   "Pack the widgets, created in the initforms"
   ;; Callbacks depend on *browsers*, so add to it here
@@ -29,6 +67,12 @@ in order to hide scrollbars; thus in WebKit1, allow any height in a shrink nil v
          (ui (browser-ui browser))
          (notebook (widgets-notebook gtk))
          (gtk-win (widgets-window gtk)))
+
+    (proxy-overlay-mouse-events
+     (tab-view (ui-hints ui))
+     (lambda (widget)
+       (tab-view (current-tab
+                  (find-instance 'of-browser 'from-hints-view widget)))))
 
     ;; Overlay
     (webkit-web-view-set-transparent (tab-view (ui-hints ui)) t)
