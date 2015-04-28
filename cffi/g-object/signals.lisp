@@ -5,6 +5,8 @@
 (defcfun g-signal-emit-by-name :void
   (widget pobject)
   (name cffi:c-string)
-  (signal-param pobject)
+  (signal-param :pointer)
   (ret :pointer))
 
+(export '(g-signal-emit-by-name
+          *g-signal-emit-ret*))
