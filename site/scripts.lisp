@@ -4,4 +4,5 @@
       '(ui/tabs
         ui/status
         ui/blank
+        ui/hints
         misc/testing))
