@@ -101,7 +101,7 @@
   (let ((template
          (resource-content 'util-templates/apply-css 'coffee))
         (css-one-line
-         (ppcre:regex-replace-all "\\n" css " "))) ; NOTE: also escape \'
+         (escape-single-quote (ppcre:regex-replace-all "\\n" css " "))))
     (ppcre:regex-replace-all "{{{snip}}}" template css-one-line)))
 
 ;; somehow per page load connected to a view, have status of applied scripts
