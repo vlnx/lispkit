@@ -146,86 +146,76 @@
         ret
         (error "Unattached widget"))))
 
-;; (defun closure-return-input-if (test)
-;;   "Return a function that gives back it's input if the test is true"
-;;   (lambda (input)
-;;     (when test
-;;       input)))
+(defmacro closure-return-input-if (arg test)
+  `(lambda ,arg (when ,test ,(first arg))))
+;; (macroexpand-1 '(closure-return-input-if (n) (eq n 5)))
 
 (defmethod find-instance ((of (eql 'of-browser))
                           (from (eql 'from-notebook)) widget)
   (find-instance-matchit
    :source *browsers*
-   :test (lambda (browser)
-           (when (eq (widgets-notebook
-                      (browser-gtk browser))
-                     widget)
-             browser))))
+   :test (closure-return-input-if (browser)
+                                  (eq (widgets-notebook
+                                       (browser-gtk browser))
+                                      widget))))
 
 (defmethod find-instance ((of (eql 'of-browser))
                           (from (eql 'from-window)) widget)
   (find-instance-matchit
    :source *browsers*
-   :test (lambda (browser)
-           (when (eq (widgets-window
-                      (browser-gtk browser))
-                     widget)
-             browser))))
+   :test (closure-return-input-if (browser)
+                                  (eq (widgets-window
+                                       (browser-gtk browser))
+                                      widget))))
 
 (defmethod find-instance ((of (eql 'of-inspector))
                           (from (eql 'from-inspector-pointer)) inspector-pointer)
   (find-instance-matchit
    :source (mapcar #'tab-inspector (browsers-all-tabs))
-   :test (lambda (inspector)
-           (when (and inspector
-                      (pointer-eq inspector-pointer
-                                  (pointer (inspector-gobject inspector))))
-             inspector))))
+   :test (closure-return-input-if (inspector)
+                                  (and inspector
+                                       (pointer-eq inspector-pointer
+                                                   (pointer (inspector-gobject inspector)))))))
 
 (defmethod find-instance ((of (eql 'of-tab))
                           (from (eql 'from-inspector-window)) widget)
   (find-instance-matchit
    :source (browsers-all-tabs)
-   :test (lambda (tab)
-           (when (and (tab-inspector tab)
-                      (eq widget
-                          (inspector-window
-                           (tab-inspector tab))))
-             tab))))
+   :test (closure-return-input-if (tab)
+                                  (and (tab-inspector tab)
+                                       (eq widget
+                                           (inspector-window
+                                            (tab-inspector tab)))))))
 
 (defmethod find-instance ((of (eql 'of-browser))
                           (from (eql 'from-view)) widget)
   (find-instance-matchit
    :source *browsers*
-   :test (lambda (browser)
-           (when (member widget
-                         (mapcar #'tab-view
-                                 (browsers-all-tabs)))
-             browser))))
+   :test (closure-return-input-if (browser)
+                                  (member widget
+                                          (mapcar #'tab-view
+                                                  (browsers-all-tabs))))))
 
 (defmethod find-instance ((of (eql 'of-tab))
                           (from (eql 'from-view)) widget)
   (find-instance-matchit
    :source (browsers-all-tabs)
-   :test (lambda (tab)
-           (when (eq widget
-                     (tab-view tab))
-             tab))))
+   :test (closure-return-input-if (tab)
+                                  (eq widget
+                                      (tab-view tab)))))
 
 (defmethod find-instance ((of (eql 'of-tab))
                           (from (eql 'from-scrolled-window)) widget)
   (find-instance-matchit
    :source (browsers-all-tabs)
-   :test (lambda (tab)
-           (when (eq widget
-                     (tab-scroll tab))
-             tab))))
+   :test (closure-return-input-if (tab)
+                                  (eq widget
+                                      (tab-scroll tab)))))
 
 (defmethod find-instance ((of (eql 'of-browser))
                           (from (eql 'from-hints-view)) widget)
   (find-instance-matchit
    :source *browsers*
-   :test (lambda (browser)
-           (when (eq (tab-view (ui-hints (browser-ui browser)))
-                     widget)
-             browser))))
+   :test (closure-return-input-if (browser)
+                                  (eq (tab-view (ui-hints (browser-ui browser)))
+                                      widget))))
