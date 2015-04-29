@@ -245,3 +245,7 @@ don't connect signals that update the status bar"
   (if (ppcre:scan-to-strings "://" maybe-uri)
       maybe-uri
       (ui-symbol-to-uri 'blank)))
+
+(defun open-inspector (tab)
+  (webkit-web-inspector-show (make-instance 'webview-inspector
+                                            :view (tab-view tab))))

@@ -123,6 +123,9 @@ complex logic deep inside webkit regarding visible content sizes"
 (defcfun "webkit_web_inspector_close" :void
   (inspector-obj pobject))
 
+(defcfun webkit-web-inspector-show :void
+  (inspector-obj pobject))
+
 ;; (defcfun "webkit_web_inspector_get_web_view" pobject
 ;;   (inspector pobject))
 ;; (webkit-web-view-get-inspector
