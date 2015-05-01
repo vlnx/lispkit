@@ -18,6 +18,7 @@
 (setf (getf *maps* :top) (make-kmap)
       (getf *maps* :scroll) (make-kmap)
       (getf *maps* :prompt) (make-kmap)
+      (getf *maps* :command-input) (make-kmap)
       (getf *maps* :passthrough) (make-kmap))
 
 (defkey :passthrough "C-z" (browser)
@@ -81,12 +82,12 @@
           ("C-d" "Scroll to down half a page"
                  :x t :rel t :page 0.5)))
 
-(defun open-prompt-with (b starting-input)
-  (set-active-maps b '(:prompt))
+(defun open-command-prompt-with (b starting-input)
+  (set-active-maps b '(:command-input :prompt))
   (ui-update b :prompt-enter starting-input))
 
 (defkey :top ";" (b)
-  (open-prompt-with b ""))
+  (open-command-prompt-with b ""))
 
 (setf (getf *hooks* :prompt-leave)
       (list #'(lambda (b)
@@ -97,10 +98,10 @@
   (ui-update b :prompt-leave t))
 
 (defkey :top "o" (b)
-  (open-prompt-with b "open "))
+  (open-command-prompt-with b "open "))
 
 (defkey :top "O" (b)
-  (open-prompt-with
+  (open-command-prompt-with
    b (format nil "open ~a"
              (property (tab-view (current-tab b)) :uri))))
 
@@ -111,10 +112,10 @@
     (ui-update b :notify (format nil "Yanked uri: ~a" uri))))
 
 (defkey :top "t" (b)
-  (open-prompt-with b "tabopen "))
+  (open-command-prompt-with b "tabopen "))
 
 (defkey :top "T" (b)
-  (open-prompt-with
+  (open-command-prompt-with
    b (format nil "tabopen ~a"
              (property (tab-view (current-tab b)) :uri))))
 
@@ -130,7 +131,7 @@
 (defkey :prompt "SPC" (b)
   (ui-update b :prompt-insert " "))
 
-(defkey :prompt "RET" (b)
+(defkey :command-input "RET" (b)
   (js 'status b "bar.prompt.evaluateContent();"))
 
 (defkey :prompt ("BS" "C-h") (b)
@@ -149,12 +150,12 @@
 (defkey :prompt "C-e" (b)
   (js 'status b "bar.prompt.input.endOfLine();"))
 
-(defkey :prompt "Up" (b)
+(defkey :command-input "Up" (b)
   (js 'status b "bar.prompt.history.prev();"))
-(defkey :prompt "Down" (b)
+(defkey :command-input "Down" (b)
   (js 'status b "bar.prompt.history.next();"))
 
-(defkey :prompt "M-t" (b)
+(defkey :command-input "M-t" (b)
   (js 'status b "bar.prompt.input.openTabToggle();"))
 
 (defkey :prompt "C-n" (b)
