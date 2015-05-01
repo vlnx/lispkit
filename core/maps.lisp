@@ -88,8 +88,12 @@
 (defkey :top ";" (b)
   (open-prompt-with b ""))
 
+(setf (getf *hooks* :prompt-leave)
+      (list #'(lambda (b)
+                (set-active-maps b '(:scroll :top)))))
+
 (defkey :prompt "ESC" (b)
-  (set-active-maps b '(:scroll :top))
+  (run-hook :prompt-leave b)
   (ui-update b :prompt-leave t))
 
 (defkey :top "o" (b)

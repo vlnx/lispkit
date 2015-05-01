@@ -20,7 +20,7 @@
         `(-1 ,height)))
 
 (defexport prompt-close (b)
-  (set-active-maps b '(:scroll :top)))
+  (run-hook :prompt-leave b))
 
 (defexport statusbar-init (b)
   (ui-update b :uri t)
