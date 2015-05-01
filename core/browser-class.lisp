@@ -196,6 +196,15 @@
                                           (mapcar #'tab-view
                                                   (browsers-all-tabs))))))
 
+(defmethod find-instance ((of (eql 'of-browser))
+                          (from (eql 'from-scrolled-window)) widget)
+  (find-instance-matchit
+   :source *browsers*
+   :test (closure-return-input-if (browser)
+                                  (member widget
+                                          (mapcar #'tab-scroll
+                                                  (browsers-all-tabs))))))
+
 (defmethod find-instance ((of (eql 'of-tab))
                           (from (eql 'from-view)) widget)
   (find-instance-matchit

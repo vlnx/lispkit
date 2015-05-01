@@ -24,7 +24,10 @@
                 (t (if (or (eq x -1) (eq y -1))
                        (property adj :upper)
                        (or x y))))))
-    (setf (property adj :value) val)))
+    (setf (property adj :value) val))
+  (run-hook :scroll-action
+            (find-instance 'of-browser 'from-scrolled-window
+                           scrolled-window)))
 
 ;; (start-webkit-download "http://vlnx.lan/startpage/script.js" "file:///tmp/dl.1")
 (defun start-webkit-download (uri dest)
