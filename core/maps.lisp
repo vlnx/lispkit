@@ -127,41 +127,41 @@
   (ui-update b :prompt-insert " "))
 
 (defkey :prompt "RET" (b)
-  (js-status b "bar.prompt.evaluateContent();"))
+  (js 'status b "bar.prompt.evaluateContent();"))
 
 (defkey :prompt ("BS" "C-h") (b)
-  (js-status b "bar.prompt.input.backspace();"))
+  (js 'status b "bar.prompt.input.backspace();"))
 
 (defkey :prompt "DEL" (b)
-  (js-status b "bar.prompt.input.delete();"))
+  (js 'status b "bar.prompt.input.delete();"))
 
 (defkey :prompt "Left" (b)
-  (js-status b "bar.prompt.input.moveCursor(-1);"))
+  (js 'status b "bar.prompt.input.moveCursor(-1);"))
 (defkey :prompt "Right" (b)
-  (js-status b "bar.prompt.input.moveCursor(1);"))
+  (js 'status b "bar.prompt.input.moveCursor(1);"))
 
 (defkey :prompt "C-a" (b)
-  (js-status b "bar.prompt.input.startOfLine();"))
+  (js 'status b "bar.prompt.input.startOfLine();"))
 (defkey :prompt "C-e" (b)
-  (js-status b "bar.prompt.input.endOfLine();"))
+  (js 'status b "bar.prompt.input.endOfLine();"))
 
 (defkey :prompt "Up" (b)
-  (js-status b "bar.prompt.history.prev();"))
+  (js 'status b "bar.prompt.history.prev();"))
 (defkey :prompt "Down" (b)
-  (js-status b "bar.prompt.history.next();"))
+  (js 'status b "bar.prompt.history.next();"))
 
 (defkey :prompt "M-t" (b)
-  (js-status b "bar.prompt.input.openTabToggle();"))
+  (js 'status b "bar.prompt.input.openTabToggle();"))
 
 (defkey :prompt "C-n" (b)
-  (js-status b "bar.completion.collection.next();"))
+  (js 'status b "bar.completion.collection.next();"))
 
 (defkey :prompt "C-p" (b)
-  (js-status b "bar.completion.collection.prev();"))
+  (js 'status b "bar.completion.collection.prev();"))
 
 (defkey :prompt "TAB" (b)
   ;; NOTE: just use built in space instead, well that's if it needs an argument
-  (js-status b "bar.completion.selectLineForPrompt();"))
+  (js 'status b "bar.completion.selectLineForPrompt();"))
 
 ;;; Tab keys
 
