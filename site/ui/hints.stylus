@@ -20,16 +20,25 @@ html
 body
     margin 0
     padding 0
-
+    background-color transparent
     -webkit-user-select none
 
-    // background-color transparent
-    background-color rgba(26,163,171,0)
-
-#hint
+.label
     position absolute
-    left 50px
-    top 100px
-    background-color violet
-    color #000
-    opacity 0.5
+    border 0 dashed #000
+    opacity .6
+    font-family terminus
+    font-size 16px
+    font-weight bold
+    background-color #121212
+    color #abf300
+    .selected
+        background-color #0f0
+
+.overlay
+    position absolute
+    background-color #fff
+    border 1px dotted #000
+    opacity .1
+    .selected
+        background-color #f00

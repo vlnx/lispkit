@@ -226,12 +226,18 @@
         ;; Haven't implemented subdomain removal
         (t uri))))))
 
-;;; todo features
-
 (defkey :top "f" (b)
   "Start follow 'mode'"
-  (ui-update b :notify "Implement follow mode"))
-;; go to a :follow keymap where the default action, buffer and reads the keys for the hints
+  (when (string= (js 'current-tab b
+                     "(window._getHintData === undefined) ? 'not' : 'there';"
+                     :want-return t)
+                 "not")
+    (js 'current-tab b (resource-content 'ui/client 'coffee)))
+  (js 'hints b
+      (format nil "processData('~a')"
+              (escape-single-quote
+               (js 'current-tab b
+                   "_getHintData()" :want-return t)))))
 
 (defkey :top "u" (b)
   "'unclose' tab"
