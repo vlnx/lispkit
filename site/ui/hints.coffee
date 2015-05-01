@@ -20,7 +20,7 @@ class Label extends Backbone.View
     render: =>
         $(@el).html @model.get 'hint'
 
-        # Offset by -10p
+        # Offset by -10px
         x = (@model.get 'x') - 10
         y = (@model.get 'y') - 10
         if x < 0 then x = 0
@@ -57,26 +57,21 @@ class HintsView extends Backbone.View
         @listenTo @collection, 'add', @addOne
         @listenTo @collection, 'remove', (model, collection, options) =>
             model.clear()
-        @listenTo @collection, 'reset', @addAll
     addOne: (model) =>
         $(@el).append (new Label model: model).render().el
         $(@el).append (new Overlay model: model).render().el
-    addAll: =>
-        @collection.each @addOne
 
 window.hints = new HintsView()
 
 window.processData = (jsonStr) ->
     console.log jsonStr
-    hints.collection.remove hints.collection.models
     data = JSON.parse jsonStr
-    _.each data.elements, (h) ->
-        hints.collection.add
-            x: h.x
-            y: h.y
-            height: h.height
-            width: h.width
-            scrollX: data.scrollX
-            scrollY: data.scrollY
-            winHeight: data.winHeight
-            winWidth: data.winWidth
+    hints.collection.set _.map data.elements, (h) ->
+        x: h.x
+        y: h.y
+        height: h.height
+        width: h.width
+        scrollX: data.scrollX
+        scrollY: data.scrollY
+        winHeight: data.winHeight
+        winWidth: data.winWidth
