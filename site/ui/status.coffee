@@ -5,7 +5,9 @@ class AppView extends Backbone.View
     adjustHeight: =>
         Exported.statusbarRequestHeight $(@el).height()
     initialize: =>
-        @completion = new (require './completion.coffee') prompt: @prompt
+        @completion = new (require './completion.coffee')
+            prompt: @prompt
+            keymodeModel: @status.keymode.model
         @listenTo @prompt, 'adjustHeight', @adjustHeight
         @listenTo @completion, 'adjustHeight', @adjustHeight
         $(@el).append @status.el

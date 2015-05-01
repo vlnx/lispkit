@@ -9,15 +9,20 @@ class Completion extends Menu
     itemView: CompletionItemView
     id: 'completion'
     initialize: (opts) =>
-        {@prompt} = opts
+        {@prompt, @keymodeModel} = opts
         Menu::initialize.call this
 
         @listenTo @prompt.input, 'completionSelectLine', @selectLineForPrompt
         @listenTo @prompt.input.model, 'change:content', @render
 
     promptVisible: => @prompt.el.style.display isnt 'none'
+    modeOptions: =>
+        if S(@keymodeModel.get 'mode').contains 'command-input'
+            Object.keys Commands
+        else
+            []
     list: =>
-        _.filter (Object.keys Commands), (name) =>
+        _.filter @modeOptions(), (name) =>
             @promptVisible() and 
             (S(name).startsWith @prompt.input.model.firstWord()) and
             (name isnt @prompt.input.model.firstWord())
