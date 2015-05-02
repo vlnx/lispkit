@@ -19,6 +19,7 @@
       (getf *maps* :scroll) (make-kmap)
       (getf *maps* :prompt) (make-kmap)
       (getf *maps* :command-input) (make-kmap)
+      (getf *maps* :follow) (make-kmap)
       (getf *maps* :passthrough) (make-kmap))
 
 (defkey :passthrough "C-z" (browser)
@@ -231,8 +232,7 @@
         ;; Haven't implemented subdomain removal
         (t uri))))))
 
-(defkey :top "f" (b)
-  "Start follow 'mode'"
+(defun follow-invoke (b)
   (when (string= (js 'current-tab b
                      "(window._getHintData === undefined) ? 'not' : 'there';"
                      :want-return t)
@@ -243,6 +243,12 @@
               (escape-single-quote
                (js 'current-tab b
                    "_getHintData()" :want-return t)))))
+
+(defkey :top "f" (b)
+  "Start follow 'mode'"
+  (follow-invoke b)
+  (set-active-maps b '(:scroll :follow :prompt))
+  (ui-update b :prompt-enter ""))
 
 (defkey :top "u" (b)
   "'unclose' tab"
