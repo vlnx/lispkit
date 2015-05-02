@@ -75,3 +75,6 @@ window.processData = (jsonStr) ->
         scrollY: data.scrollY
         winHeight: data.winHeight
         winWidth: data.winWidth
+
+window.clear = ->
+    hints.collection.remove hints.collection.models
