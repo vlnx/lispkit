@@ -244,6 +244,11 @@
                (js 'current-tab b
                    "_getHintData()" :want-return t)))))
 
+(setf (getf *hooks* :scroll-action)
+      (list #'(lambda (b)
+                (if (member :follow (active-maps (browser-key-state b)))
+                    (follow-invoke b)))))
+
 (defkey :top "f" (b)
   "Start follow 'mode'"
   (follow-invoke b)
