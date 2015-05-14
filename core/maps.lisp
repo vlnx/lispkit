@@ -171,6 +171,16 @@
   ;; NOTE: just use built in space instead, well that's if it needs an argument
   (js 'status b "bar.completion.selectLineForPrompt();"))
 
+;; Scroll bindings
+(defkey :prompt "C-u" (b)
+  "Scroll up half a page"
+  (scroll-to (tab-scroll (current-tab b))
+             :x t :rel t :page -0.5))
+(defkey :prompt "C-d" (b)
+  "Scroll down half a page"
+  (scroll-to (tab-scroll (current-tab b))
+             :x t :rel t :page 0.5))
+
 ;;; Tab keys
 
 (defkey :top "g t" (b)
@@ -254,7 +264,7 @@
 (defkey :top "f" (b)
   "Start follow 'mode'"
   (follow-invoke b)
-  (set-active-maps b '(:scroll :follow :prompt))
+  (set-active-maps b '(:follow :prompt))
   (ui-update b :prompt-enter ""))
 
 (defkey :top "u" (b)
