@@ -50,6 +50,20 @@ class Hint extends Backbone.Model
 class Hints extends Backbone.Collection
     model: Hint
 
+
+numberToHint = (n, total) ->
+    S("#{n}").padLeft("#{total}".length, '0')
+        .replaceAll('0', 'a')
+        .replaceAll('1', 'o')
+        .replaceAll('2', 'e')
+        .replaceAll('3', 'u')
+        .replaceAll('4', 'i')
+        .replaceAll('5', 'd')
+        .replaceAll('6', 'h')
+        .replaceAll('7', 't')
+        .replaceAll('8', 'n')
+        .replaceAll('9', 's').s
+
 class HintsView extends Backbone.View
     el: $('#hints')[0]
     collection: new Hints
@@ -58,6 +72,9 @@ class HintsView extends Backbone.View
         @listenTo @collection, 'remove', (model, collection, options) =>
             model.clear()
     addOne: (model) =>
+        model.set 'hint',
+            numberToHint (@collection.indexOf model),
+                @collection.length
         $(@el).append (new Label model: model).render().el
         $(@el).append (new Overlay model: model).render().el
 
