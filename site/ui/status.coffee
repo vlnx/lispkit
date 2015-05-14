@@ -13,6 +13,9 @@ class AppView extends Backbone.View
         $(@el).append @status.el
         $(@el).append @completion.el
         $(@el).append @prompt.el
+        @listenTo @prompt.input.model, 'change:content', =>
+            if S(@status.keymode.model.get 'mode').contains 'follow'
+                Exported.filterHints "#{@prompt.input.model.get 'content'}"
 
 window.bar = new AppView()
 

@@ -95,3 +95,12 @@ window.processData = (jsonStr) ->
 
 window.clear = ->
     hints.collection.remove hints.collection.models
+
+window.filterHints = (str) ->
+    hints.collection.each (model) ->
+        if S(model.get 'hint').startsWith str
+            $(model.viewLabel.el).show()
+            $(model.viewOverlay.el).show()
+        else
+            $(model.viewLabel.el).hide()
+            $(model.viewOverlay.el).hide()

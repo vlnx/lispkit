@@ -33,6 +33,11 @@
 (defexport quit ()
   (sb-ext:exit :abort t))
 
+(defexport filter-hints (b str)
+  (js 'hints b (format nil
+                       "filterHints('~a');"
+                       (escape-single-quote str))))
+
 (defscript
   :exact-uri (ui-symbol-to-uri 'status)
   :exports '(statusbar-init
@@ -42,6 +47,7 @@
              prompt-close
              statusbar-request-height
              notify
+             filter-hints
              download)
   :scripts '(:browserify ((ui/deps ())
                           (ui/status (ui/bar/main
