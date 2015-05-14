@@ -49,7 +49,7 @@ class Hint extends Backbone.Model
 
 class Hints extends Backbone.Collection
     model: Hint
-
+    clear: => @remove @models
 
 numberToHint = (n, total) ->
     S("#{n}").padLeft("#{total}".length, '0')
@@ -93,8 +93,6 @@ window.processData = (jsonStr) ->
         winHeight: data.winHeight
         winWidth: data.winWidth
 
-window.clear = ->
-    hints.collection.remove hints.collection.models
 
 window.filterHints = (str) ->
     hints.collection.each (model) ->

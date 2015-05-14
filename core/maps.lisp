@@ -93,7 +93,7 @@
 (setf (getf *hooks* :prompt-leave)
       (list #'(lambda (b)
                 (if (member :follow (active-maps (browser-key-state b)))
-                    (js 'hints b "clear()"))
+                    (js 'hints b "hints.collection.clear()"))
                 (set-active-maps b '(:scroll :top)))))
 
 (defkey :prompt "ESC" (b)
