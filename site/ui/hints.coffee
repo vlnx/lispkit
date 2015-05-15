@@ -17,9 +17,16 @@ class Overlay extends Backbone.View
 class Label extends Backbone.View
     className: 'label'
     tagName: 'span'
+    template: jade.compile '''
+    span.dim #{completed}
+    span #{rest}
+    '''
+    templateData: =>
+        completed: @model.get 'incompleteHint'
+        rest: @model.hintToEnterStill()
     render: =>
-        $(@el).html @model.get 'hint'
         @toggleClassBasedOnAttribute 'selected'
+        $(@el).html @template @templateData()
 
         # Offset by -10px
         x = (@model.get 'x') - 10
@@ -43,7 +50,10 @@ class Hint extends Backbone.Model
         overlayHeight: 0
         overlayWidth: 0
         hint: 'xx'
+        incompleteHint: ''
         selected: false
+    hintToEnterStill: =>
+        (@get 'hint').replace (new RegExp "^#{@get 'incompleteHint'}"), ''
     clear: =>
         @destroy()
         @viewLabel.remove()
@@ -68,9 +78,11 @@ class Hints extends Backbone.Collection
     filterHints: (str) =>
         @each (model) ->
             if S(model.get 'hint').startsWith str
+                model.set 'incompleteHint', str
                 model.show()
             else
                 model.hide()
+                model.set 'incompleteHint', ''
         shown = @visible()
         @setSelected()
     clear: => @remove @models
