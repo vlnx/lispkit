@@ -46,3 +46,9 @@ class Backbone.CollectionNav extends Backbone.Collection
     next: =>
         @currentModel or= @first()
         @moveTo (@modelRelativeTo @currentModel, 1) or @first()
+
+Backbone.View::toggleClassBasedOnAttribute = (attribute) ->
+    if (@model.get attribute)
+        $(@el).addClass attribute
+    else if ($(@el).hasClass attribute)
+        $(@el).removeClass attribute

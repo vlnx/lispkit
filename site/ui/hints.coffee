@@ -2,7 +2,7 @@ class Overlay extends Backbone.View
     className: 'overlay'
     tagName: 'span'
     render: =>
-        $(@el).html ''
+        @toggleClassBasedOnAttribute 'selected'
         $(@el).offset @model.get('x'), @model.get('y')
         $(@el).width @model.get 'width'
         $(@el).height @model.get 'height'
@@ -19,6 +19,7 @@ class Label extends Backbone.View
     tagName: 'span'
     render: =>
         $(@el).html @model.get 'hint'
+        @toggleClassBasedOnAttribute 'selected'
 
         # Offset by -10px
         x = (@model.get 'x') - 10
@@ -42,6 +43,7 @@ class Hint extends Backbone.Model
         overlayHeight: 0
         overlayWidth: 0
         hint: 'xx'
+        selected: false
     clear: =>
         @destroy()
         @viewLabel.remove()
@@ -52,15 +54,25 @@ class Hint extends Backbone.Model
     show: =>
         $(@viewLabel.el).show()
         $(@viewOverlay.el).show()
+    visible: =>
+        (@viewLabel.el.style.display isnt 'none') and
+            (@viewOverlay.el.style.display isnt 'none')
 
 class Hints extends Backbone.Collection
     model: Hint
+    visible: => @filter (model) -> model.visible()
+    selected: => (@where selected: true)[0]
+    setSelected: =>
+        @selected()?.set 'selected', false
+        @visible()[0].set 'selected', true
     filterHints: (str) =>
         @each (model) ->
             if S(model.get 'hint').startsWith str
                 model.show()
             else
                 model.hide()
+        shown = @visible()
+        @setSelected()
     clear: => @remove @models
 
 numberToHint = (n, total) ->
@@ -104,5 +116,6 @@ window.processData = (jsonStr) ->
         scrollY: data.scrollY
         winHeight: data.winHeight
         winWidth: data.winWidth
+    hints.collection.setSelected()
 
 

@@ -32,13 +32,21 @@ body
     font-weight bold
     background-color #121212
     color #abf300
-    .selected
-        background-color #0f0
+
+.label.selected
+    background-color #abf300
+    color #121212
+    .dim
+        color #abf300 !important
+
+.dim
+    color #121212
 
 .overlay
     position absolute
     background-color #fff
     border 1px dotted #000
     opacity .1
-    .selected
-        background-color #f00
+
+.overlay.selected
+    background-color #0f0 !important
