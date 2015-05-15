@@ -35,7 +35,7 @@
 
 (defexport filter-hints (b str)
   (js 'hints b (format nil
-                       "filterHints('~a');"
+                       "hints.collection.filterHints('~a');"
                        (escape-single-quote str))))
 
 (defscript
