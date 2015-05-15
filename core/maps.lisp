@@ -267,6 +267,9 @@
   (set-active-maps b '(:follow :prompt))
   (ui-update b :prompt-enter ""))
 
+(defkey :follow "RET" (b)
+  (js 'hints b "selectFirst();"))
+
 (defkey :top "u" (b)
   "'unclose' tab"
   (ui-update b :notify "Implement unclose tab"))

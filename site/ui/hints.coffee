@@ -85,6 +85,7 @@ class Hints extends Backbone.Collection
                 model.set 'incompleteHint', ''
         shown = @visible()
         @setSelected()
+        actOnHint @selected() if shown.length is 1
     clear: => @remove @models
 
 numberToHint = (n, total) ->
@@ -130,4 +131,8 @@ window.processData = (jsonStr) ->
         winWidth: data.winWidth
     hints.collection.setSelected()
 
+actOnHint = (hint) ->
+    console.log JSON.stringify hint.toJSON()
 
+window.selectFirst = ->
+    actOnHint hints.collection.selected()
