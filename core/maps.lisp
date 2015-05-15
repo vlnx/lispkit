@@ -245,6 +245,7 @@
         (t uri))))))
 
 (defun follow-invoke (b)
+  "Send hint data to the hints layer"
   (when (string= (js 'current-tab b
                      "(window._getHintData === undefined) ? 'not' : 'there';"
                      :want-return t)
@@ -256,6 +257,7 @@
                (js 'current-tab b
                    "_getHintData()" :want-return t)))))
 
+;; XXX: should refresh hints for current selectors
 (setf (getf *hooks* :scroll-action)
       (list #'(lambda (b)
                 (if (member :follow (active-maps (browser-key-state b)))
@@ -263,9 +265,11 @@
 
 (defkey :top "f" (b)
   "Start follow 'mode'"
-  (follow-invoke b)
+  ;; Prompt line will change vertically centered elements
+  ;; so give it a chance to update
   (set-active-maps b '(:follow :prompt))
-  (ui-update b :prompt-enter ""))
+  (ui-update b :prompt-enter "")
+  (follow-invoke b))
 
 (defkey :follow "RET" (b)
   (js 'hints b "selectFirst();"))

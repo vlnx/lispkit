@@ -78,8 +78,8 @@ class Hints extends Backbone.Collection
     filterHints: (str) =>
         @each (model) ->
             if S(model.get 'hint').startsWith str
-                model.set 'incompleteHint', str
                 model.show()
+                model.set 'incompleteHint', str
             else
                 model.hide()
                 model.set 'incompleteHint', ''
