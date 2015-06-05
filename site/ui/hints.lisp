@@ -10,10 +10,14 @@
 (defexport send-prompt-close (b)
   (js 'status b "bar.prompt.close()"))
 
+(defexport yank-string (b str)
+  (yank-string b str))
+
 (defscript
   :exact-uri (ui-symbol-to-uri 'hints)
   :exports '(send-click-to-current-tab
-             send-prompt-close)
+             send-prompt-close
+             yank-string)
   :scripts '(:browserify ((ui/deps ()))
              :coffee ((ui/hints (:closure nil))))
   :ui-base-html 'ui/hints

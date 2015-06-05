@@ -286,6 +286,9 @@
 (defkey :top "f" (b)
   (enter-follow-mode b "Click: " :selectors "clickable" :evaluator "click"))
 
+(defkey :top ", y" (b)
+  (enter-follow-mode b "Yank: " :selectors "uri" :evaluator "yank"))
+
 (defkey :follow "RET" (b)
   (js 'hints b "selectFirst();"))
 

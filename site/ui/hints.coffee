@@ -136,8 +136,11 @@ window.processData = (evaluator, jsonStr) ->
     hints.collection.setSelected()
 
 actOnHint = (hint) ->
-    if window.evaluator is 'click'
-        Exported.sendClickToCurrentTab JSON.stringify hint.toJSON()
+    switch window.evaluator
+        when 'click'
+            Exported.sendClickToCurrentTab JSON.stringify hint.toJSON()
+        when 'yank'
+            Exported.yankString hint.get 'href'
     Exported.sendPromptClose()
 
 window.selectFirst = ->
