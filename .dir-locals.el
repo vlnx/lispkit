@@ -1,5 +1,9 @@
 ;; Project local keys/functions
 ((nil . ((eval . (progn
+                   (add-to-list 'projectile-other-file-alist '("lisp" "coffee" "jade" "stylus"))
+                   (add-to-list 'projectile-other-file-alist '("coffee" "lisp" "jade" "stylus"))
+                   (add-to-list 'projectile-other-file-alist '("jade" "stylus" "coffee" "lisp"))
+                   (add-to-list 'projectile-other-file-alist '("stylus" "jade" "coffee" "lisp"))
                    (local-set-key [f1] 'slime-restart-inferior-lisp)
                    (local-set-key [f2] 'lispkit-debug)
                    (local-set-key [f3] 'lispkit-reload-ui-tabs)
