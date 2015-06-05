@@ -108,11 +108,14 @@
    b (format nil "open ~a"
              (property (tab-view (current-tab b)) :uri))))
 
+(defun yank-string (b str)
+  "Yank the a string into the primary selection"
+  (x11-selection :primary str)
+  (ui-update b :notify (format nil "Yanked: ~a" str)))
+
 (defkey :top "y" (b)
   "Yank the current uri into the primary selection"
-  (let ((uri (property (tab-view (current-tab b)) :uri)))
-    (x11-selection :primary uri)
-    (ui-update b :notify (format nil "Yanked uri: ~a" uri))))
+  (yank-string b (property (tab-view (current-tab b)) :uri)))
 
 (defkey :top "t" (b)
   (open-command-prompt-with b "tabopen "))
