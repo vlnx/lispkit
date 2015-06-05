@@ -96,13 +96,27 @@
     (transcompile :type type
                   :file file)))
 
+(defun coffee-template (template &rest plist)
+  "Use a template system to insert strings into coffeescript output.
+'{{{name}}}' will be replaced by the value of the key `:name'"
+  (let ((js-str (resource-content 
+                 (prepend-string-on-to-symbol "util-templates/"
+                                              template)
+                 'coffee)))
+    (loop for item in (pair-plist plist)
+       do (setf js-str (ppcre:regex-replace-all 
+                        (format nil "{{{~a}}}"
+                                (string-downcase (princ-to-string
+                                                  (car item))))
+                        js-str
+                        (escape-single-quote
+                         (princ-to-string (cadr item))))))
+    js-str))
+
 (defun get-js-to-apply-css (css)
   "Given the css, return the js to apply it"
-  (let ((template
-         (resource-content 'util-templates/apply-css 'coffee))
-        (css-one-line
-         (escape-single-quote (ppcre:regex-replace-all "\\n" css " "))))
-    (ppcre:regex-replace-all "{{{snip}}}" template css-one-line)))
+  (coffee-template 'apply-css
+                   :snip (ppcre:regex-replace-all "\\n" css " ")))
 
 ;; somehow per page load connected to a view, have status of applied scripts
 (defun invoke-scripts (view scripts)
