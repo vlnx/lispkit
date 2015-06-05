@@ -275,13 +275,16 @@
                                    :selectors *follow-mode-last-selector*
                                    :evaluator *follow-mode-last-evaluator*)))))
 
-(defkey :top "f" (b)
+(defun enter-follow-mode (b phrase &key selectors evaluator)
   "Start follow 'mode'"
   ;; Prompt line will change vertically centered elements
-  ;; so give it a chance to update
+  ;; so give it a chance to update by opening the bar before hinting
   (set-active-maps b '(:follow :prompt))
-  (ui-update b :prompt-enter "")
-  (follow-invoke b :selectors "clickable" :evaluator "click"))
+  (ui-update b :prompt-enter `(:content "" :phrase ,phrase))
+  (follow-invoke b :selectors selectors :evaluator evaluator))
+
+(defkey :top "f" (b)
+  (enter-follow-mode b "Click: " :selectors "clickable" :evaluator "click"))
 
 (defkey :follow "RET" (b)
   (js 'hints b "selectFirst();"))
