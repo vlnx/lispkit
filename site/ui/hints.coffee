@@ -132,7 +132,8 @@ window.processData = (jsonStr) ->
     hints.collection.setSelected()
 
 actOnHint = (hint) ->
-    console.log JSON.stringify hint.toJSON()
+    Exported.sendClickToCurrentTab JSON.stringify hint.toJSON()
+    Exported.sendPromptClose()
 
 window.selectFirst = ->
     actOnHint hints.collection.selected()
