@@ -4,8 +4,10 @@ class Prompt extends Backbone.View
     id: 'prompt'
     input: new (require './input.coffee')
     history: new (require './history.coffee')
-    open: (startingInput) =>
+    open: (startingInput, promptPhrase) =>
         $(@el).show()
+        if promptPhrase isnt ''
+            @input.model.set 'promptPhrase', promptPhrase
         @input.insert "#{startingInput or ''}"
         @trigger 'adjustHeight'
     close: =>

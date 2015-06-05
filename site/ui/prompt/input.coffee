@@ -2,6 +2,7 @@ class Input extends Backbone.Model
     defaults:
         content: ''
         position: 0
+        promptPhrase: ':'
 
     limits: (value) =>
         value = Number value
@@ -45,7 +46,7 @@ class InputView extends Backbone.View
     model: new Input
 
     template: jade.compile '''
-    span#promptChar :
+    span#promptPhrase #{phrase}
     span #{before}
     span#cursor #{over}
     span #{rest}
@@ -55,6 +56,7 @@ class InputView extends Backbone.View
             before: @model.before()
             over: @model.activeChar()
             rest: @model.after()
+            phrase: @model.get 'promptPhrase'
         return this
 
     initialize: =>
@@ -64,8 +66,7 @@ class InputView extends Backbone.View
 
     clearLine: =>
         @model.changeIntended()
-        @model.set 'content', ''
-        @model.set 'position', 0
+        @model.set @model.defaults
 
     # Insert `str` at `position`, set position to after inserted string
     insert: (str) =>

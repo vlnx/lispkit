@@ -31,9 +31,15 @@
       (format nil "bar.prompt.input.insert('~a');"
               (escape-single-quote str))))
 
-(defmethod ui-update (browser (sym (eql :prompt-enter)) str)
-  (js 'status browser
-      (format nil "bar.prompt.open('~a');" (escape-single-quote str))))
+(defmethod ui-update (browser (sym (eql :prompt-enter)) arg)
+  (let ((content arg) (phrase ""))
+    (if (listp arg)
+        (setf content (getf arg :content) 
+              phrase (getf arg :phrase)))
+    (js 'status browser
+        (format nil "bar.prompt.open('~a','~a');"
+                (escape-single-quote content)
+                (escape-single-quote phrase)))))
 
 (defmethod ui-update (browser (sym (eql :prompt-leave)) val)
   (js 'status browser "bar.prompt.close();"))
