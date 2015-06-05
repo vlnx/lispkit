@@ -1,4 +1,10 @@
-window._getHintData = ->
+window._getHintDataForSelectors = (selectorsName) ->
+
+    selectors =
+        clickable: 'a, area, textarea, select, input:not([type=hidden]), button'
+
+    elements = document.querySelectorAll selectors[selectorsName]
+    
     data =
         elements: []
         scrollX: document.defaultView.scrollX
@@ -14,7 +20,7 @@ window._getHintData = ->
         if vis then vis = e.y > 0
         return vis
 
-    for element in (document.querySelectorAll 'a')
+    for element in elements
         sizes = element.getClientRects()[0]
         if sizes?
             elementData =
@@ -29,4 +35,3 @@ window._getHintData = ->
 
 # href: element.href
 # text: element.textContent
-

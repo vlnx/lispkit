@@ -117,7 +117,10 @@ class HintsView extends Backbone.View
 
 window.hints = new HintsView()
 
-window.processData = (jsonStr) ->
+window.evaluator = ''
+    
+window.processData = (evaluator, jsonStr) ->
+    window.evaluator = evaluator
     console.log jsonStr
     data = JSON.parse jsonStr
     hints.collection.set _.map data.elements, (h) ->
@@ -132,7 +135,8 @@ window.processData = (jsonStr) ->
     hints.collection.setSelected()
 
 actOnHint = (hint) ->
-    Exported.sendClickToCurrentTab JSON.stringify hint.toJSON()
+    if window.evaluator is 'click'
+        Exported.sendClickToCurrentTab JSON.stringify hint.toJSON()
     Exported.sendPromptClose()
 
 window.selectFirst = ->

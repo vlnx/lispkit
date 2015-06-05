@@ -244,24 +244,33 @@
         ;; Haven't implemented subdomain removal
         (t uri))))))
 
-(defun follow-invoke (b)
+(defvar *follow-mode-last-selector* nil)
+(defvar *follow-mode-last-evaluator* nil)
+
+(defun follow-invoke (b &key selectors evaluator)
   "Send hint data to the hints layer"
+  (setf *follow-mode-last-selector* selectors
+        *follow-mode-last-evaluator* evaluator)
   (when (string= (js 'current-tab b
-                     "(window._getHintData === undefined) ? 'not' : 'there';"
+                     "(window._getHintDataForSelectors === undefined) ? 'not' : 'there';"
                      :want-return t)
                  "not")
     (js 'current-tab b (resource-content 'ui/client 'coffee)))
   (js 'hints b
-      (format nil "processData('~a')"
+      (format nil "processData('~a', '~a')"
+              evaluator
               (escape-single-quote
                (js 'current-tab b
-                   "_getHintData()" :want-return t)))))
+                   (format nil "_getHintDataForSelectors('~a')"
+                           selectors)
+                   :want-return t)))))
 
-;; XXX: should refresh hints for current selectors
 (setf (getf *hooks* :scroll-action)
       (list #'(lambda (b)
                 (if (member :follow (active-maps (browser-key-state b)))
-                    (follow-invoke b)))))
+                    (follow-invoke b
+                                   :selectors *follow-mode-last-selector*
+                                   :evaluator *follow-mode-last-evaluator*)))))
 
 (defkey :top "f" (b)
   "Start follow 'mode'"
@@ -269,7 +278,7 @@
   ;; so give it a chance to update
   (set-active-maps b '(:follow :prompt))
   (ui-update b :prompt-enter "")
-  (follow-invoke b))
+  (follow-invoke b :selectors "clickable" :evaluator "click"))
 
 (defkey :follow "RET" (b)
   (js 'hints b "selectFirst();"))
