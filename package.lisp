@@ -54,7 +54,8 @@
    #:split-string
    #:x11-selection
    #:get-slot-names
-   #:get-all-slot-values))
+   #:get-all-slot-values
+   #:prepend-string-on-to-symbol))
 
 (defpackage :lispkit/transcompile
   (:use #:cl

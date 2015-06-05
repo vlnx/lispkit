@@ -23,9 +23,8 @@
 
 (defmacro defexport (symbol args &body body)
   "Define a function to that can be exported into the javascript context"
-  (let ((cb-name (as-symbol (concatenate 'string
-                                         "lisp-from-js/"
-                                         (symbol-to-string symbol))))
+  (let ((cb-name (prepend-string-on-to-symbol "lisp-from-js/"
+                                              symbol))
         (key (as-keyword symbol)))
     `(progn
 

@@ -108,3 +108,8 @@ at the end of STRING, we don't include a null sub-string for that. "
   (mapcar (lambda (name)
             (slot-value instance name))
           (get-slot-names instance)))
+
+(defun prepend-string-on-to-symbol (str symbol)
+  (as-symbol (concatenate 'string
+                          str
+                          (symbol-to-string symbol))))
