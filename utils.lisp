@@ -113,3 +113,10 @@ at the end of STRING, we don't include a null sub-string for that. "
   (as-symbol (concatenate 'string
                           str
                           (symbol-to-string symbol))))
+
+(defun pair-plist (plist)
+  "(:x 1 :y 2) -> ((:x 1) (:y 2))"
+  (loop
+     for key in (remove-if-not #'keywordp plist)
+     for val in (remove-if #'keywordp plist)
+     collect (list key val)))
