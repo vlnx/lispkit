@@ -289,6 +289,11 @@
 (defkey :top ", y" (b)
   (enter-follow-mode b "Yank: " :selectors "uri" :evaluator "yank"))
 
+(defkey :top "F" (b)
+  (enter-follow-mode b "background tab: "
+                     :selectors "uri" 
+                     :evaluator "background-tab"))
+
 (defkey :follow "RET" (b)
   (js 'hints b "selectFirst();"))
 

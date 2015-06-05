@@ -141,6 +141,8 @@ actOnHint = (hint) ->
             Exported.sendClickToCurrentTab JSON.stringify hint.toJSON()
         when 'yank'
             Exported.yankString hint.get 'href'
+        when 'background-tab'
+            Exported.newBackgroundTab hint.get 'href'
     Exported.sendPromptClose()
 
 window.selectFirst = ->
