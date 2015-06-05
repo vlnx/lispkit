@@ -132,6 +132,7 @@ window.processData = (evaluator, jsonStr) ->
         scrollY: data.scrollY
         winHeight: data.winHeight
         winWidth: data.winWidth
+        href: h.href or ''
     hints.collection.setSelected()
 
 actOnHint = (hint) ->

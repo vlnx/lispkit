@@ -2,9 +2,10 @@ window._getHintDataForSelectors = (selectorsName) ->
 
     selectors =
         clickable: 'a, area, textarea, select, input:not([type=hidden]), button'
+        uri: 'a, area'
 
     elements = document.querySelectorAll selectors[selectorsName]
-    
+
     data =
         elements: []
         scrollX: document.defaultView.scrollX
@@ -28,10 +29,11 @@ window._getHintDataForSelectors = (selectorsName) ->
                 y: sizes.top
                 height: sizes.height
                 width: sizes.width
+            if selectorsName is 'uri'
+                elementData.href = element.href
             if inView elementData
                 data.elements.push elementData
 
     return JSON.stringify data
 
-# href: element.href
 # text: element.textContent
