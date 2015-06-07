@@ -136,6 +136,9 @@ complex logic deep inside webkit regarding visible content sizes"
 (defcfun "webkit_web_view_can_go_forward" :boolean
   (view pobject))
 
+(defcfun webkit-web-view-go-back-or-forward :void
+  (view pobject)
+  (step :int))
 
 ;; WebKitWebPolicyDecision
 (defcfun "webkit_web_policy_decision_download" :void

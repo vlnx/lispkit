@@ -319,3 +319,12 @@
 (defkey :top "g d" (b)
   "Act on the *download-queue*"
   (ui-update b :notify "todo create prompt mode for download management"))
+
+(defkey :top "H" (b)
+  "Try to go back one page"
+  (webkit-web-view-go-back-or-forward (tab-view (current-tab b))
+                                      -1))
+(defkey :top "L" (b)
+  "Try to go forward one page"
+  (webkit-web-view-go-back-or-forward (tab-view (current-tab b))
+                                      1))
