@@ -77,10 +77,9 @@
    #:define-key
    #:make-kmap
    #:print-key
-   #:lookup-key
+   #:lookup-keys
    #:create-xic
    #:process-gdk-event->key
-   #:default-action-in-kmap
    #:key-equalp
    #:key-character-p))
 

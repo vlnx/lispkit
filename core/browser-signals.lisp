@@ -14,12 +14,13 @@ output => list of kmaps"
 (defun keys-actions-invoke (kmap-names key browser)
   "Run commands for the key"
   (let* ((kmaps (active-map-names-to-kmaps kmap-names))
-         (command (lookup-key kmaps key
-                              (key-buffer
-                               (browser-key-state browser)))))
+         (command (lookup-keys kmaps
+                               (append (key-buffer
+                                        (browser-key-state browser))
+                                       (listify key)))))
     (if command
         (run-hook :key-non-default-action browser)
-        (setf command (default-action-in-kmap kmaps)))
+        (setf command (lookup-keys kmaps t)))
     (if command
         (funcall command browser key)
         (dmesg "Key pressed in a map with no default mapping"))))
