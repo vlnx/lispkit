@@ -49,33 +49,24 @@ Return a 'binding' structure that matches"
         :key #'binding-keys
         :test #'keys-equalp))
 
-
-(defun parse-mods (mods end)
-  "MODS is a sequence of <MOD CHAR> #\- pairs. Return a list suitable
-for passing as the last argument to (apply #'make-key ...)"
-  (unless (evenp end)
-    (signal 'kbd-parse-error :string mods))
-  (apply #'nconc (loop for i from 0 below end by 2
-                    if (char/= (char mods (1+ i)) #\-)
-                    do (signal 'kbd-parse)
-                    collect (case (char mods i)
-                              (#\M (list :meta t))
-                              (#\A (list :alt t))
-                              (#\C (list :control t))
-                              (#\H (list :hyper t))
-                              (#\s (list :super t))
-                              (#\S (list :shift t))))))
-
 (defun parse-key (string)
-  "Parse STRING and return a key structure. Raise an error of type
-kbd-parse if the key failed to parse."
-  (let* ((p (when (> (length string) 2)
-              (position #\- string :from-end t :end (- (length string) 1))))
-         (mods (parse-mods string (if p (1+ p) 0)))
-         (char (string-to-char (subseq string (if p (1+ p) 0)))))
-    (if char
-        (apply 'make-key :char char mods)
-        (signal 'kbd-parse-error :string string))))
+  "Parse `string' into a key structure."
+  (let* ((seq (ppcre:split "-" string))
+         (mods
+          (apply #'nconc
+                 (mapcar (lambda (mod)
+                           (case (string-to-char mod)
+                             (#\M '(:meta t))
+                             (#\A '(:alt t))
+                             (#\C '(:control t))
+                             (#\H '(:hyper t))
+                             (#\s '(:super t))
+                             (#\S '(:shift t))
+                             (t (error "unknown mod"))))
+                         (butlast seq))))
+         (char
+          (string-to-char (car (last seq)))))
+    (apply 'make-key :char char mods)))
 
 (defun kbd (key)
   "Give a list of the keys that make up the string"
