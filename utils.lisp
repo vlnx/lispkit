@@ -63,6 +63,7 @@ If the previous index would be negative, move to end of the list.
   "SBCL way to get a list of the slots a class contains"
   (mapcar #'sb-pcl:slot-definition-name
           (sb-pcl:class-slots (class-of instance))))
+
 (defun get-all-slot-values (instance)
   (mapcar (lambda (name)
             (slot-value instance name))

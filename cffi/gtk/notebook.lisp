@@ -44,7 +44,8 @@
   (page-num :int))
 
 (defmethod gconstructor ((notebook notebook)
-                         &rest rest &key (show-tabs t) (show-border t))
+                         &rest rest
+                         &key (show-tabs t) (show-border t))
   ""
   (declare (ignore rest))
   (let ((n (gtk-notebook-new)))

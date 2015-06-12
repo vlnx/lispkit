@@ -1,9 +1,8 @@
 (in-package :gtk-cffi)
 ;; GtkOverlay
 
-(export
- '(overlay
-   gtk-overlay-add-overlay))
+(export '(overlay
+          gtk-overlay-add-overlay))
 
 (defclass overlay (container) ())
 

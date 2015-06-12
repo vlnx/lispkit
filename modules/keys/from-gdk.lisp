@@ -2,7 +2,7 @@
 
 (defun create-xic (gdk-window)
   "Create the input context for a gdk window"
-  (if (null-pointer-p (x11-binding::c-set-locale 6 ""))
+  (if (null-pointer-p (c-set-locale 6 ""))
       (error "c-set-locale has failed"))
   (if (null-pointer-p (x-set-locale-modifiers ""))
       (error "x-set-locale-modifiers has failed"))
@@ -11,7 +11,9 @@
          (dis (gdk-cffi:gdk-x11-get-default-xdisplay))
          (xim (x-open-im dis (null-pointer) (null-pointer) (null-pointer)))
          (xic (x-create-ic xim
-                           "inputStyle" 1032 ; raw bitfield
+                           "inputStyle"
+                           '(:xim-pre-edit-nothing :xim-status-nothing)
+                           ;; 1032 ; raw bitfield
                            "clientWindow" xwin
                            ;; "focusWindow" xwin
                            (null-pointer))))
@@ -22,7 +24,7 @@
 (defun gdk-event->x-key-event (gdk-event)
   "Must run `foreign-free` on ret"
   ;; From `gtk_im_context_xim_filter_keypress`
-  (let ((key-event (foreign-alloc '(:struct x11-binding::x-key-event))))
+  (let ((key-event (foreign-alloc '(:struct x-key-event))))
     (with-foreign-slots ((gdk-cffi::send-event
                           gdk-cffi::window
                           gdk-cffi::time
@@ -44,7 +46,7 @@
                             x11-binding::state
                             x11-binding::keycode
                             x11-binding::same-screen)
-                           key-event (:struct x11-binding::x-key-event))
+                           key-event (:struct x-key-event))
         (setf x11-binding::type 2 ; KeyPress
               x11-binding::serial 0
               x11-binding::send-event gdk-cffi::send-event
@@ -72,7 +74,7 @@
       (with-foreign-objects ((buffer :unsigned-int (1+ buffer-size))
                              (sym :int) (status :int))
         (setf (mem-aref buffer :unsigned-int 0) 0)
-        (x11-binding:x-wc-lookup-string
+        (x-wc-lookup-string
          xic key-event
          buffer buffer-size
          sym status)

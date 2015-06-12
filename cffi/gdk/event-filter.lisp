@@ -1,7 +1,7 @@
 (in-package :gdk-cffi)
 
-(export 'gdk-window-add-filter)
-(export 'gdk-window-remove-filter)
+(export '(gdk-window-add-filter
+          gdk-window-remove-filter))
 
 (defcfun gdk-window-add-filter :void
   (window :pointer)

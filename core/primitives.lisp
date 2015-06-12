@@ -5,6 +5,7 @@
                                          (sb-ext:posix-getenv "XDG_CACHE_HOME")
                                          "/lispkit/")
   "The directory to store compiled scripts")
+
 (sb-ext:run-program "/bin/mkdir" (list "-p" *lispkit-cache-dir*))
 
 (defvar *site-dir* (concatenate 'string
@@ -19,13 +20,16 @@
   "A plist of map names to a kmap structure")
 
 (defvar *browser-current-index* 0)
+
 (defvar *browsers* nil
   "The list for the open browser instances, that contain top-level windows")
 
 (defun ui-scheme-p (uri)
   (ppcre:scan-to-strings "^ui://" uri))
+
 (defun ui-symbol-to-uri (symbol)
   (concatenate 'string "ui://" (string-downcase (symbol-name symbol))))
+
 (defun ui-scheme-uri-to-symbol (uri)
   (as-symbol (ppcre:regex-replace "^ui://" uri "")))
 

@@ -14,7 +14,8 @@
                             :output stdout)
         (sb-ext:run-program (car l)
                             (append (cdr l) (list file))
-                            :directory (directory-namestring (pathname file))
+                            :directory
+                            (directory-namestring (pathname file))
                             :output stdout))))
 
 (defun get-cached-location (filepath)
@@ -48,7 +49,6 @@ otherwise nil."
     (let ((in (open file)))
       (when in
         (loop for line = (read-line in nil)
-           ;; while line do (write line :stream output :escape nil))
            while line do (format output "~a~%" line))
         (close in)))))
 
@@ -67,7 +67,8 @@ Return the complied string"
       (write content :stream out :escape nil))
     content))
 
-(defun transcompiler (cmd &key string file (use-stdin t) cache-invalidation-files)
+(defun transcompiler (cmd &key string file
+                            (use-stdin t) cache-invalidation-files)
   (if string
       (with-output-to-string (output)
         (with-input-from-string (in string)
@@ -77,7 +78,8 @@ Return the complied string"
             (file-content-to-string ret)
             (compile-cached cmd file use-stdin)))))
 
-(defun transcompile (&key file string type cmd (use-stdin t) cache-invalidation-files)
+(defun transcompile (&key file string type cmd
+                       (use-stdin t) cache-invalidation-files)
   "Infer from optional arguments, pass on to transcompiler
 Examples:
     (transcompile :type 'coffee :string \"command arg\")
@@ -85,12 +87,13 @@ Examples:
     (transcompile :type 'browserify-coffee :file \"pathname\" :use-stdin nil)"
   (unless cmd
     (setf cmd
-          (if type
-              (getf *transcompilers* (as-keyword type))
-              (getf *transcompilers* (as-keyword
-                                      (as-symbol
-                                       (pathname-type (pathname file))))))))
+          (getf *transcompilers*
+                (as-keyword
+                 (if type type
+                     (as-symbol
+                      (pathname-type (pathname file))))))))
   (if string
       (transcompiler cmd :string string)
       (transcompiler cmd :file file :use-stdin use-stdin
-                     :cache-invalidation-files cache-invalidation-files)))
+                     :cache-invalidation-files
+                     cache-invalidation-files)))
