@@ -118,7 +118,7 @@ class HintsView extends Backbone.View
 window.hints = new HintsView()
 
 window.evaluator = ''
-    
+
 window.processData = (evaluator, jsonStr) ->
     window.evaluator = evaluator
     console.log jsonStr

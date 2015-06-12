@@ -284,14 +284,18 @@
   (follow-invoke b :selectors selectors :evaluator evaluator))
 
 (defkey :top "f" (b)
-  (enter-follow-mode b "Click: " :selectors "clickable" :evaluator "click"))
+  (enter-follow-mode b "click: "
+                     :selectors "clickable"
+                     :evaluator "click"))
 
 (defkey :top ", y" (b)
-  (enter-follow-mode b "Yank: " :selectors "uri" :evaluator "yank"))
+  (enter-follow-mode b "yank: "
+                     :selectors "uri"
+                     :evaluator "yank"))
 
 (defkey :top "F" (b)
   (enter-follow-mode b "background tab: "
-                     :selectors "uri" 
+                     :selectors "uri"
                      :evaluator "background-tab"))
 
 (defkey :follow "RET" (b)

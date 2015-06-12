@@ -30,7 +30,7 @@ window._getHintDataForSelectors = (selectorsName) ->
                 height: sizes.height
                 width: sizes.width
             if selectorsName is 'uri'
-                elementData.href = element.href
+                elementData.href = element.href # or element.src
             if inView elementData
                 data.elements.push elementData
 

@@ -105,12 +105,12 @@
 (defun coffee-template (template &rest plist)
   "Use a template system to insert strings into coffeescript output.
 '{{{name}}}' will be replaced by the value of the key `:name'"
-  (let ((js-str (resource-content 
+  (let ((js-str (resource-content
                  (prepend-string-on-to-symbol "util-templates/"
                                               template)
                  'coffee)))
     (loop for item in (pair-plist plist)
-       do (setf js-str (ppcre:regex-replace-all 
+       do (setf js-str (ppcre:regex-replace-all
                         (format nil "{{{~a}}}"
                                 (string-downcase (princ-to-string
                                                   (car item))))

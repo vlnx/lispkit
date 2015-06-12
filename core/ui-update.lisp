@@ -34,7 +34,7 @@
 (defmethod ui-update (browser (sym (eql :prompt-enter)) arg)
   (let ((content arg) (phrase ""))
     (if (listp arg)
-        (setf content (getf arg :content) 
+        (setf content (getf arg :content)
               phrase (getf arg :phrase)))
     (js 'status browser
         (format nil "bar.prompt.open('~a','~a');"

@@ -17,5 +17,3 @@ In slime session
     (require :lispkit)
     (in-package :lispkit)
     (main)
-
-

@@ -23,7 +23,7 @@ class Completion extends Menu
             []
     list: =>
         _.filter @modeOptions(), (name) =>
-            @promptVisible() and 
+            @promptVisible() and
             (S(name).startsWith @prompt.input.model.firstWord()) and
             (name isnt @prompt.input.model.firstWord())
 
