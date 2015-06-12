@@ -2,39 +2,23 @@
 
 (define-foreign-library x11
     (:unix "libX11.so"))
+
 (use-foreign-library x11)
 
 (export '(x-filter-event
-          xevent-union
           x-wc-lookup-string
           x-key-event
-          x-any-event
           x-open-im
+          c-set-locale
           x-set-locale-modifiers
-          ;; x-display-of-im
           x-create-ic
-          x-open-display
-          x-key-press))
+          xic-focus))
 
-
-;; man page it
+;; `man 3 XFilterEvent`
 (defcfun ("XFilterEvent" x-filter-event) :boolean
   (event :pointer)
   (zero-to-use-event-window :int))
-;; (window :pointer)) ; if nil will rely on window slot of xanyevent
 
-
-
-(defcunion xevent
-  (type :int)
-  (pad :long :count 24))
-;; (any :pointer))
-(defcstruct x-any-event
-  (type :int)
-  (serial :unsigned-long)
-  (send-event :boolean)
-  (display :pointer)
-  (window :pointer))
 (defcstruct x-key-event
   (type :int)
   (serial :unsigned-long)
@@ -60,39 +44,36 @@
   (key-sym :pointer)
   (status :pointer))
 
-
 (defcfun ("XSetLocaleModifiers" x-set-locale-modifiers) :pointer
   (modifier-str c-string))
 
-;; http://stackoverflow.com/questions/6256179/how-can-i-find-the-value-of-lc-xxx-locale-integr-constants-so-that-i-can-use-the
 (defcfun ("setlocale" c-set-locale) :pointer
   (con :int)
   (modifier-str c-string))
 
-(defcfun ("XOpenDisplay" x-open-display) :pointer
-  (something :pointer))
 (defcfun ("XOpenIM" x-open-im) :pointer
   (display :pointer)
-  (something-1 :pointer)
-  (something-2 :pointer)
-  (something-3 :pointer))
+  (xrm-database :pointer)
+  (res-name :pointer)
+  (res-class :pointer))
 
-;; (defbitfield xim-styles
-;;   (:xim-pre-edit-nothing #x0008)
-;;   (:xim-status-nothing #x0400))
-;; Bitfield BitOr
+(defbitfield xim-styles
+  (:xim-pre-edit-nothing #x0008)
+  (:xim-status-nothing #x0400))
 ;; #define XIMPreeditNothing   0x0008L
 ;; #define XIMStatusNothing    0x0400L
-;; 0x0008 | 0x0400 => 1032 in decimal
+
 (defcfun ("XCreateIC" x-create-ic) :pointer
   (xim :pointer)
-  (input-style c-string) (styles :int) ; (input-style c-string) (styles xim-styles)
+  (input-style c-string)
+  (styles xim-styles)
   (client c-string) (win-ref-1 :pointer)
   ;; (focus c-string) (win-ref-2 :pointer)
   (terminate :pointer))
 
 (defcfun ("XSetICFocus" x-ic-set-focus) :pointer
   (xic :pointer))
+
 (defcfun ("XUnsetICFocus" x-ic-unset-focus) :pointer
   (xic :pointer))
 
