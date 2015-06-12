@@ -49,8 +49,7 @@
    #:as-keyword
    #:as-symbol
    #:symbol-to-string
-   #:circular-index-next
-   #:circular-index-prev
+   #:circular-index
    #:x11-selection
    #:get-slot-names
    #:get-all-slot-values

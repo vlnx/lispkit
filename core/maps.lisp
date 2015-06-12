@@ -189,14 +189,16 @@
 (defkey :top "g t" (b)
   "Next tab"
   (setf (browser-tabs-current-index b)
-        (circular-index-next (browser-tabs-current-index b)
-                             (browser-tabs b))))
+        (circular-index :next
+                        (browser-tabs-current-index b)
+                        (browser-tabs b))))
 
 (defkey :top "g T" (b)
   "Previous tab"
   (setf (browser-tabs-current-index b)
-        (circular-index-prev (browser-tabs-current-index b)
-                             (browser-tabs b))))
+        (circular-index :prev
+                        (browser-tabs-current-index b)
+                        (browser-tabs b))))
 
 (defkey :top "d" (b)
   "Delete tab"
