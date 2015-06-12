@@ -79,7 +79,7 @@ kbd-parse if the key failed to parse."
 
 (defun kbd (key)
   "Give a list of the keys that make up the string"
-  (mapcar #'parse-key (split-string key " ")))
+  (mapcar #'parse-key (ppcre:split " " key)))
 
 ;;; Define and lookup through the structure
 (defun define-key (map keys command)

@@ -51,7 +51,6 @@
    #:symbol-to-string
    #:circular-index-next
    #:circular-index-prev
-   #:split-string
    #:x11-selection
    #:get-slot-names
    #:get-all-slot-values
