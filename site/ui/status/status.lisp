@@ -50,15 +50,7 @@
              filter-hints
              download)
   :scripts '(:browserify ((ui/deps ())
-                          (ui/status (ui/bar/main
-                                      ui/bar/history
-                                      ui/bar/keymode
-                                      ui/bar/progress
-                                      ui/bar/tabs
-                                      ui/bar/uri
-                                      ui/prompt/main
-                                      ui/prompt/input
-                                      ui/prompt/commands)))
+                          (ui/status/ ())) ; just use `make watch-status`
              :coffee ())
-  :ui-base-html 'ui/status
-  :styles 'ui/status)
+  :ui-base-html 'ui/status/
+  :styles 'ui/status/)

@@ -19,6 +19,6 @@
   :exports '(tabbar-request-height
              tabs-init)
   :scripts '(:browserify ((ui/deps ()))
-             :coffee ((ui/tabs (:closure nil))))
-  :ui-base-html 'ui/tabs
-  :styles 'ui/tabs)
+             :coffee ((ui/tabs/ (:closure nil))))
+  :ui-base-html 'ui/tabs/
+  :styles 'ui/tabs/)

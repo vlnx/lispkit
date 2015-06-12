@@ -80,12 +80,18 @@
 
 (defun resource-location (symbol-path type)
   "Get the path of a resource from a relative symbol-path and file type"
-  (let ((file (concatenate 'string *site-dir*
-                           (symbol-to-string symbol-path)
-                           (case type
-                             (jade ".jade")
-                             (stylus ".stylus")
-                             (coffee ".coffee")))))
+  (let* ((relative
+          ;; If there is a trailing slash,
+          ;; take the last directory and add it as a basename
+          (ppcre:regex-replace "(\\w+)/$"
+                               (symbol-to-string symbol-path)
+                               "\\1/\\1"))
+         (file (concatenate 'string *site-dir* relative
+                            (case type
+                              (lisp ".lisp")
+                              (jade ".jade")
+                              (stylus ".stylus")
+                              (coffee ".coffee")))))
     (if (probe-file file)
         file
         (error "resource file doesn't exist"))))
@@ -177,9 +183,7 @@ by *script-list* or provided argument"
   (setf *js-exports* '())
   (setf *uri-scripts* (make-uri-scripts))
   (mapcar (lambda (site)
-            (load (concatenate 'string
-                               *site-dir*
-                               (symbol-to-string site))))
+            (load (resource-location site 'lisp)))
           scripts))
 
 (defun (setf *script-list*) (value)

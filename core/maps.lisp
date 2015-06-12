@@ -258,7 +258,7 @@
                      "(window._getHintDataForSelectors === undefined) ? 'not' : 'there';"
                      :want-return t)
                  "not")
-    (js 'current-tab b (resource-content 'ui/client 'coffee)))
+    (js 'current-tab b (resource-content 'ui/hints/client 'coffee)))
   (js 'hints b
       (format nil "processData('~a', '~a')"
               evaluator

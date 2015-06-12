@@ -2,7 +2,7 @@
 
 (defexport send-click-to-current-tab (b json-string)
   (let ((json (json:decode-json-from-string json-string)))
-    (js 'current-tab b 
+    (js 'current-tab b
         (coffee-template 'send-click-to-position
                          :x (cdr (assoc :x json))
                          :y (cdr (assoc :y json))))))
@@ -23,6 +23,6 @@
              yank-string
              new-background-tab)
   :scripts '(:browserify ((ui/deps ()))
-             :coffee ((ui/hints (:closure nil))))
-  :ui-base-html 'ui/hints
-  :styles 'ui/hints)
+             :coffee ((ui/hints/ (:closure nil))))
+  :ui-base-html 'ui/hints/
+  :styles 'ui/hints/)
