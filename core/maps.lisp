@@ -132,7 +132,7 @@
 
 (defkey :prompt "S-Insert" (b)
   (ui-update b :prompt-insert
-             (x11-selection :primary t)))
+             (x11-selection :primary)))
 
 (defkey :prompt "SPC" (b)
   (ui-update b :prompt-insert " "))

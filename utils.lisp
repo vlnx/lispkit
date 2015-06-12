@@ -39,25 +39,25 @@ If the previous index would be negative, move to end of the list.
                  list-max
                  prev-index)))))
 
-(defun x11-selection (&key primary clipboard)
-  "Set/get selection using `xsel"
-  (flet ((setit (arg str)
+(defun x11-selection (buffer &optional value)
+  "Set/get selection using `xsel'"
+  (declare (type (member :primary :clipboard) buffer)
+           (type (or string null) value))
+  (flet ((set-it (arg str)
            (with-input-from-string (in str)
              (sb-ext:run-program "/usr/bin/xsel" (list arg)
                                  :input in)))
-         (getit (arg)
+         (get-it (arg)
            (with-output-to-string (out)
              (sb-ext:run-program "/usr/bin/xsel" (list arg)
                                  :output out))))
-    (cond
-      ((stringp primary)
-       (setit "-pi" primary))
-      (primary
-       (getit "-po"))
-      ((stringp clipboard)
-       (setit "-bi" clipboard))
-      (clipboard
-       (getit "-bo")))))
+    (case buffer
+      (:primary (if value
+                    (set-it "-pi" value)
+                    (get-it "-po")))
+      (:clipboard (if value
+                      (set-it "-bi" value)
+                      (get-it "-bo"))))))
 
 (defun get-slot-names (instance)
   "SBCL way to get a list of the slots a class contains"
