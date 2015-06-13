@@ -54,7 +54,8 @@
    #:get-slot-names
    #:get-all-slot-values
    #:prepend-string-on-to-symbol
-   #:pair-plist))
+   #:pair-plist
+   #:dmesg))
 
 (defpackage :lispkit/transcompile
   (:use #:cl

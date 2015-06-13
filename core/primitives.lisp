@@ -52,11 +52,6 @@
   "A list of symbols to turn to strings and load lisp files
 from when appended to *site-dir*")
 
-(defun dmesg (str)
-  "debug message"
-  (print str)
-  (finish-output))
-
 (defvar *download-queue* nil
   "List of lists with the uri and intial suggested filename")
 

@@ -80,3 +80,8 @@ If the previous index would be negative, move to end of the list.
      for key in (remove-if-not #'keywordp plist)
      for val in (remove-if #'keywordp plist)
      collect (list key val)))
+
+(defun dmesg (str)
+  "debug message"
+  (print str)
+  (finish-output))
