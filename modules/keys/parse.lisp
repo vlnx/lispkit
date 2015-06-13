@@ -1,5 +1,4 @@
 (in-package :lispkit/keys)
-;; Parse
 
 (defvar *keysym-to-string*
   '(32 "SPC"
@@ -43,20 +42,22 @@
     #xffcf "F18"
     #xffd0 "F19"
     #xffd1 "F20")
-  "Map X11 keysyms, that don't have a character, to their string representation")
+  "X11 gives these keysyms that get translated to incorrect unicode
+characters when keys don't have a character representation.
+Map those to a string representation.")
 
 (defvar *string-to-keysym*
   (reverse *keysym-to-string*))
 
 (defun char-to-string (char)
-  "Map a char back to a string"
+  "Use `*keysym-to-string*' to translate a char to a string"
   (let ((n (getf *keysym-to-string* (char-code char))))
     (if n
         n
         (coerce (list char) 'string))))
 
 (defun string-to-char (string)
-  "Take a string and try to map it to a char"
+  "Use `*string-to-keysym*' to translate a string to a char"
   ;; getf doesn't work on strings
   (let ((n (member string *string-to-keysym* :test #'equal)))
     (if n
@@ -64,22 +65,24 @@
         (coerce string 'character))))
 
 (defun key-char-real-p (char)
-  "Test if the char is valid or if is in the keysym to char list"
+  "Test if the char is in `*keysym-to-string*'"
   (null (member (char-code char)
                 *keysym-to-string* :test #'equal)))
 
 (defun key-character-p (key)
-  "If the key has a character
-all key structures have a 'char' but here test if it is valid"
+  "Test if the key has a valid character slot"
   (key-char-real-p (key-char key)))
 
 (defun char-state->key (char state)
+  "Turn the char and gdk event state in to a key structure"
   (let ((shift (keywordp (find :shift state))))
     ;; only if the char is valid character
     (when (key-char-real-p char)
-      (if (upper-case-p char) ; if char is already up-shifted, remove shift mod
+      ;; if char is already up-shifted, remove shift mod
+      (if (upper-case-p char)
           (setf shift nil))
-      (if shift ; If shift, up-shift char
+      ;; If shift, up-shift char
+      (if shift
           (setf char (char-upcase char)
                 shift nil)))
     (make-key :char char
@@ -87,19 +90,15 @@ all key structures have a 'char' but here test if it is valid"
               :shift shift
               :meta (keywordp (find :mod1 state)))))
 
-(defun keysym-or-buffer->char (sym code)
-  "Convert and store the X11 keysym into a unicode character.
-It may map to a higher unicode character but that is handled by *keysym-to-string*"
-  ;; If control is pressed, the unicode code will transform it into a
-  ;; ascii control character, below code 32, space, in that case
-  ;; the sym should be low enough to be accurate
-  (if (< code 32)
-      (code-char sym)
-      (code-char code)))
+(defun keysym-or-buffer->char (keysym buffer)
+  "Choose if the `keysym' or `buffer' should be used for the char slot
+If control was held, the `buffer' may be an ascii control character,
+in that case the `keysym' should be low enough to be accurate"
+  (if (< buffer 32) ; ascii control codes stop at 32
+      (code-char keysym)
+      (code-char buffer)))
 
-
-;; gdk handles these when it passes state
-(defvar *ignore-mod-only-keysyms*
+(defvar *ignorable-keysyms*
   '(#xff20 "Multi_key"
     #xffe1 "Shift_L"
     #xffe2 "Shift_R"
@@ -114,7 +113,8 @@ It may map to a higher unicode character but that is handled by *keysym-to-strin
     #xffeb "Super_L"
     #xffec "Super_R"
     #xffed "Hyper_L"
-    #xffee "Hyper_R"))
+    #xffee "Hyper_R")
+  "Modifer keys, GDK informs of these when it passes the key state")
 
 (defun ignorable-keysym-p (sym)
-  (getf *ignore-mod-only-keysyms* sym))
+  (getf *ignorable-keysyms* sym))
