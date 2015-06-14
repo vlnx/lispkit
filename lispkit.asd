@@ -18,6 +18,7 @@
     :components ((:file "package")
                  (:file "utils")
 
+                 (:file "cffi/cffi-utils")
                  (:file "cffi/types")
                  (:file "cffi/gtk/main-loop-patch")
                  (:file "cffi/x11/input-method")
