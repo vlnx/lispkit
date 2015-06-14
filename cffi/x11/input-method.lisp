@@ -12,7 +12,8 @@
           c-set-locale
           x-set-locale-modifiers
           x-create-ic
-          xic-focus))
+          xic-focus
+          x-create-key-event))
 
 ;; `man 3 XFilterEvent`
 (defcfun ("XFilterEvent" x-filter-event) :boolean
@@ -35,6 +36,10 @@
   (state :unsigned-int)
   (keycode :unsigned-int)
   (same-screen :boolean))
+
+(defcstruct-keyword-setter
+    x-key-event
+    x-create-key-event)
 
 (defcfun ("XwcLookupString" x-wc-lookup-string) :unsigned-long
   (xic :pointer)

@@ -24,45 +24,35 @@
 (defun gdk-event->x-key-event (gdk-event)
   "Must run `foreign-free` on ret"
   ;; From `gtk_im_context_xim_filter_keypress`
-  (let ((key-event (foreign-alloc '(:struct x-key-event))))
-    (with-foreign-slots ((gdk-cffi::send-event
-                          gdk-cffi::window
-                          gdk-cffi::time
-                          gdk-cffi::state
-                          gdk-cffi::hardware-keycode)
-                         gdk-event (:struct gdk-cffi::event-key))
-      (with-foreign-slots ((x11-binding::type
-                            x11-binding::serial
-                            x11-binding::send-event
-                            x11-binding::display
-                            x11-binding::window
-                            x11-binding::root
-                            x11-binding::subwindow
-                            x11-binding::time
-                            x11-binding::x
-                            x11-binding::y
-                            x11-binding::x-root
-                            x11-binding::y-root
-                            x11-binding::state
-                            x11-binding::keycode
-                            x11-binding::same-screen)
-                           key-event (:struct x-key-event))
-        (setf x11-binding::type 2 ; KeyPress
-              x11-binding::serial 0
-              x11-binding::send-event gdk-cffi::send-event
-              x11-binding::display (gdk-cffi:gdk-x11-get-default-xdisplay)
-              x11-binding::window (gdk-cffi::gdk-x11-window-get-xid (pointer gdk-cffi::window))
-              x11-binding::root (gdk-cffi::gdk-x11-get-default-root-xwindow)
-              x11-binding::subwindow (gdk-cffi::gdk-x11-window-get-xid (pointer gdk-cffi::window))
-              x11-binding::time gdk-cffi::time
-              x11-binding::x 0
-              x11-binding::y 0
-              x11-binding::x-root 0
-              x11-binding::y-root 0
-              x11-binding::state (foreign-bitfield-value 'gdk-cffi::modifier-type gdk-cffi::state)
-              x11-binding::keycode gdk-cffi::hardware-keycode
-              x11-binding::same-screen t)))
-    key-event))
+  (with-foreign-slots ((gdk-cffi::send-event
+                        gdk-cffi::window
+                        gdk-cffi::time
+                        gdk-cffi::state
+                        gdk-cffi::hardware-keycode)
+                       gdk-event (:struct gdk-cffi::event-key))
+    (x-create-key-event :type 2 ; KeyPress
+                        :serial 0
+                        :send-event gdk-cffi::send-event
+                        :display
+                        (gdk-cffi:gdk-x11-get-default-xdisplay)
+                        :window
+                        (gdk-cffi::gdk-x11-window-get-xid
+                         (pointer gdk-cffi::window))
+                        :root
+                        (gdk-cffi::gdk-x11-get-default-root-xwindow)
+                        :subwindow
+                        (gdk-cffi::gdk-x11-window-get-xid
+                         (pointer gdk-cffi::window))
+                        :time (null-pointer) ; gdk-cffi::time is an int
+                        :x 0
+                        :y 0
+                        :x-root 0
+                        :y-root 0
+                        :state (foreign-bitfield-value
+                                'gdk-cffi::modifier-type
+                                gdk-cffi::state)
+                        :keycode gdk-cffi::hardware-keycode
+                        :same-screen t)))
 
 (defun process-gdk-event->key (gdk-key-event xic)
   (if (null-pointer-p xic)
