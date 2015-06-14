@@ -1,23 +1,26 @@
 (in-package :lispkit)
 
 (defun scroll-to (scrolled-window &key
-                                    x ; t or num
-                                    y ; t or num
+                                    x
+                                    y
                                     rel
                                     page ; if rel to page
                                     percent)
   "Examples:
     (scroll-to (tab-scroll (current-tab)) :y t :rel 20)
-    (scroll-to (tab-scroll (current-tab)) :x t :page t :rel 20)
+    (scroll-to (tab-scroll (current-tab)) :x t :rel t :page 0.5)
     (scroll-to (tab-scroll (current-tab)) :x 0)
     (scroll-to (tab-scroll (current-tab)) :x -1)"
+  (declare (type (or number boolean null) x y rel page)
+           (type (or number null) percent))
   (let* ((adj (if x
                   (vadjustment scrolled-window)
                   (hadjustment scrolled-window)))
          (val (cond
                 (rel (+ (property adj :value)
                         (if page
-                            (ceiling (* (property adj :page-size) page))
+                            (ceiling (* (property adj :page-size)
+                                        page))
                             rel)))
                 (percent (ceiling (* (property adj :upper)
                                      (/ percent 100))))
