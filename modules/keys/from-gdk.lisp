@@ -2,10 +2,10 @@
 
 (defun create-xic (gdk-window)
   "Create the input context for a gdk window"
-  (if (null-pointer-p (c-set-locale 6 ""))
-      (error "c-set-locale has failed"))
-  (if (null-pointer-p (x-set-locale-modifiers ""))
-      (error "x-set-locale-modifiers has failed"))
+  (when (null-pointer-p (c-set-locale 6 ""))
+    (error "c-set-locale has failed"))
+  (when (null-pointer-p (x-set-locale-modifiers ""))
+    (error "x-set-locale-modifiers has failed"))
   ;; Window must be shown to retrieve x11 reference this way
   (let* ((xwin (gdk-cffi:gdk-x11-window-get-xid gdk-window))
          (dis (gdk-cffi:gdk-x11-get-default-xdisplay))
@@ -13,13 +13,13 @@
          (xic (x-create-ic xim
                            "inputStyle"
                            '(:xim-pre-edit-nothing :xim-status-nothing)
-                           ;; 1032 ; raw bitfield
                            "clientWindow" xwin
                            ;; "focusWindow" xwin
                            (null-pointer))))
-    (if (null-pointer-p xic)
-        (error "xic is null"))
+    (when (null-pointer-p xic)
+      (error "xic is null"))
     xic))
+
 
 (defun gdk-event->x-key-event (gdk-event)
   "Must run `foreign-free` on ret"
@@ -55,21 +55,22 @@
                         :same-screen t)))
 
 (defun process-gdk-event->key (gdk-key-event xic)
-  (if (null-pointer-p xic)
-      (error "xic is null"))
+  (when (null-pointer-p xic)
+    (error "xic is null"))
   (let ((key-event (gdk-event->x-key-event gdk-key-event))
         (buffer-size 512)
         key)
     (unless (x-filter-event key-event 0)
       (with-foreign-objects ((buffer :unsigned-int (1+ buffer-size))
-                             (sym :int) (status :int))
+                             (sym :int)
+                             (status :int))
         (setf (mem-aref buffer :unsigned-int 0) 0)
-        (x-wc-lookup-string
-         xic key-event
-         buffer buffer-size
-         sym status)
-        ;; (print (mem-ref status :int))
-        ;; (print (gdk-cffi::parse-event gdk-key-event :hardware-keycode))
+        (x-wc-lookup-string xic
+                            key-event
+                            buffer
+                            buffer-size
+                            sym
+                            status)
         (unless (ignorable-keysym-p (mem-ref sym :int))
           (setf key
                 (char-state->key
