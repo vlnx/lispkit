@@ -140,91 +140,77 @@
 ;; Maybe macro this down but it's manageable enough for now
 (defgeneric find-instance (of from widget))
 
-(defun find-instance-matchit (&key source test)
-  (let ((ret (first (delete-if #'null (mapcar test source)))))
-    (if ret
-        ret
-        (error "Unattached widget"))))
-
-(defmacro closure-return-input-if (arg test)
+(defmacro closure-return-input-when (arg test)
   `(lambda ,arg (when ,test ,(first arg))))
-;; (macroexpand-1 '(closure-return-input-if (n) (eq n 5)))
 
-(defmethod find-instance ((of (eql 'of-browser))
-                          (from (eql 'from-notebook)) widget)
-  (find-instance-matchit
-   :source *browsers*
-   :test (closure-return-input-if (browser)
-                                  (eq (widgets-notebook
-                                       (browser-gtk browser))
-                                      widget))))
+(defmacro find-instance-helper (lex test)
+  (let ((of (first lex))
+        (of-value (second (first lex)))
+        (from (second lex)))
+    `(defmethod find-instance ((of (eql ',(car of)))
+                               (from (eql ',(car from)))
+                               ,(second from))
+       (let* ((source ,(second of-value))
+              (test
+               (closure-return-input-when (,(first of-value))
+                                          ,test))
+              (ret (first (delete-if #'null (mapcar test source)))))
+         (unless ret
+           (error "Unattached widget"))
+         ret))))
 
-(defmethod find-instance ((of (eql 'of-browser))
-                          (from (eql 'from-window)) widget)
-  (find-instance-matchit
-   :source *browsers*
-   :test (closure-return-input-if (browser)
-                                  (eq (widgets-window
-                                       (browser-gtk browser))
-                                      widget))))
+(find-instance-helper ((of-browser (browser *browsers*))
+                       (from-notebook widget))
+  (eq (widgets-notebook (browser-gtk browser))
+      widget))
 
-(defmethod find-instance ((of (eql 'of-inspector))
-                          (from (eql 'from-inspector-pointer)) inspector-pointer)
-  (find-instance-matchit
-   :source (mapcar #'tab-inspector (browsers-all-tabs))
-   :test (closure-return-input-if (inspector)
-                                  (and inspector
-                                       (pointer-eq inspector-pointer
-                                                   (pointer (inspector-gobject inspector)))))))
+(find-instance-helper ((of-browser (browser *browsers*))
+                       (from-window widget))
+  (eq (widgets-window (browser-gtk browser))
+      widget))
 
-(defmethod find-instance ((of (eql 'of-tab))
-                          (from (eql 'from-inspector-window)) widget)
-  (find-instance-matchit
-   :source (browsers-all-tabs)
-   :test (closure-return-input-if (tab)
-                                  (and (tab-inspector tab)
-                                       (eq widget
-                                           (inspector-window
-                                            (tab-inspector tab)))))))
+(find-instance-helper ((of-inspector (inspector
+                                      (mapcar #'tab-inspector
+                                              (browsers-all-tabs))))
+                       (from-inspector-pointer inspector-pointer))
+  (and inspector
+       (pointer-eq inspector-pointer
+                   (pointer (inspector-gobject inspector)))))
 
-(defmethod find-instance ((of (eql 'of-browser))
-                          (from (eql 'from-view)) widget)
-  (find-instance-matchit
-   :source *browsers*
-   :test (closure-return-input-if (browser)
-                                  (member widget
-                                          (mapcar #'tab-view
-                                                  (browsers-all-tabs))))))
+(find-instance-helper ((of-tab (tab (browsers-all-tabs)))
+                       (from-inspector-window widget))
+  (and (tab-inspector tab)
+       (eq widget
+           (inspector-window (tab-inspector tab)))))
 
-(defmethod find-instance ((of (eql 'of-browser))
-                          (from (eql 'from-scrolled-window)) widget)
-  (find-instance-matchit
-   :source *browsers*
-   :test (closure-return-input-if (browser)
-                                  (member widget
-                                          (mapcar #'tab-scroll
-                                                  (browsers-all-tabs))))))
+(find-instance-helper ((of-browser (browser *browsers*))
+                       (from-view widget))
+  (member widget
+          (mapcar #'tab-view
+                  (browsers-all-tabs)))) ; review
 
-(defmethod find-instance ((of (eql 'of-tab))
-                          (from (eql 'from-view)) widget)
-  (find-instance-matchit
-   :source (browsers-all-tabs)
-   :test (closure-return-input-if (tab)
-                                  (eq widget
-                                      (tab-view tab)))))
+(find-instance-helper ((of-browser (browser *browsers*))
+                       (from-scrolled-window widget))
+  (member widget
+          (mapcar #'tab-scroll
+                  (browsers-all-tabs)))) ; review
 
-(defmethod find-instance ((of (eql 'of-tab))
-                          (from (eql 'from-scrolled-window)) widget)
-  (find-instance-matchit
-   :source (browsers-all-tabs)
-   :test (closure-return-input-if (tab)
-                                  (eq widget
-                                      (tab-scroll tab)))))
+(find-instance-helper ((of-tab (tab (browsers-all-tabs)))
+                       (from-view widget))
+  (eq widget
+      (tab-view tab)))
 
-(defmethod find-instance ((of (eql 'of-browser))
-                          (from (eql 'from-hints-view)) widget)
-  (find-instance-matchit
-   :source *browsers*
-   :test (closure-return-input-if (browser)
-                                  (eq (tab-view (ui-hints (browser-ui browser)))
-                                      widget))))
+(find-instance-helper ((of-tab (tab (browsers-all-tabs)))
+                       (from-scrolled-window widget))
+  (eq widget
+      (tab-scroll tab)))
+
+(find-instance-helper ((of-browser (browser *browsers*))
+                       (from-hints-view widget))
+  (eq (tab-view (ui-hints (browser-ui browser)))
+      widget))
+
+;; Local Variables:
+;; eval: (font-lock-add-keywords nil '(("(\\(find-instance-helper\\) " 1 font-lock-keyword-face t)))
+;; eval: (put 'find-instance-helper 'common-lisp-indent-function 1)
+;; End:
