@@ -30,7 +30,14 @@
                  (:file "cffi/gtk/notebook")
                  (:file "cffi/gtk/overlay")
                  (:file "cffi/libsoup/soup-uri")
-                 (:file "cffi/libwebkitgtk/webkit")
+
+                 (:file "cffi/libwebkitgtk/lib")
+                 (:file "cffi/libwebkitgtk/webview")
+                 (:file "cffi/libwebkitgtk/settings")
+                 (:file "cffi/libwebkitgtk/inspector")
+                 (:file "cffi/libwebkitgtk/policy")
+                 (:file "cffi/libwebkitgtk/download")
+
                  (:file "cffi/libjavascriptcoregtk/eval")
 
                  (:file "modules/transcompiler")
