@@ -17,3 +17,6 @@ to set the foreign slots of `struct-name' using a keyword list"
          struct))))
 
 (export 'defcstruct-keyword-setter)
+
+(defcallback true :boolean () t)
+(export 'true)

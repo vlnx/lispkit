@@ -47,9 +47,6 @@
 (defcfun webkit-web-view-get-transparent :boolean
   (view pobject))
 
-;; TODO: move to cffi-utils
-(defcallback true :boolean () t)
-
 (defun webview-hide-scrollbars (view scrolled-win)
   "Must be run before size-requests are made, otherwise will interfere with
 complex logic deep inside webkit regarding visible content sizes"
@@ -57,7 +54,7 @@ complex logic deep inside webkit regarding visible content sizes"
   (setf (gsignal (make-instance 'g-object :pointer
                                 (webkit-web-view-get-main-frame view))
                  "scrollbars-policy-changed")
-        (cffi:callback true))
+        (callback true))
   (setf (policy scrolled-win) '(:never :never)))
 
 (defcfun webkit-web-view-can-go-back :boolean
