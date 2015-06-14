@@ -8,7 +8,7 @@
    (make-instance 'browser
                   :initial-tabs (list
                                  "http://vlnx.lan/"
-                                 *uri-homepage*))))
+                                 *homepage*))))
 
 ;; When this is it's own sbcl core:
 ;; run-swank from etc-stumpwm

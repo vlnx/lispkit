@@ -70,7 +70,7 @@
               (uri-scripts-bindings *uri-scripts*))))
 
 ;; Setup transcompiler package
-(setf *transcompiler-cache-dir* *lispkit-cache-dir*)
+(setf *transcompiler-cache-dir* *cache-directory*)
 (setf *transcompilers*
       '(:coffee "/usr/bin/coffee --stdio --print --bare"
         :coffee-closure "/usr/bin/coffee --stdio --print"
@@ -86,7 +86,7 @@
           (ppcre:regex-replace "(\\w+)/$"
                                (symbol-to-string symbol-path)
                                "\\1/\\1"))
-         (file (concatenate 'string *site-dir* relative
+         (file (concatenate 'string *site-directory* relative
                             (case type
                               (lisp ".lisp")
                               (jade ".jade")

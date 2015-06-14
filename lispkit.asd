@@ -1,7 +1,11 @@
 (defpackage :lispkit-system
-  (:use #:cl #:asdf))
+  (:use #:cl #:asdf)
+  (:export *root-directory*))
 
 (in-package :lispkit-system)
+
+(defvar *root-directory* (directory-namestring *load-pathname*)
+  "The string of the root directory of the project")
 
 (defsystem :lispkit
     :name "LispKit"

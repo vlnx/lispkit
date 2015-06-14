@@ -92,7 +92,7 @@
        :documentation "The class for the view instances used in the interface")
    (tabs :accessor browser-tabs
          :initarg :initial-tabs
-         :initform (list *uri-homepage*)
+         :initform (list *homepage*)
          :documentation "Give initial tabs, then will be replaced with
                          the list of active tab instances")
    (tabs-current-index :accessor browser-tabs-current-index

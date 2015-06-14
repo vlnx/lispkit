@@ -51,11 +51,11 @@
 (defkey :top "g h" (b)
   "Go home"
   (webkit-web-view-load-uri
-   (tab-view (current-tab b)) *uri-homepage*))
+   (tab-view (current-tab b)) *homepage*))
 
 (defkey :top "g H" (b)
   "Open homepage in new tab"
-  (tab-new b *uri-homepage*))
+  (tab-new b *homepage*))
 
 ;; Scroll bindings
 (defvar *scroll-step* 40)

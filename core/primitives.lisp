@@ -1,63 +1,64 @@
 (in-package :lispkit)
-;; In general, use plists when useful, like not polluting the scope
 
-(defvar *lispkit-cache-dir* (concatenate 'string
-                                         (sb-ext:posix-getenv "XDG_CACHE_HOME")
-                                         "/lispkit/")
-  "The directory to store compiled scripts")
+(defvar *cache-directory*
+  (concatenate 'string
+               (sb-ext:posix-getenv "XDG_CACHE_HOME") "/lispkit/")
+  "Project's cache")
 
-(sb-ext:run-program "/bin/mkdir" (list "-p" *lispkit-cache-dir*))
+(unless (probe-file *cache-directory*)
+  (sb-ext:run-program "/bin/mkdir"
+                      (list "-p" *cache-directory*)))
 
-(defvar *site-dir* (concatenate 'string
-                                (sb-ext:posix-getenv "DEV_HOME")
-                                "/lispkit/site/")
-  "Path where all page modification data is located")
+(defvar *site-directory*
+  (concatenate 'string
+               lispkit-system:*root-directory* "site/")
+  "Location of page modification data")
 
-(defvar *uri-homepage* "http://vlnx.lan/startpage/"
-  "The homepage uri to load by default")
+(defvar *homepage* "http://vlnx.lan/startpage/"
+  "uri to start at and return to")
 
-(defvar *maps* '()
-  "A plist of map names to a kmap structure")
-
-(defvar *browser-current-index* 0)
+(defvar *maps* nil
+  "Property list of keymap names to keymap structures")
 
 (defvar *browsers* nil
-  "The list for the open browser instances, that contain top-level windows")
+  "list of open browser instances")
+
+(defvar *browser-current-index* 0
+  "index of the active window in the `*browsers*' list")
 
 (defun ui-scheme-p (uri)
   (ppcre:scan-to-strings "^ui://" uri))
 
 (defun ui-symbol-to-uri (symbol)
-  (concatenate 'string "ui://" (string-downcase (symbol-name symbol))))
+  (concatenate 'string "ui://"
+               (string-downcase (symbol-name symbol))))
 
 (defun ui-scheme-uri-to-symbol (uri)
   (as-symbol (ppcre:regex-replace "^ui://" uri "")))
 
-(defvar *hooks* '()
-  "The plist for hooks")
+(defvar *hooks* nil
+  "Property list of hook names to a list of hook functions")
 
 (defun run-hook (hook &rest args)
-  "Call each function in HOOK and pass args to it."
-  ;; NOTE: look to stumpwm to expand hooks
+  "Run each hook with the passed arguments"
   (dolist (fn (getf *hooks* hook))
     (apply fn args)))
 
 (defvar *uri-scripts* nil
-  "Global var for for uri to scripts structures")
+  "`uri-scripts' structure")
 
 (defvar *js-exports* nil
-  "plist of symbols to callback locations")
+  "Property list of exported function names to callback references")
 
 (defvar *script-list* nil
-  "A list of symbols to turn to strings and load lisp files
-from when appended to *site-dir*")
+  "Symbol list of files relative to `*site-directory*'")
 
 (defvar *download-queue* nil
-  "List of lists with the uri and intial suggested filename")
+  "List structure to hold data of requested downloads")
 
 (defun download-queue-add (&key uri suggested)
-  "Add to the download queue"
+  "Add to `*download-queue*'"
   (declare (type string uri suggested))
   (setf *download-queue* (append *download-queue*
-                                 (list (list uri suggested))))
+                                 `((,uri ,suggested))))
   (dmesg *download-queue*))
