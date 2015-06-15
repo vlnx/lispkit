@@ -17,43 +17,27 @@ in order to hide scrollbars; thus in WebKit1, allow any height in a shrink nil v
              (tab-scroll ui-tab)))
           (get-all-slot-values ui-views)))
 
-(defun proxy-overlay-mouse-events (overlay-content find-dest-widget)
+(defmacro proxy-overlay-mouse-events (overlay-content
+                                      find-dest-widget
+                                      &rest events)
   "Re-route/proxy button events from the transparent overlay
-to what is shown underneath, determined by #'find-dest-widget"
-  (labels ((prepend-for-scope (str)
-             (as-symbol (concatenate 'string
-                                     "overlay-content/"
-                                     str)))
-           (generate-and-set-cb (event-name)
-             (eval `(progn
-                      (defcallback ,(prepend-for-scope event-name) :boolean
-                          ((widget pobject)
-                           (event :pointer))
-                        (g-object-cffi:g-signal-emit-by-name
-                         (funcall ,find-dest-widget widget)
-                         ,event-name
-                         event g-object-cffi:*g-signal-emit-ret*)
-                        t)
-                      (setf (gsignal ,overlay-content ,event-name)
-                            (callback ,(prepend-for-scope event-name)))))))
-    (mapcar #'generate-and-set-cb
-            '("button-press-event"
-              "button-release-event"
-              "scroll-event"
-              "motion-notify-event" ; cursor doesn't change icon on hover
-              "enter-notify-event"
-              "leave-notify-event"
-              "key-press-event"
-              "key-release-event"
-              "drag-begin"
-              "drag-data-delete"
-              "drag-data-get"
-              "drag-data-received"
-              "drag-drop"
-              "drag-end"
-              "drag-failed"
-              "drag-leave"
-              "drag-motion"))))
+to what is shown underneath, determined by `find-dest-widget'"
+  (append '(progn)
+          (loop for event in events collect
+               (let ((event-str (symbol-to-string event))
+                     (event-cb (prepend-string-on-to-symbol
+                                "overlay-content/" event)))
+                 `(progn
+                    (defcallback ,event-cb :boolean
+                        ((widget pobject)
+                         (event :pointer))
+                      (g-object-cffi:g-signal-emit-by-name
+                       (funcall ,find-dest-widget widget)
+                       ,event-str
+                       event g-object-cffi:*g-signal-emit-ret*)
+                      t)
+                    (setf (gsignal ,overlay-content ,event-str)
+                          (callback ,event-cb)))))))
 
 (defmethod initialize-instance :after ((browser browser) &key)
   "Pack the widgets, created in the initforms"
@@ -72,7 +56,25 @@ to what is shown underneath, determined by #'find-dest-widget"
      (tab-view (ui-hints ui))
      (lambda (widget)
        (tab-view (current-tab
-                  (find-instance 'of-browser 'from-hints-view widget)))))
+                  (find-instance 'of-browser 'from-hints-view
+                                 widget))))
+     button-press-event
+     button-release-event
+     scroll-event
+     motion-notify-event ; cursor doesn't change icon on hover
+     enter-notify-event
+     leave-notify-event
+     key-press-event
+     key-release-event
+     drag-begin
+     drag-data-delete
+     drag-data-get
+     drag-data-received
+     drag-drop
+     drag-end
+     drag-failed
+     drag-leave
+     drag-motion)
 
     ;; Overlay
     (webkit-web-view-set-transparent (tab-view (ui-hints ui)) t)
