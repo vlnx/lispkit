@@ -59,28 +59,31 @@
 
 ;; Scroll bindings
 (defvar *scroll-step* 40)
-(mapcar (lambda (binding)
-          (eval `(defkey :scroll ,(first binding) (b)
-                   ,(second binding)
-                   (apply #'scroll-to (tab-scroll (current-tab b))
-                          ',(cddr binding)))))
-        `((("j" "Down") "Scroll down on the current page by the scroll-step"
-           :x t :rel ,*scroll-step*)
-          (("k" "Up") "Scroll up on the current page by the scroll-step"
-           :x t :rel ,(- *scroll-step*))
+(macrolet ((scroll (&rest bindings)
+             (append '(progn)
+                     (loop for binding in bindings collect
+                          `(defkey :scroll ,(first binding) (b)
+                             ,(second binding)
+                             (apply #'scroll-to
+                                    (tab-scroll (current-tab b))
+                                    (list ,@(cddr binding))))))))
+  (scroll (("j" "Down") "Scroll down by `*scroll-step*'"
+           :x t :rel *scroll-step*)
+          (("k" "Up") "Scroll up by `*scroll-step*'"
+           :x t :rel (- *scroll-step*))
           (("h" "Left") "Scroll to the left"
-           :y t :rel ,(- *scroll-step*))
+           :y t :rel (- *scroll-step*))
           (("l" "Right") "Scroll to the right"
-           :y t :rel ,*scroll-step*)
+           :y t :rel *scroll-step*)
           ("g g" "Scroll to the top of the page"
                  :x 0)
           ("G" "Scroll to the bottom of the page"
                :x -1)
-          ("SPC" "Scroll to down a page"
+          ("SPC" "Scroll down a page"
                  :x t :rel t :page 1)
-          ("C-u" "Scroll to up half a page"
+          ("C-u" "Scroll up half a page"
                  :x t :rel t :page -0.5)
-          ("C-d" "Scroll to down half a page"
+          ("C-d" "Scroll down half a page"
                  :x t :rel t :page 0.5)))
 
 (defun open-command-prompt-with (b starting-input)
