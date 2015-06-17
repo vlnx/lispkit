@@ -51,12 +51,12 @@
 
                  (:file "core/primitives")
                  (:file "core/browser-class")
+                 (:file "core/ui-update")
                  (:file "core/tabs")
                  (:file "core/webkitgtk-utils")
                  (:file "core/maps")
                  (:file "core/browser-signals")
                  (:file "core/browser-init")
-                 (:file "core/ui-update")
 
                  (:file "core/defexports")
                  (:file "core/defscripts")
