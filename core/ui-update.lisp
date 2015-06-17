@@ -150,6 +150,8 @@
                 zerobased-length))))
 
 (defmethod ui-update (browser (sym (eql :tabs-update-title)) tab)
+  ;; TODO: if the tab has an inspector
+  ;; append new title to the inspector window name
   (let ((order (position tab (browser-tabs browser)))
         (title (tab-title tab)))
     (when (and order title)

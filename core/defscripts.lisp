@@ -40,7 +40,8 @@
       *transcompilers*
       '(:coffee "/usr/bin/coffee --stdio --print --bare"
         :coffee-closure "/usr/bin/coffee --stdio --print"
-        :browserify-coffee "/usr/bin/browserify --transform coffeeify --debug" ; needs file
+        :browserify-coffee
+        "/usr/bin/browserify --transform coffeeify --debug"
         :jade "/usr/bin/jade --pretty"
         :stylus "/usr/bin/stylus --compress"))
 
