@@ -234,13 +234,6 @@ don't connect signals that update the status bar"
   ;; reached again, so start by loading some thing that can be reached again
   (webkit-web-view-load-uri view (parse-uri uri)))
 
-(defun parse-uri (maybe-uri)
-  "Return a uri that can be loaded by webkit"
-  ;; If nil or just doesn't contain :// go to a blank page
-  (if (ppcre:scan-to-strings "://" maybe-uri)
-      maybe-uri
-      (ui-symbol-to-uri 'blank)))
-
 (defun open-inspector (tab)
   (webkit-web-inspector-show (make-instance 'webview-inspector
                                             :view (tab-view tab))))

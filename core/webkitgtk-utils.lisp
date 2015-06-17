@@ -1,5 +1,12 @@
 (in-package :lispkit)
 
+(defun parse-uri (maybe-uri)
+  "Return a uri that can be loaded by webkit"
+  ;; If nil or just doesn't contain :// go to a blank page
+  (if (ppcre:scan-to-strings "://" maybe-uri)
+      maybe-uri
+      (ui-symbol-to-uri 'blank)))
+
 (defun scroll-to (scrolled-window &key
                                     x
                                     y
