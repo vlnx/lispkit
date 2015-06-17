@@ -35,14 +35,14 @@
 
 (setf (getf *hooks* :switch-page)
       (list #'(lambda (browser)
-                (ui-update browser :history t)
-                (ui-update browser :progress t)
-                (ui-update browser :scroll-indicator t)
-                (ui-update browser :link-hover "")
-                (ui-update browser
-                           :tabs-update-title (current-tab browser))
-                (ui-update browser :current-tab t)
-                (ui-update browser :uri t))))
+                (ui-updates browser
+                            :history t
+                            :progress t
+                            :scroll-indicator t
+                            :link-hover ""
+                            :tabs-update-title (current-tab browser)
+                            :current-tab t
+                            :uri t))))
 
 (defcallback notebook-switch-page :void
     ((notebook pobject)

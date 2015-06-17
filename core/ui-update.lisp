@@ -22,6 +22,11 @@
 
 (defgeneric ui-update (browser symbol value))
 
+(defmacro ui-updates (browser &rest plist)
+  (append '(progn)
+          (loop for item in (pair-plist plist)
+             collect `(ui-update ,browser ,@item))))
+
 (defun escape-single-quote (str)
   (ppcre:regex-replace-all "'" str "\\\\'"))
 

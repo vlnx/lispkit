@@ -23,12 +23,12 @@
   (run-hook :prompt-leave b))
 
 (defexport statusbar-init (b)
-  (ui-update b :uri t)
-  (ui-update b :scroll-indicator t)
-  (ui-update b :progress t)
-  (ui-update b :history t)
-  (ui-update b :keymode t)
-  (ui-update b :current-tab t))
+  (ui-updates b :uri t
+              :scroll-indicator t
+              :progress t
+              :history t
+              :keymode t
+              :current-tab t))
 
 (defexport quit ()
   (sb-ext:exit :abort t))

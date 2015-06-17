@@ -11,8 +11,8 @@
                 `(-1 ,height))))))
 
 (defexport tabs-init (b)
-  (ui-update b :tabs-reset-list t)
-  (ui-update b :current-tab t))
+  (ui-updates b :tabs-reset-list t
+              :current-tab t))
 
 (defscript (ui-symbol-to-uri 'tabs)
            :exports (tabbar-request-height
