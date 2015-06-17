@@ -16,13 +16,12 @@
 (defexport new-background-tab (b uri)
   (tab-new b uri :background t))
 
-(defscript
-  :exact-uri (ui-symbol-to-uri 'hints)
-  :exports '(send-click-to-current-tab
-             send-prompt-close
-             yank-string
-             new-background-tab)
-  :scripts '(:browserify ((ui/deps ()))
-             :coffee ((ui/hints/ (:closure nil))))
-  :ui-base-html 'ui/hints/
-  :styles 'ui/hints/)
+(defscript (ui-symbol-to-uri 'hints)
+           :exports (send-click-to-current-tab
+                     send-prompt-close
+                     yank-string
+                     new-background-tab)
+           :scripts ((ui/deps . browserify-coffee)
+                     (ui/hints/ . coffee))
+           :ui-base-html ui/hints/
+           :styles ui/hints/)

@@ -4,13 +4,9 @@
     ((view pobject))
   (let ((status (webkit-web-view-get-load-status view)))
     (cond
-      ;; Invoke scripts
+      ;; at this stage expect the rendering not done and not all resources
       ((eq status :webkit-load-first-visually-non-empty-layout)
-       (let ((uri (property view :uri)))
-         (mapcar (lambda (result)
-                   (invoke-scripts view
-                                   (uri-scripts/binding-scripts result)))
-                 (lookup-scripts uri))))
+       (invoke-scripts (property view :uri) view))
       ;; Update ui
       ((or (eq status :webkit-load-committed)
            (eq status :webkit-load-finished))
@@ -51,8 +47,7 @@
            (setf result (first (lookup-scripts uri))))
          (webkit-web-frame-load-alternate-string
           source-frame
-          (resource-content (uri-scripts/scripts-ui-base-html
-                             (uri-scripts/binding-scripts result))
+          (resource-content (uri-scripts-ui-base-html result)
                             'jade)
           uri uri))
        (webkit-web-policy-decision-use policy))

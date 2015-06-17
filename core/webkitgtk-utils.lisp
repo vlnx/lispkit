@@ -32,7 +32,8 @@
             (find-instance 'of-browser 'from-scrolled-window
                            scrolled-window)))
 
-;; (start-webkit-download "http://vlnx.lan/startpage/script.js" "file:///tmp/dl.1")
+;; (start-webkit-download "http://vlnx.lan/startpage/script.js"
+;;                        "file:///tmp/dl.1")
 (defun start-webkit-download (uri dest)
   "start a webkit download"
   (declare (type string uri dest))
@@ -40,5 +41,5 @@
              (webkit-network-request-new uri))))
     ;; (setf (property dl :destination-uri) dest)
     (webkit-download-set-destination-uri dl dest)
-    ;; (setf (gsignal dl "error") download-error) ; maybe connect to signal "error"
+    ;; (setf (gsignal dl "error") download-error)
     (webkit-download-start dl)))

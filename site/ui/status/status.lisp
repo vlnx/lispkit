@@ -38,19 +38,17 @@
                        "hints.collection.filterHints('~a');"
                        (escape-single-quote str))))
 
-(defscript
-  :exact-uri (ui-symbol-to-uri 'status)
-  :exports '(statusbar-init
-             quit
-             status-bar-new-tab
-             load-uri
-             prompt-close
-             statusbar-request-height
-             notify
-             filter-hints
-             download)
-  :scripts '(:browserify ((ui/deps ())
-                          (ui/status/ ())) ; just use `make watch-status`
-             :coffee ())
-  :ui-base-html 'ui/status/
-  :styles 'ui/status/)
+(defscript (ui-symbol-to-uri 'status)
+           :exports (statusbar-init
+                     quit
+                     status-bar-new-tab
+                     load-uri
+                     prompt-close
+                     statusbar-request-height
+                     notify
+                     filter-hints
+                     download)
+           :scripts ((ui/deps . browserify-coffee)
+                     (ui/status/ . browserify-coffee))
+           :ui-base-html ui/status/
+           :styles ui/status/)

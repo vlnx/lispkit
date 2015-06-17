@@ -23,13 +23,14 @@
       (getf *maps* :passthrough) (make-kmap))
 
 (defkey :passthrough "C-z" (browser)
-  "Toggle browser object's passthrough-state and update ui to reflect it"
-  ;; XXX: also focus current tab view
+  "Toggle the passthrough-state and update ui"
+  ;; TODO: focus current tab view
   (let ((kstate (browser-key-state browser)))
     (setf (passthrough-state kstate)
           (null (passthrough-state kstate)))
     (ui-update browser :keymode t)))
 
+;; Clear the key-buffer when a command is run
 (setf (getf *hooks* :key-non-default-action)
       (list #'(lambda (b)
                 (setf (key-buffer (browser-key-state b))
@@ -46,7 +47,6 @@
     (ui-update b :buffer-set
                (apply #'concatenate 'string
                       (mapcar #'print-key (key-buffer kstate))))))
-
 
 (defkey :top "g h" (b)
   "Go home"
@@ -95,7 +95,8 @@
 
 (setf (getf *hooks* :prompt-leave)
       (list #'(lambda (b)
-                (if (member :follow (active-maps (browser-key-state b)))
+                (if (member :follow
+                            (active-maps (browser-key-state b)))
                     (js 'hints b "hints.collection.clear()"))
                 (set-active-maps b '(:scroll :top)))))
 
@@ -134,8 +135,7 @@
       (ui-update b :prompt-insert (print-key key))))
 
 (defkey :prompt "S-Insert" (b)
-  (ui-update b :prompt-insert
-             (x11-selection :primary)))
+  (ui-update b :prompt-insert (x11-selection :primary)))
 
 (defkey :prompt "SPC" (b)
   (ui-update b :prompt-insert " "))
@@ -151,16 +151,19 @@
 
 (defkey :prompt "Left" (b)
   (js 'status b "bar.prompt.input.moveCursor(-1);"))
+
 (defkey :prompt "Right" (b)
   (js 'status b "bar.prompt.input.moveCursor(1);"))
 
 (defkey :prompt "C-a" (b)
   (js 'status b "bar.prompt.input.startOfLine();"))
+
 (defkey :prompt "C-e" (b)
   (js 'status b "bar.prompt.input.endOfLine();"))
 
 (defkey :command-input "Up" (b)
   (js 'status b "bar.prompt.history.prev();"))
+
 (defkey :command-input "Down" (b)
   (js 'status b "bar.prompt.history.next();"))
 
@@ -174,21 +177,22 @@
   (js 'status b "bar.completion.collection.prev();"))
 
 (defkey :prompt "TAB" (b)
-  ;; NOTE: just use built in space instead, well that's if it needs an argument
+  "use built in space to complete instead,
+well that's if it needs an argument"
   (js 'status b "bar.completion.selectLineForPrompt();"))
 
-;; Scroll bindings
+;; Scroll durring prompt
 (defkey :prompt "C-u" (b)
   "Scroll up half a page"
   (scroll-to (tab-scroll (current-tab b))
              :x t :rel t :page -0.5))
+
 (defkey :prompt "C-d" (b)
   "Scroll down half a page"
   (scroll-to (tab-scroll (current-tab b))
              :x t :rel t :page 0.5))
 
 ;;; Tab keys
-
 (defkey :top "g t" (b)
   "Next tab"
   (setf (browser-tabs-current-index b)
@@ -207,9 +211,19 @@
   "Delete tab"
   (tab-remove b (current-tab b)))
 
+(defkey :top "H" (b)
+  "Try to go back one page"
+  (webkit-web-view-go-back-or-forward (tab-view (current-tab b))
+                                      -1))
+(defkey :top "L" (b)
+  "Try to go forward one page"
+  (webkit-web-view-go-back-or-forward (tab-view (current-tab b))
+                                      1))
+(defkey :top "r" (b)
+  "Reload tab"
+  (reload-view (tab-view (current-tab b))))
 
 ;;; Current uri manipulation
-
 (defun modify-last-number-in-string (func str)
   "Apply a function to the last number detected in a string"
   (ppcre:regex-replace
@@ -225,33 +239,37 @@
   "Increment last number in the current uri"
   (webkit-web-view-load-uri
    (tab-view (current-tab b))
-   (modify-last-number-in-string #'1+
-                                 (property (tab-view (current-tab b)) :uri))))
+   (modify-last-number-in-string
+    #'1+ (property (tab-view (current-tab b)) :uri))))
 
 (defkey :top "C-x" (b)
   "Decrement last number in the current uri"
   (webkit-web-view-load-uri
    (tab-view (current-tab b))
-   (modify-last-number-in-string #'1-
-                                 (property (tab-view (current-tab b)) :uri))))
+   (modify-last-number-in-string
+    #'1- (property (tab-view (current-tab b)) :uri))))
+
+(defun uri-remove-depth (uri)
+  "Go up in the uri structure"
+  (parse-uri
+   (cond ; if there, cut it out
+     ;; remove a query
+     ((ppcre:scan "\\?.*$" uri)
+      (ppcre:regex-replace "\\?.*$" uri ""))
+     ;; remove the last slash segment
+     ;; todo: should stop at domain
+     ((ppcre:scan "[^/]*?/?$" uri)
+      (ppcre:regex-replace "[^/]*?/?$" uri ""))
+     ;; Haven't implemented subdomain removal
+     (t uri))))
 
 (defkey :top "g u" (b)
   "Go up in the uri structure"
   (webkit-web-view-load-uri
    (tab-view (current-tab b))
-   (parse-uri
-    (let ((uri (property (tab-view (current-tab b)) :uri)))
-      (cond ; if there, cut it out
-        ;; remove a query
-        ((ppcre:scan "\\?.*$" uri)
-         (ppcre:regex-replace "\\?.*$" uri ""))
-        ;; remove the last slash segment
-        ;; todo: should stop at domain
-        ((ppcre:scan "[^/]*?/?$" uri)
-         (ppcre:regex-replace "[^/]*?/?$" uri ""))
-        ;; Haven't implemented subdomain removal
-        (t uri))))))
+   (uri-remove-depth (property (tab-view (current-tab b)) :uri))))
 
+;;; Follow mode
 (defvar *follow-mode-last-selector* nil)
 (defvar *follow-mode-last-evaluator* nil)
 
@@ -274,11 +292,13 @@
                    :want-return t)))))
 
 (setf (getf *hooks* :scroll-action)
-      (list #'(lambda (b)
-                (if (member :follow (active-maps (browser-key-state b)))
-                    (follow-invoke b
-                                   :selectors *follow-mode-last-selector*
-                                   :evaluator *follow-mode-last-evaluator*)))))
+      (list
+       #'(lambda (b)
+           (if (member :follow (active-maps (browser-key-state b)))
+               (follow-invoke
+                b
+                :selectors *follow-mode-last-selector*
+                :evaluator *follow-mode-last-evaluator*)))))
 
 (defun enter-follow-mode (b phrase &key selectors evaluator)
   "Start follow 'mode'"
@@ -306,34 +326,23 @@
 (defkey :follow "RET" (b)
   (js 'hints b "selectFirst();"))
 
+;;; TODO:
 (defkey :top "u" (b)
   "'unclose' tab"
+  ;; when a tab is deleted, take it's uri and save that in a list?
+  ;; don't really want to save the webview or it's complete history
   (ui-update b :notify "Implement unclose tab"))
-;; when a tab is deleted, take it's uri and save that in a list?
-;; don't really want to save the webview or it's complete history
 
-
-;; todo toggle
+;; TODO: toggle
 (defkey :top "F1" (b)
   "Hide status bar"
   (hide (tab-scroll (ui-status (browser-ui b)))))
+
 (defkey :top "F2" (b)
   "show status bar"
   (show (tab-scroll (ui-status (browser-ui b)))))
 
-(defkey :top "r" (b)
-  "Reload tab"
-  (reload-view (tab-view (current-tab b))))
-
 (defkey :top "g d" (b)
   "Act on the *download-queue*"
-  (ui-update b :notify "todo create prompt mode for download management"))
-
-(defkey :top "H" (b)
-  "Try to go back one page"
-  (webkit-web-view-go-back-or-forward (tab-view (current-tab b))
-                                      -1))
-(defkey :top "L" (b)
-  "Try to go forward one page"
-  (webkit-web-view-go-back-or-forward (tab-view (current-tab b))
-                                      1))
+  (ui-update b :notify
+             "TODO: create prompt mode for download management"))

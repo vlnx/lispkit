@@ -9,8 +9,8 @@ Also connect view slot to scroll slot"
   (add (tab-scroll tab) (tab-view tab)))
 
 (defmethod initialize-instance :after ((ui-views ui-views) &key)
-  "Directly access the tab-view and tab-scroll of all ui-view slots
-in order to hide scrollbars; thus in WebKit1, allow any height in a shrink nil vpane"
+  "Hide scrollbars on all ui-views slots
+thus in WebKit1, allow any height in a ':shrink nil' vpane"
   (mapcar (lambda (ui-tab)
             (webview-hide-scrollbars
              (tab-view ui-tab)
@@ -93,24 +93,22 @@ to what is shown underneath, determined by `find-dest-widget'"
     (pack pane2 (tab-scroll (ui-status ui)) :resize nil :shrink nil)
     (add gtk-win pane1)
 
-    ;; maybe small problem with growing the bottom beyond the natural page height
+    ;; HACK: the webkit minimal height patch must be applied
+    ;; Once the patch is applied the following should be 0
+    ;; (preferred-width (ui-tabs (browser-ui (current-browser))))
+    ;; (preferred-height (ui-tabs (browser-ui (current-browser))))
     (setf
      (size-request (tab-scroll (ui-status ui))) '(-1 16)
      (size-request (tab-scroll (ui-tabs ui))) '(-1 16))
-    ;; related but ineffective :height-request 10 :min-content-height 10
-    ;; HACK: fixed from Patch!
-    ;; (preferred-width (ui-tabs (browser-ui (current-browser))))
-    ;; (preferred-height (ui-tabs (browser-ui (current-browser))))
-    ;; => 0
 
     ;; Connect signals to notebook
     (connect-gtk-notebook-signals notebook)
 
-    (let ((initial-uris (browser-tabs browser))) ; :initial-tabs uri list
+    (let ((initial-uris (browser-tabs browser))) ; :initial-tabs
       (setf (browser-tabs browser) nil)
       (mapcar (lambda (uri)
-                (tab-new browser uri
-                         :background nil)) ; Switch to each new tab as created
+                ;; Switch to each new tab as created
+                (tab-new browser uri :background nil))
               initial-uris))
 
     (show gtk-win :all t)

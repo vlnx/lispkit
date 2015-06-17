@@ -1,4 +1,4 @@
 (in-package :lispkit)
 
-(defscript :regex-uri "http://vlnx.lan/*"
-           :styles 'misc/homepage)
+(defscript "http://vlnx.lan/.*"
+           :styles misc/homepage)

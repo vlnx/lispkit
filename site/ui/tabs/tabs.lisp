@@ -14,11 +14,10 @@
   (ui-update b :tabs-reset-list t)
   (ui-update b :current-tab t))
 
-(defscript
-  :exact-uri (ui-symbol-to-uri 'tabs)
-  :exports '(tabbar-request-height
-             tabs-init)
-  :scripts '(:browserify ((ui/deps ()))
-             :coffee ((ui/tabs/ (:closure nil))))
-  :ui-base-html 'ui/tabs/
-  :styles 'ui/tabs/)
+(defscript (ui-symbol-to-uri 'tabs)
+           :exports (tabbar-request-height
+                     tabs-init)
+           :scripts ((ui/deps . browserify-coffee)
+                     (ui/tabs/ . coffee))
+           :ui-base-html ui/tabs/
+           :styles ui/tabs/)

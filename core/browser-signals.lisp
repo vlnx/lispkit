@@ -2,14 +2,9 @@
 
 ;; Manage key events
 (defun active-map-names-to-kmaps (names)
-  "input from (active-maps kstate) => '(:top :other)
-output => list of kmaps"
-  (mapcar (lambda (name)
-            (let ((n (getf *maps* name)))
-              (if n
-                  n
-                  (error "Keymap name doesn't exist"))))
-          names))
+  "dereference keymap names"
+  (loop for name in names
+     collect (getf *maps* name)))
 
 (defun keys-actions-invoke (kmap-names key browser)
   "Run commands for the key"
@@ -31,19 +26,18 @@ output => list of kmaps"
      (gdk-event :pointer))
   (let* ((browser (find-instance 'of-browser 'from-window win))
          (kstate (browser-key-state browser))
+         (maps (if (passthrough-state kstate)
+                   '(:passthrough) ; Catch key to turn off passthrough
+                   (append '(:passthrough)
+                           (active-maps kstate))))
          (key (process-gdk-event->key
                gdk-event
                (widgets-x11-xic (browser-gtk browser)))))
     (when key ; XIM may have filtered the event
       (dmesg key)
-      ;; Find actions to invoke, give passthrough priority
-      (keys-actions-invoke (if (passthrough-state kstate)
-                               '(:passthrough) ; Only catch key to turn it off
-                               (append
-                                '(:passthrough) ; First check if to turn it on
-                                (active-maps kstate)))
-                           key browser))
-    (null (passthrough-state kstate)))) ; returning true stops propagation of the event
+      ;; Invoke actions
+      (keys-actions-invoke maps key browser))
+    (null (passthrough-state kstate)))) ; stop propagation
 
 (defcallback on-key-release :boolean
     ((win pobject)
@@ -58,20 +52,20 @@ output => list of kmaps"
 (defcallback exit :void
     ((window pobject))
   (let ((b (find-instance 'of-browser 'from-window window)))
-    ;; Don't spawn a new tab if closing
+    ;; Don't spawn a new tab when closing
     (setf (browser-always-one-tab b) nil)
-    (mapcar #'(lambda (tab) (tab-remove b tab))
+    (mapcar (lambda (tab) (tab-remove b tab))
             (browser-tabs b))
     (destroy window)
-    (setf *browsers* (remove b *browsers*))))
-;; If last instance and not in slime (leave-gtk-main))
+    (setf *browsers* (remove b *browsers*))
+    (unless *browsers* ; TODO: also if not using slime
+      (leave-gtk-main))))
 
-;; Reset IC as well?
 (defcallback on-focus-in :boolean
     ((widget pobject)
      (event :pointer))
   (declare (ignore event))
-  ;; (x11-binding::xic-focus (widgets-x11-xic (browser-gtk
+  ;; (x11-binding:xic-focus (widgets-x11-xic (browser-gtk b)))
   (let ((b (find-instance 'of-browser 'from-window widget)))
     (setf *browser-current-index* (position b *browsers*)))
   (dmesg *browser-current-index*)
@@ -82,6 +76,8 @@ output => list of kmaps"
 ;;      (event :pointer))
 ;;   (declare (ignore event))
 ;; nil)
+;; (gsignal gtk-window "focus-out-event")
+;; (callback on-focus-out)
 
 (defun connect-gtk-window-signals (gtk-win)
   "Connect the signals for the window widget"
@@ -93,9 +89,6 @@ output => list of kmaps"
 
         (gsignal gtk-win "focus-in-event")
         (callback on-focus-in)
-
-        ;; (gsignal gtk-window "focus-out-event")
-        ;; (callback on-focus-out)
 
         (gsignal gtk-win "destroy")
         (callback exit)))
