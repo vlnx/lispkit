@@ -154,6 +154,11 @@ automatically add the view to a container"))
   `(lambda ,arg (when ,test ,(first arg))))
 
 (defmacro find-instance-helper (lex test)
+  "Example:
+(find-instance-helper ((of-item (item items))
+                       (from-arg arg))
+  (eq arg item))
+(find-instance 'of-item 'from-arg arg) => item"
   (let ((of (first lex))
         (of-value (second (first lex)))
         (from (second lex)))
