@@ -142,7 +142,7 @@
   (let ((index (browser-tabs-current-index browser))
         (zerobased-length (1- (length (browser-tabs browser)))))
     (js 'tabs browser
-        (format nil "tabbar.collection.moveCurrentTo(~a);" index))
+        (format nil "tabbar.collection.setCurrent(~a);" index))
     (js 'status browser
         (format nil
                 "bar.status.tabIndicator.model.set({current: ~a, total: ~a});"

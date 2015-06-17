@@ -1,9 +1,8 @@
 fg = #C6A57B
 bg =  #151515
-current-fg = #C6A57B
+current-fg = fg
 current-bg = #7b4df0
-// 607B8B
-num-fg = #C6A57B
+num-fg = fg
 num-bg = bg
 
 html
@@ -11,54 +10,31 @@ body
     margin 0
     padding 0
     width 100%
-    // height 100%
-
-    background-color bg
-
     font-family profont
     font-size 12px
-
-pre
-    margin 0
-    padding 0
+    background-color bg
 
 #tablist
     width 100%
     display table
     table-layout fixed
 
-// .tab:not(:first-child)
-//     border-left 1px solid yellow
-
-.tab > .num
-     padding-right 5px
-     color num-fg
-     background-color num-bg
 .tab
     display table-cell
     margin 0
     padding 2px 5px
     overflow hidden
     white-space nowrap
+    -webkit-user-select none
     color fg
     background-color bg
-    -webkit-user-select none
+
+.tab .num
+     padding-right 5px
+     color num-fg
+     background-color num-bg
 
 .tab.current
-.tab.current > .num
+.tab.current .num
     background-color current-bg
     color current-fg
-
-// Powerline Left
-.triangle-left
-    width 0
-    height 0
-    border-top 8px solid transparent
-    border-right 8px solid current-bg
-    border-bottom 8px solid transparent
-.triangle-right
-    width 0
-    height 0
-    border-left 8px solid transparent
-    border-top 11px solid current-bg
-    border-bottom 8px solid transparent
