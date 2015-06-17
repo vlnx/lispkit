@@ -3,19 +3,13 @@ window.jade = require 'jade/lib/jade.js'
 window.S = require 'string'
 window._ = require 'underscore'
 
-# DOM utilites built with browserify using ender to combine librarys into a
-# jQuery like interface
 window.$ = require 'ender-js'
 
-# # Ender shim
-# ender = $
-# FIXME: vendor shim removed wrapper
+# bonzo shim that attaches to $
 require 'bonzo/src/ender.js'
-# window.bonzo = require 'bonzo'
 
 # Qwery shim
 # From qwery/src/ender.js modifed to rely on bonzo
-# Don't have a reason to add 'find', 'and', 'is' methods yet
 window.qwery = require 'qwery'
 $.pseudos = qwery.pseudos
 $._select = (s, r) ->
@@ -25,14 +19,13 @@ $._select = (s, r) ->
         qwery(s, r)
 
 window.Backbone = require 'backbone'
-Backbone.$ = $ # Give backbone, ender to function
+Backbone.$ = $ # Give backbone ender
 
-$.ender cache: require 'kizzy'
+window.Deps =
+    url: require 'url'
 
-window.Deps = {}
-window.Deps.url = require 'url'
-
-Backbone.Collection::modelRelativeTo = (model, n) -> @at ((@indexOf model) + n)
+Backbone.Collection::modelRelativeTo = (model, n) ->
+    @at ((@indexOf model) + n)
 
 class Backbone.CollectionNav extends Backbone.Collection
     currentModel: null
