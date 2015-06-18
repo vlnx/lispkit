@@ -346,3 +346,9 @@ well that's if it needs an argument"
   "Act on the *download-queue*"
   (ui-update b :notify
              "TODO: create prompt mode for download management"))
+
+(defkey :top "z" (b) ; ", z"
+  "click on the page to toggle image zoom"
+  (js 'current-tab b
+      (coffee-template 'send-click-to-position
+                       :x 1 :y 1)))
