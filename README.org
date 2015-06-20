@@ -1,0 +1,104 @@
+#+TITLE: Lispkit
+#+AUTHOR: vlnx
+  
+* Overview
+A WebKitGTK(GTK3, WebKit1) micro-browser based on [[https://github.com/mason-larobina/luakit][Luakit]]
+
+Interface with webkit in Common Lisp via Steel Bank Common Lisp's C Foreign Function Interface
+
+User interface via webviews using [[https://github.com/jashkenas/coffeescript][CoffeeScript]]/[[https://github.com/jadejs/jade][Jade]]/[[https://github.com/stylus/stylus][Stylus]] and functions exported in to the Javascript Context
+
+WebKit2 features thread separation, preventing raw access to the Javascript Context needed to insert native functions.
+
+
+** Key events
+Key events are processed using the default X Input Method enabling =XCOMPOSEFILE= sequences
+
+The event propagation is then stopped so they don't leak to the webview like a current bug in luakit
+
+** =defscript=
+A system for modifying webviews selected by uri matches
+- Apply css
+- export functions
+- evaluate javascript
+- base html for user interface pages
+  
+* Installation
+**  WebKitGTK
+*** Patch
+Allow ui webviews to request a size smaller than than their page content.
+
+Set the gtk3 natural and minimum height of a view to =0=.
+
+Haven't found a way to override this through cffi.
+#+BEGIN_SRC sh
+sed -i 's/\*minimum = \*natural = view->contents\(Width\|Height\)();/\*minimum = \*natural = 0;/g' ./Source/WebKit/gtk/webkit/webkitwebview.cpp
+#+END_SRC
+
+*** Current personal crux port
+#+BEGIN_SRC sh
+# Description: Small, efficient and fast rendering engine for Web Browsers.
+# URL: http://www.webkitgtk.org/
+# Maintainer: vlnx
+# Depends on: enchant gst-plugins-base gtk3 harfbuzz-icu libsoup glu ruby gperf libwebp libsecret shared-mime-info gnome-icon-theme
+# Nice to have: gst-plugins-good
+
+name=webkit-gtk3
+version=2.4.9
+release=1
+source=(http://webkitgtk.org/releases/webkitgtk-${version}.tar.xz)
+
+build() {
+    cd webkitgtk-$version
+
+    # minimum height patch
+    sed -i 's/\*minimum = \*natural = view->contents\(Width\|Height\)();/\*minimum = \*natural = 0;/g' ./Source/WebKit/gtk/webkit/webkitwebview.cpp
+
+    install -d build
+    cd build
+
+    ../configure \
+        --prefix=/usr \
+        --mandir=/usr/man \
+        --disable-geolocation \
+        --disable-gtk-doc-html \
+        --disable-silent-rules \
+        --enable-video \
+        --enable-jit \
+        --enable-spellcheck \
+        --disable-maintainer-mode \
+        --disable-introspection \
+        --libexecdir=/usr/lib/webkitgtk3 \
+        --disable-webkit2 \
+        --with-gtk=3.0
+
+    make
+    make DESTDIR=$PKG install
+    rm -r $PKG/usr/share/locale
+}
+#+END_SRC
+
+**  CFFI to GTK3
+#+BEGIN_SRC sh
+git clone https://github.com/Kalimehtar/gtk-cffi.git $DEV_HOME/gtk-cffi/
+#+END_SRC
+    
+** TODO quicklisp the other deps in the asd file
+
+**  ASDF 3
+In =$XDG_CONFIG_HOME/common-lisp/source-registry.conf= include:
+
+#+BEGIN_SRC common-lisp
+(:source-registry
+ ;; ...
+ (:tree (:home "dev/gtk-cffi"))
+ (:tree (:home "dev/lispkit"))
+ ;; ...
+ :inherit-configuration)
+#+END_SRC
+
+** In a slime session
+#+BEGIN_SRC common-lisp
+(require :lispkit)
+(lispkit:main)
+#+END_SRC
