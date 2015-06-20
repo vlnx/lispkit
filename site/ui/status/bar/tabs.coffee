@@ -4,14 +4,24 @@ class TabIndicator extends Backbone.Model
         total: 0
 
 class TabIndicatorView extends Backbone.View
-    tagName: 'span'
-    className: 'tabIndicator'
-    render: =>
-        # Model order zero based index, display as starting at 1
-        $(@el).html "[#{@model.get('current') + 1}/#{@model.get('total') + 1}]"
-        return this
     model: new TabIndicator
-    initialize: =>
+
+    tagName: 'span'
+
+    className: 'tabIndicator'
+
+    template: jade.compile '[#{current}/#{total}]'
+
+    getRenderData: =>
+        # model is zero-based
+        current: (@model.get 'current') + 1
+        total: (@model.get 'total') + 1
+
+    render: =>
+        $(@el).html @template @getRenderData()
+        return this
+
+    initialize: ->
         @listenTo @model, 'change', @render
         @listenTo @model, 'destroy', @remove
 

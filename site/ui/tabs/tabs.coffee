@@ -4,7 +4,7 @@ class Tab extends Backbone.Model
         title: '(untitled)'
         current: no
 
-    initialize: =>
+    initialize: ->
         @listenTo this, 'destroy', => @view.remove()
 
 class Tabs extends Backbone.Collection
@@ -12,8 +12,8 @@ class Tabs extends Backbone.Collection
 
     comparator: 'order'
 
-    findOrder: (order) ->
-        @where(order: order)[0]
+    findOrder: (order) =>
+        (@where order: order)[0]
 
     setCurrent: (index) =>
         (@where current: yes)[0]?.set 'current', false
@@ -27,15 +27,13 @@ class TabView extends Backbone.View
     span.title #{title}
     '''
 
-    templateData: =>
-        m = @model.toJSON()
-        # order is zero-based
-        m.order = m.order + 1
-        m
+    getRenderData: =>
+        order: (@model.get 'order') + 1 # order is zero-based
+        title: (@model.get 'title')
 
     render: =>
         @toggleClassBasedOnAttribute 'current'
-        $(@el).html @template @templateData()
+        $(@el).html @template @getRenderData()
         return this
 
     initialize: ->
@@ -54,7 +52,7 @@ class TabBar extends Backbone.View
             when 2
                 Exported.tabbarRequestHeight 16
 
-    initialize: =>
+    initialize: ->
         @shouldShow()
         @listenTo @collection, 'add', @shouldShow
         @listenTo @collection, 'remove', @shouldShow

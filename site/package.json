@@ -14,7 +14,6 @@
         "bonzo"               : "*",
         "qwery"               : "*",
         "ender-js"            : "*",
-        "kizzy"               : "*",
         "xregexp"             : "*",
         "coffeeify"           : "*"
     }

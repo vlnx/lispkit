@@ -14,25 +14,33 @@ class Input extends Backbone.Model
 
     # Retrieve segments of `content`, relative to `position`
     before: (position) =>
-        unless (_.isNumber position) then position = @get 'position'
+        unless _.isNumber position
+            position = @get 'position'
         (@get 'content').substring 0, position
 
     activeChar: (position) =>
-        unless (_.isNumber position) then position = @get 'position'
+        unless _.isNumber position
+            position = @get 'position'
         ((@get 'content').charAt position) or ' '
 
     after: (position) =>
-        unless (_.isNumber position) then position = @get 'position'
-        (@get 'content').substring (position + 1), @get('content').length
+        unless _.isNumber position
+            position = @get 'position'
+        (@get 'content').substring (position + 1),
+            @get('content').length
 
     afterInclusive: (position) =>
-        unless (_.isNumber position) then position = @get 'position'
+        unless _.isNumber position
+            position = @get 'position'
         (@get 'content').substr position
 
     # utils
-    split: => (@get 'content').split ' '
-    firstWord: => (@split())[0]
-    afterFirstWord: => (@split().slice 1).join ' '
+    split: => (S(@get 'content').trim().s).split ' '
+
+    firstWord: => @split()[0]
+
+    afterFirstWord: => @split().slice 1
+
     length: => (@get 'content').length
 
     # may have only inserted '', the same as default
@@ -42,7 +50,9 @@ class Input extends Backbone.Model
 
 class InputView extends Backbone.View
     tagName: 'span'
+
     id: 'input'
+
     model: new Input
 
     template: jade.compile '''
@@ -51,6 +61,7 @@ class InputView extends Backbone.View
     span#cursor #{over}
     span #{rest}
     '''
+
     render: =>
         $(@el).html @template
             before: @model.before()
@@ -59,7 +70,7 @@ class InputView extends Backbone.View
             phrase: @model.get 'promptPhrase'
         return this
 
-    initialize: =>
+    initialize: ->
         @render()
         @listenTo @model, 'change', @render
         @listenTo @model, 'destroy', @remove
@@ -73,7 +84,8 @@ class InputView extends Backbone.View
         if (str is ' ') and (@model.firstWord() is @model.get 'content')
             @trigger 'completionSelectLine'
         else
-            @model.set 'content', "#{@model.before()}#{str}#{@model.afterInclusive()}"
+            @model.set 'content',
+                "#{@model.before()}#{str}#{@model.afterInclusive()}"
             @model.set 'position', "#{@model.before()}#{str}".length
         @model.changeIntended()
 
@@ -87,7 +99,8 @@ class InputView extends Backbone.View
             @trigger 'close'
         else
             pos = @model.get 'position'
-            @model.set 'content', "#{@model.before (pos-1)}#{@model.afterInclusive()}"
+            @model.set 'content',
+                "#{@model.before (pos-1)}#{@model.afterInclusive()}"
             @model.set 'position', "#{@model.before (pos-1)}".length
 
     delete: =>

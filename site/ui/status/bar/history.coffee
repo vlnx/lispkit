@@ -4,10 +4,14 @@ class History extends Backbone.Model
         forward: no
 
 class HistoryView extends Backbone.View
+    model: new History
+
     tagName: 'span'
+
     className: 'history'
+
     logic: =>
-        if @model.get('forward') and @model.get 'backward'
+        if (@model.get 'forward') and @model.get 'backward'
             '[+-]'
         else if @model.get 'forward'
             '[-]'
@@ -15,11 +19,12 @@ class HistoryView extends Backbone.View
             '[+]'
         else
             ''
+
     render: =>
         $(@el).html @logic()
         return this
-    model: new History
-    initialize: =>
+
+    initialize: ->
         @listenTo @model, 'change', @render
         @listenTo @model, 'destroy', @remove
 

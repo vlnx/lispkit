@@ -2,7 +2,7 @@ npmdeps:
 	@cd site/ && npm i
 
 watch-status:
-	@cd site && watchify --transform coffeeify --debug ui/status.coffee -o $(XDG_CACHE_HOME)/lispkit/%home%***REMOVED***%dev%lispkit%site%ui%status.coffee
+	@cd site && watchify --transform coffeeify --debug ui/status/status.coffee -o $(XDG_CACHE_HOME)/lispkit/%home%***REMOVED***%dev%lispkit%site%ui%status%status.coffee
 
 # Build in the main static deps in to the core dump
 dynamic-loader:

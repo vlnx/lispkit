@@ -1,29 +1,37 @@
 class Overlay extends Backbone.View
     className: 'overlay'
+
     tagName: 'span'
+
     render: =>
         @toggleClassBasedOnAttribute 'selected'
         $(@el).offset @model.get('x'), @model.get('y')
         $(@el).width @model.get 'width'
         $(@el).height @model.get 'height'
         return this
+
     initialize: ->
         @listenTo @model, 'change', @render
         @model.viewOverlay = this
         @render
+
     remove: =>
         $(@el).remove()
 
 class Label extends Backbone.View
     className: 'label'
+
     tagName: 'span'
+
     template: jade.compile '''
     span.dim #{completed}
     span #{rest}
     '''
+
     templateData: =>
         completed: @model.get 'incompleteHint'
         rest: @model.hintToEnterStill()
+
     render: =>
         @toggleClassBasedOnAttribute 'selected'
         $(@el).html @template @templateData()
@@ -36,10 +44,12 @@ class Label extends Backbone.View
 
         $(@el).offset x, y
         return this
+
     initialize: ->
         @listenTo @model, 'change', @render
         @model.viewLabel = this
         @render
+
     remove: =>
         $(@el).remove()
 
@@ -52,29 +62,38 @@ class Hint extends Backbone.Model
         hint: 'xx'
         incompleteHint: ''
         selected: false
+
     hintToEnterStill: =>
         (@get 'hint').replace (new RegExp "^#{@get 'incompleteHint'}"), ''
+
     clear: =>
         @destroy()
         @viewLabel.remove()
         @viewOverlay.remove()
+
     hide: =>
         $(@viewLabel.el).hide()
         $(@viewOverlay.el).hide()
+
     show: =>
         $(@viewLabel.el).show()
         $(@viewOverlay.el).show()
+
     visible: =>
         (@viewLabel.el.style.display isnt 'none') and
             (@viewOverlay.el.style.display isnt 'none')
 
 class Hints extends Backbone.Collection
     model: Hint
+
     visible: => @filter (model) -> model.visible()
+
     selected: => (@where selected: true)[0]
+
     setSelected: =>
         @selected()?.set 'selected', false
         @visible()[0].set 'selected', true
+
     filterHints: (str) =>
         @each (model) ->
             if S(model.get 'hint').startsWith str
@@ -85,7 +104,9 @@ class Hints extends Backbone.Collection
                 model.set 'incompleteHint', ''
         shown = @visible()
         @setSelected()
-        actOnHint @selected() if shown.length is 1
+        if shown.length is 1
+            actOnHint @selected()
+
     clear: => @remove @models
 
 numberToHint = (n, total) ->
@@ -103,11 +124,14 @@ numberToHint = (n, total) ->
 
 class HintsView extends Backbone.View
     el: $('#hints')[0]
+
     collection: new Hints
-    initialize: =>
+
+    initialize: ->
         @listenTo @collection, 'add', @addOne
-        @listenTo @collection, 'remove', (model, collection, options) =>
+        @listenTo @collection, 'remove', (model) ->
             model.clear()
+
     addOne: (model) =>
         model.set 'hint',
             numberToHint (@collection.indexOf model),

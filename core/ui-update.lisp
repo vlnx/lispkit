@@ -86,7 +86,7 @@
   (setf scrolled (tab-scroll (current-tab browser)))
   (js 'status browser
       (format
-       nil "bar.status.scrollIndicator.model.set({y: ~a, ymax: ~a, x: ~a, xmax: ~a});"
+       nil "bar.status.scroll.model.set({y: ~a, ymax: ~a, x: ~a, xmax: ~a});"
        (floor (property (vadjustment scrolled) :value))
        (-
         (floor (property (vadjustment scrolled) :upper))
@@ -101,7 +101,7 @@
   (js 'status browser
       (format
        nil
-       "bar.status.progressIndicator.model.set('progress', '~a');"
+       "bar.status.progress.model.set('progress', '~a');"
        (let ((p (property view :progress)))
          (floor (* 100 (or
                         ;; if not during initial load, the value is 0
@@ -145,7 +145,7 @@
         (format nil "tabbar.collection.setCurrent(~a);" index))
     (js 'status browser
         (format nil
-                "bar.status.tabIndicator.model.set({current: ~a, total: ~a});"
+                "bar.status.tabs.model.set({current: ~a, total: ~a});"
                 index
                 zerobased-length))))
 

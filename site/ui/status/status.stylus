@@ -70,7 +70,7 @@ body
         background-color violet
 
 .menu
-    #current
+    .current
         background-color base02
     span
         padding-left 5px

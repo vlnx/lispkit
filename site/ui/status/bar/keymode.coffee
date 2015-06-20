@@ -3,16 +3,21 @@ class Keymode extends Backbone.Model
         mode: 'not-set'
 
 class KeymodeView extends Backbone.View
-    tagName: 'span'
-    className: 'keymode'
-    render: =>
-        if @model.get('mode') is 'scroll, top'
-            $(@el).html ''
-        else
-            $(@el).html "--#{@model.get 'mode'}--"
-        return this
     model: new Keymode
-    initialize: =>
+
+    tagName: 'span'
+
+    className: 'keymode'
+
+    render: =>
+        $(@el).html do =>
+            if @model.get('mode') is 'scroll, top'
+                ''
+            else
+                "--#{@model.get 'mode'}--"
+        return this
+
+    initialize: ->
         @listenTo @model, 'change', @render
         @listenTo @model, 'destroy', @remove
 

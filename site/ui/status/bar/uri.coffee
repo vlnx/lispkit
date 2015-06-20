@@ -1,23 +1,40 @@
 class Uri extends Backbone.Model
     defaults:
-        uri: 'Give URI'
+        uri: ''
         hover: ''
 
 class UriView extends Backbone.View
     tagName: 'span'
+
     className: 'uri'
-    templateContent: =>
-        if @model.get('hover') isnt ''
-            "Link: #{@model.get 'hover'}"
-        else
-            # Do fun stuff here
-            # http://nodejs.org/api/all.html#all_url
-            @model.get 'uri'
-    render: =>
-        $(@el).html @templateContent()
-        return this
+
     model: new Uri
-    initialize: =>
+
+    # # TODO: Split and color the segments
+    # # http://nodejs.org/api/all.html#all_url
+    template: jade.compile '''
+    if hover
+        span Link:&nbsp
+    span #{uri}
+    '''
+
+    getRenderData: =>
+        hover: do =>
+            if (@model.get 'hover') is ''
+                false
+            else
+                true
+        uri: do =>
+            if (@model.get 'hover') is ''
+                @model.get 'uri'
+            else
+                @model.get 'hover'
+
+    render: =>
+        $(@el).html @template @getRenderData()
+        return this
+
+    initialize: ->
         @listenTo @model, 'change', @render
         @listenTo @model, 'destroy', @remove
 

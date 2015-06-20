@@ -7,7 +7,9 @@ class ScrollIndicator extends Backbone.Model
 
 class ScrollIndicatorView extends Backbone.View
     tagName: 'span'
+
     className: 'scrollIndicator'
+
     horizontal: =>
         if Number(@model.get 'xmax') is 0
             'All'
@@ -17,6 +19,7 @@ class ScrollIndicatorView extends Backbone.View
             'RightMost'
         else
             "#{Math.floor (@model.get('x') / @model.get('xmax')) * 100}%"
+
     vertical: =>
         if Number(@model.get 'ymax') is 0
             'All'
@@ -26,11 +29,14 @@ class ScrollIndicatorView extends Backbone.View
             'Bot'
         else
             "#{Math.floor (@model.get('y') / @model.get('ymax')) * 100}%"
+
     render: =>
         $(@el).html "[#{@horizontal()}/#{@vertical()}]"
         return this
+
     model: new ScrollIndicator
-    initialize: =>
+
+    initialize: ->
         @listenTo @model, 'change', @render
         @listenTo @model, 'destroy', @remove
 
