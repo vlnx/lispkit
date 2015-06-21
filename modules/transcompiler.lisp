@@ -84,7 +84,7 @@ Return the complied string"
 Examples:
     (transcompile :type 'coffee :string \"command arg\")
     (transcompile :file \"pathname.jade\")
-    (transcompile :type 'browserify-coffee :file \"pathname\" :use-stdin nil)"
+    (transcompile :type 'coffeeify :file \"pathname\" :use-stdin nil)"
   (unless cmd
     (setf cmd
           (getf *transcompilers*

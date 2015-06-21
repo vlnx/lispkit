@@ -21,7 +21,7 @@
                      send-prompt-close
                      yank-string
                      new-background-tab)
-           :scripts ((ui/deps . browserify-coffee)
+           :scripts ((ui/deps . coffeeify-minimal)
                      (ui/hints/ . coffee))
            :ui-base-html ui/hints/
            :styles ui/hints/)

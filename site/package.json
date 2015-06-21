@@ -1,20 +1,23 @@
 {
-    "name"                    : "lispkit deps",
-    "version"                 : "0.0.0",
-    "author"                  : "vlnx",
-    "private": true,
-    "description"             : "Deps for lispkit user interface",
-    "dependencies"            : {
-        "underscore"          : "*",
-        "string"              : "*",
-        "jade"                : "0.29.0",
-        "backbone"            : "*",
-        "bytes"               : "*",
-        "domready"            : "*",
-        "bonzo"               : "*",
-        "qwery"               : "*",
-        "ender-js"            : "*",
-        "xregexp"             : "*",
-        "coffeeify"           : "*"
-    }
+  "name": "lispkit-deps",
+  "version": "0.0.0",
+  "author": "vlnx",
+  "private": true,
+  "description": "Deps for lispkit user interface",
+  "dependencies": {
+    "underscore": "*",
+    "string": "*",
+    "jade": "1.11.0",
+    "backbone": "1.1.2",
+    "bytes": "*",
+    "domready": "*",
+    "bonzo": "*",
+    "qwery": "*",
+    "ender-js": "*",
+    "xregexp": "*",
+    "coffeeify": "*",
+    "stylus": "0.51.1",
+    "browserify": "10.2.4",
+    "coffee-script": "1.9.3"
+  }
 }

@@ -36,14 +36,30 @@
                    *uri-scripts*)))
 
 ;; Setup transcompiler package
-(setf *transcompiler-cache-dir* *cache-directory*
-      *transcompilers*
-      '(:coffee "/usr/bin/coffee --stdio --print --bare"
-        :coffee-closure "/usr/bin/coffee --stdio --print"
-        :browserify-coffee
-        "/usr/bin/browserify --transform coffeeify --debug"
-        :jade "/usr/bin/jade --pretty"
-        :stylus "/usr/bin/stylus --compress"))
+(let* ((npm-bin
+        (concatenate 'string
+                     *site-directory*
+                     "node_modules/.bin/")))
+  (setf *transcompiler-cache-dir* *cache-directory*
+        *transcompilers*
+        `(:coffee
+          ,(concatenate 'string npm-bin
+                        "coffee --stdio --print --bare")
+          :coffee-closure
+          ,(concatenate 'string npm-bin
+                        "coffee --stdio --print")
+          :coffeeify
+          ,(concatenate 'string npm-bin
+                        "browserify --transform coffeeify --debug")
+          :coffeeify-minimal
+          ,(concatenate 'string npm-bin
+                        "browserify --transform coffeeify")
+          :jade
+          ,(concatenate 'string npm-bin
+                        "jade --pretty")
+          :stylus
+          ,(concatenate 'string npm-bin
+                        "stylus --compress"))))
 
 (defun resource-location (symbol-path type)
   "Get the path of a resource from a relative path and file type"
@@ -100,8 +116,11 @@
            view
            (transcompile :type type
                          :file file
-                         :use-stdin (null (eq type
-                                              'browserify-coffee)))
+                         :use-stdin (null
+                                     (or (eq type
+                                             'coffeeify)
+                                         (eq type
+                                             'coffeeify-minimal))))
            :source file))))
 
 (defun invoke-scripts/styles (styles view)

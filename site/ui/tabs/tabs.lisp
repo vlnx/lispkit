@@ -17,7 +17,7 @@
 (defscript (ui-symbol-to-uri 'tabs)
            :exports (tabbar-request-height
                      tabs-init)
-           :scripts ((ui/deps . browserify-coffee)
+           :scripts ((ui/deps . coffeeify-minimal)
                      (ui/tabs/ . coffee))
            :ui-base-html ui/tabs/
            :styles ui/tabs/)

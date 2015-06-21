@@ -48,7 +48,7 @@
                      notify
                      filter-hints
                      download)
-           :scripts ((ui/deps . browserify-coffee)
-                     (ui/status/ . browserify-coffee))
+           :scripts ((ui/deps . coffeeify-minimal)
+                     (ui/status/ . coffeeify))
            :ui-base-html ui/status/
            :styles ui/status/)

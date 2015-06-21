@@ -1,4 +1,4 @@
-window.jade = require 'jade/lib/jade.js'
+window.jade = require 'jade/lib/index.js'
 
 window.S = require 'string'
 window._ = require 'underscore'
@@ -6,6 +6,7 @@ window._ = require 'underscore'
 window.$ = require 'ender-js'
 
 # bonzo shim that attaches to $
+window.ender = $
 require 'bonzo/src/ender.js'
 
 # Qwery shim
