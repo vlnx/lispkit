@@ -1,9 +1,6 @@
 npmdeps:
 	@cd site/ && npm i
 
-watch-status:
-	@cd site && watchify --transform coffeeify --debug ui/status/status.coffee -o $(XDG_CACHE_HOME)/lispkit/%home%***REMOVED***%dev%lispkit%site%ui%status%status.coffee
-
 # Build in the main static deps in to the core dump
 dynamic-loader:
 	sbcl --noinform \
@@ -25,3 +22,11 @@ static-core:
 		--eval '(require :lispkit)' \
 		--eval '(save-lisp-and-die "lispkit.static" :toplevel (lambda () (lispkit:main) 0) :executable t)' \
 		--eval '(quit)'
+
+watchify:
+	sbcl --noinform \
+		--eval '(require :asdf)' \
+		--eval '(require :sb-posix)' \
+		--eval '(sb-posix:putenv "SBCL_HOME=/usr/lib/sbcl")' \
+		--eval '(require :lispkit)' \
+		--eval '(lispkit:watchify)'

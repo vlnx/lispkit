@@ -156,3 +156,45 @@ in `*script-list*' or provided argument"
 (defun (setf *script-list*) (value)
   (setf *script-list* value)
   (load-scripts *script-list*))
+
+(defun watchify ()
+  "Spawn watchify processes.
+Use as a main entry function so the processes can be cleaned up
+since the GTK3 thread is known to segfault"
+  (labels
+      ((file-syms (script-list wanted-type)
+         (loop for script in (mapcar #'uri-scripts-scripts
+                                     script-list)
+            nconc (loop for (file . type) in script
+                     when (eq type wanted-type)
+                     collect file)))
+       (get-cmd-for-file (file)
+         (format nil
+                 "~awatchify --transform coffeeify --debug ~a -o ~a"
+                 *npm-bin*
+                 file
+                 (lispkit/transcompile::get-cached-location file)))
+       (spawn (cmd)
+         (dmesg cmd)
+         (let ((l (ppcre:split "\\s+" cmd)))
+           (sb-ext:run-program (car l) (cdr l)
+                               :directory *site-directory*
+                               :wait nil))))
+    (let ((procs
+           (mapcar #'spawn
+                   (mapcar #'get-cmd-for-file
+                           (mapcar (lambda (sym)
+                                     (resource-location sym 'coffee))
+                                   (file-syms *uri-scripts*
+                                              'coffeeify))))))
+      (dmesg procs)
+      (push (lambda ()
+              (loop for process in procs
+                 do (progn
+                      (sb-ext:process-kill process 15 :pid)
+                      (sb-ext:process-wait process)
+                      (sb-ext:process-close process)
+                      (dmesg (sb-ext:process-exit-code process)))))
+            sb-ext:*exit-hooks*))))
+
+(export 'watchify)
