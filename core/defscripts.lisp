@@ -36,30 +36,31 @@
                    *uri-scripts*)))
 
 ;; Setup transcompiler package
-(let* ((npm-bin
-        (concatenate 'string
-                     *site-directory*
-                     "node_modules/.bin/")))
-  (setf *transcompiler-cache-dir* *cache-directory*
-        *transcompilers*
-        `(:coffee
-          ,(concatenate 'string npm-bin
-                        "coffee --stdio --print --bare")
-          :coffee-closure
-          ,(concatenate 'string npm-bin
-                        "coffee --stdio --print")
-          :coffeeify
-          ,(concatenate 'string npm-bin
-                        "browserify --transform coffeeify --debug")
-          :coffeeify-minimal
-          ,(concatenate 'string npm-bin
-                        "browserify --transform coffeeify")
-          :jade
-          ,(concatenate 'string npm-bin
-                        "jade --pretty")
-          :stylus
-          ,(concatenate 'string npm-bin
-                        "stylus --compress"))))
+(defvar *npm-bin*
+  (concatenate 'string
+               *site-directory*
+               "node_modules/.bin/"))
+
+(setf *transcompiler-cache-dir* *cache-directory*
+      *transcompilers*
+      `(:coffee
+        ,(concatenate 'string *npm-bin*
+                      "coffee --stdio --print --bare")
+        :coffee-closure
+        ,(concatenate 'string *npm-bin*
+                      "coffee --stdio --print")
+        :coffeeify
+        ,(concatenate 'string *npm-bin*
+                      "browserify --transform coffeeify --debug")
+        :coffeeify-minimal
+        ,(concatenate 'string *npm-bin*
+                      "browserify --transform coffeeify")
+        :jade
+        ,(concatenate 'string *npm-bin*
+                      "jade --pretty")
+        :stylus
+        ,(concatenate 'string *npm-bin*
+                      "stylus --compress")))
 
 (defun resource-location (symbol-path type)
   "Get the path of a resource from a relative path and file type"
