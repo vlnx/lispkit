@@ -2,7 +2,8 @@
 
 (defvar *cache-directory*
   (concatenate 'string
-               (sb-ext:posix-getenv "XDG_CACHE_HOME") "/lispkit/")
+               lispkit-system:*root-directory* "/.cache/")
+  ;; (sb-ext:posix-getenv "XDG_CACHE_HOME") "/lispkit/"
   "Project's cache")
 
 (unless (probe-file *cache-directory*)

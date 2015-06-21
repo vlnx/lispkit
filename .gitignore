@@ -1,3 +1,4 @@
+.cache/
 site/node_modules/
 lispkit
 lispkit.static
