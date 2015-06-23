@@ -10,7 +10,7 @@ class TabIndicatorView extends Backbone.View
 
     className: 'tabIndicator'
 
-    template: jade.compile '[#{current}/#{total}]'
+    template: jade.compile ' [#{current}/#{total}]'
 
     getRenderData: =>
         # model is zero-based
