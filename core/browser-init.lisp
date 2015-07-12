@@ -104,6 +104,10 @@ to what is shown underneath, determined by `find-dest-widget'"
     ;; Connect signals to notebook
     (connect-gtk-notebook-signals notebook)
 
+    ;; NOTE: Operate on SoupSession before tabs are created
+    (setf (property (webkit-get-default-session) :proxy-uri)
+          (soup-binding:soup-uri-new "http://127.0.0.1:8123/"))
+
     (let ((initial-uris (browser-tabs browser))) ; :initial-tabs
       (setf (browser-tabs browser) nil)
       (mapcar (lambda (uri)
@@ -116,10 +120,5 @@ to what is shown underneath, determined by `find-dest-widget'"
     ;; Needs to be shown to get the window xid from x11
     (setf (widgets-x11-xic (browser-gtk browser))
           (create-xic (gtk-widget-get-window gtk-win)))
-
-    ;; TODO: fix this from erring
-    ;; This, by webkit, happens to be instance wide, not per view
-    ;; (setf (property (webkit-get-default-session) :proxy-uri)
-    ;;       (soup-uri-new "http://127.0.0.1:8123/"))
 
     (connect-gtk-window-signals gtk-win)))

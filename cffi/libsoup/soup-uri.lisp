@@ -5,8 +5,6 @@
 
 (use-foreign-library libsoup)
 
-;; Given a string returns a SoupURI
-(defcfun "soup-uri-new" pobject
+(defcfun soup-uri-new :pointer
   (uri c-string))
-
 (export 'soup-uri-new)
