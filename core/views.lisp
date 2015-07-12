@@ -82,7 +82,11 @@ to `*download-queue*', so a new async download can start"
      (source-id c-string))
   (declare (ignore source-view line source-id))
   ;; if match is true then stop propagation
-  (ppcre:scan "^Blocked a frame with origin" message))
+  (or
+   (ppcre:scan "^Blocked a frame with origin" message)
+   ;; When polipo replaces a resource with an empty gif
+   (ppcre:scan "^SyntaxError: Invalid character '\\\\u0001'"
+               message)))
 
 ;; Inspector Signals
 (defcallback inspector-close :void
