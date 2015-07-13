@@ -4,9 +4,8 @@
 
 (in-package :lispkit-system)
 
-(defvar *root-directory* (parse-namestring
-                          (directory-namestring
-                           *load-pathname*))
+(defvar *root-directory* (pathname (directory-namestring
+                                    *load-pathname*))
   "The string of the root directory of the project")
 
 (defsystem :lispkit
