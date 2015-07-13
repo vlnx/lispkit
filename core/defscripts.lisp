@@ -36,55 +36,48 @@
                    *uri-scripts*)))
 
 ;; Setup transcompiler package
-(defvar *npm-bin*
-  (concatenate 'string
-               *site-directory*
-               "node_modules/.bin/"))
+(defvar *npm-bin* (merge-pathnames #P"node_modules/.bin/"
+                                   *site-directory*))
 
 (setf *transcompiler-cache-directory* *cache-directory*
       *transcompilers*
-      `(:coffee
-        ,(concatenate 'string *npm-bin*
-                      "coffee --stdio --print --bare")
-        :coffee-closure
-        ,(concatenate 'string *npm-bin*
-                      "coffee --stdio --print")
-        :coffeeify
-        ,(concatenate 'string *npm-bin*
-                      "browserify --transform coffeeify --debug")
-        :coffeeify-minimal
-        ,(concatenate 'string *npm-bin*
-                      "browserify --transform coffeeify")
-        :jade
-        ,(concatenate 'string *npm-bin*
-                      "jade --pretty")
-        :stylus
-        ,(concatenate 'string *npm-bin*
-                      "stylus --compress")))
+      (mapcar (lambda (item)
+                (if (stringp item)
+                    (concatenate 'string
+                                 (namestring *npm-bin*)
+                                 item)
+                    item))
+              '(:coffee
+                "coffee --stdio --print --bare"
+                :coffee-closure "coffee --stdio --print"
+                :coffeeify "browserify --transform coffeeify --debug"
+                :coffeeify-minimal "browserify --transform coffeeify"
+                :jade "jade --pretty"
+                :stylus "stylus --compress")))
 
 (defun resource-location (symbol-path type)
   "Get the path of a resource from a relative path and file type"
   (let* ((relative
           ;; If there is a trailing slash,
           ;; take the last directory and add it as a basename
-          (ppcre:regex-replace "(\\w+)/$"
-                               (symbol-to-string symbol-path)
-                               "\\1/\\1"))
-         (file (concatenate 'string *site-directory* relative
-                            (case type
-                              (lisp ".lisp")
-                              (jade ".jade")
-                              (stylus ".stylus")
-                              (coffee ".coffee")))))
+          (pathname
+           (ppcre:regex-replace "(\\w+)/$"
+                                (symbol-to-string symbol-path)
+                                "\\1/\\1")))
+         (file (make-pathname
+                :directory (pathname-directory
+                            (merge-pathnames relative
+                                             *site-directory*))
+                :name (pathname-name relative)
+                :type (symbol-to-string type))))
     (if (probe-file file)
         file
         (error "resource file doesn't exist"))))
 
 (defun resource-content (symbol-path type)
   "implicit `resource-location' and transcompile for given type"
-  (let ((file (resource-location symbol-path type)))
-    (transcompile :type type
-                  :file file)))
+  (transcompile :type type
+                :file (resource-location symbol-path type)))
 
 (defun coffee-template (template &rest plist)
   "Use a template system to insert strings into coffeescript output.
@@ -122,7 +115,7 @@
                                              'coffeeify)
                                          (eq type
                                              'coffeeify-minimal))))
-           :source file))))
+           :source (namestring file)))))
 
 (defun invoke-scripts/styles (styles view)
   (loop for i in styles
