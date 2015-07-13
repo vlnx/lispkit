@@ -2,7 +2,7 @@
 
 (defvar *cache-directory*
   (concatenate 'string
-               lispkit-system:*root-directory* ".cache/")
+               (namestring lispkit-system:*root-directory*) ".cache/")
   ;; (sb-ext:posix-getenv "XDG_CACHE_HOME") "/lispkit/"
   "Project's cache")
 
@@ -12,7 +12,7 @@
 
 (defvar *site-directory*
   (concatenate 'string
-               lispkit-system:*root-directory* "site/")
+               (namestring lispkit-system:*root-directory*) "site/")
   "Location of page modification data")
 
 (defvar *homepage* "http://vlnx.lan/startpage/"
