@@ -7,8 +7,7 @@
   "Project's cache")
 
 (unless (probe-file *cache-directory*)
-  (sb-ext:run-program "/bin/mkdir"
-                      (list "-p" *cache-directory*)))
+  (sb-posix:mkdir *cache-directory* #o755))
 
 (defvar *site-directory*
   (concatenate 'string
