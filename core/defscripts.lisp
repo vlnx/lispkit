@@ -41,7 +41,7 @@
                *site-directory*
                "node_modules/.bin/"))
 
-(setf *transcompiler-cache-dir* *cache-directory*
+(setf *transcompiler-cache-directory* *cache-directory*
       *transcompilers*
       `(:coffee
         ,(concatenate 'string *npm-bin*

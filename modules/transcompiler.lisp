@@ -1,7 +1,7 @@
 (in-package :lispkit/transcompile)
 ;; Package for cached compilation for various web language transcompilers
 
-(defvar *transcompiler-cache-dir* "/tmp/"
+(defvar *transcompiler-cache-directory* "/tmp/"
   "Default cache, setf this for your application")
 (defvar *transcompilers* '()
   "plist to fill in with transcompilers")
@@ -19,7 +19,7 @@
                             :output stdout))))
 
 (defun get-cached-location (filepath)
-  (concatenate 'string *transcompiler-cache-dir*
+  (concatenate 'string *transcompiler-cache-directory*
                (ppcre:regex-replace-all "/" filepath "%")))
 
 (defun mtime (file)

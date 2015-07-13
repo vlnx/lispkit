@@ -61,7 +61,7 @@
   (:use #:cl
         #:lispkit/utils)
   (:export
-   *transcompiler-cache-dir*
+   *transcompiler-cache-directory*
    #:transcompiler
    *transcompilers*
    #:transcompile))
