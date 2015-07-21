@@ -107,6 +107,7 @@ to what is shown underneath, determined by `find-dest-widget'"
     ;; NOTE: Operate on SoupSession before tabs are created
     (setf (property (webkit-get-default-session) :proxy-uri)
           (soup-binding:soup-uri-new "http://127.0.0.1:8123/"))
+    (handle-soup-headers (webkit-get-default-session))
 
     (let ((initial-uris (browser-tabs browser))) ; :initial-tabs
       (setf (browser-tabs browser) nil)

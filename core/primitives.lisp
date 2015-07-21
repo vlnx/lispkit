@@ -9,6 +9,11 @@
 (unless (probe-file *cache-directory*)
   (sb-posix:mkdir *cache-directory* #o755))
 
+(setf *cookie-jar-directory* (merge-pathnames #P"cookie-jars/"
+                                              *cache-directory*))
+(unless (probe-file *cookie-jar-directory*)
+  (sb-posix:mkdir *cookie-jar-directory* #o755))
+
 (defvar *site-directory*
   (merge-pathnames #P"site/"
                    lispkit-system:*root-directory*)

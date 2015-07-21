@@ -7,13 +7,27 @@
         #:cffi-objects
         #:g-object-cffi))
 
-(defpackage :webkit-binding
+(defpackage :soup-headers
   (:use #:cl
         #:cffi
         #:gtk-cffi
         #:cffi-objects
         #:g-object-cffi
-        #:soup-binding))
+        #:soup-binding)
+  (:shadow #:uri
+           #:name)
+  (:export
+   *cookie-jar-directory*
+   #:handle-soup-headers
+   #:create-cookie-jar
+   *cookie-jar-active-name*))
+
+(defpackage :webkit-binding
+  (:use #:cl
+        #:cffi
+        #:gtk-cffi
+        #:cffi-objects
+        #:g-object-cffi))
 
 (defpackage :js-binding
   (:use #:cl
@@ -27,9 +41,8 @@
   (:use #:cl
         #:cffi
         #:cffi-objects
-        #:g-object-cffi)) ; :gtk-cffi
+        #:g-object-cffi))
 
-;; Get :bordeaux-threads with quicklisp
 (defpackage :gtk-cffi+threads
   (:use #:cl
         #:cffi-objects
@@ -95,6 +108,7 @@
         #:x11-binding
         #:js-binding
         #:webkit-binding
+        #:soup-headers
         #:lispkit/utils
         #:lispkit/transcompile
         #:lispkit/keys)

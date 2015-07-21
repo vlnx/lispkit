@@ -18,6 +18,8 @@
                  :bordeaux-threads
                  :cl-json
                  :cl-ppcre
+                 :quri
+                 :cl-cookie
                  :sb-posix) ; :swank
     :serial t
     :components ((:file "package")
@@ -38,6 +40,9 @@
                  (:file "cffi/libsoup/binding/lib")
                  (:file "cffi/libsoup/binding/soup-uri")
                  (:file "cffi/libsoup/binding/soup-message")
+                 (:file "cffi/libsoup/binding/disable-internal-jar")
+                 (:file "cffi/libsoup/headers/cookie-jar")
+                 (:file "cffi/libsoup/headers/headers")
 
                  (:file "cffi/libwebkitgtk/lib")
                  (:file "cffi/libwebkitgtk/webview")
