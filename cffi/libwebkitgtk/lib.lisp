@@ -5,7 +5,7 @@
 
 (use-foreign-library libwebkit)
 
-;; unused soupsession
+;; SoupSession
 (defcfun ("webkit_get_default_session"
           %webkit-get-default-session) pobject)
 
