@@ -34,7 +34,10 @@
                  (:file "cffi/gtk/widget-misc")
                  (:file "cffi/gtk/notebook")
                  (:file "cffi/gtk/overlay")
-                 (:file "cffi/libsoup/soup-uri")
+
+                 (:file "cffi/libsoup/binding/lib")
+                 (:file "cffi/libsoup/binding/soup-uri")
+                 (:file "cffi/libsoup/binding/soup-message")
 
                  (:file "cffi/libwebkitgtk/lib")
                  (:file "cffi/libwebkitgtk/webview")
